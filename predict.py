@@ -32,12 +32,10 @@ if args_config_provided.config_file is not None:
     argv = json_to_argv(args_config_provided.config_file) + sys.argv[1:]
 else:
     argv = sys.argv[1:]
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-print(type(argv))
-print(argv)
-argv.output_dir = OUTPUT_FOLDER
-#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 args = parser.parse_args(argv)
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+args.output_dir = OUTPUT_FOLDER
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #########################################################################
 for key, value in vars(args).items():
     print('Hype-parameter\t{} = {}'.format(key, value))
