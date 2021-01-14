@@ -20,16 +20,12 @@ from tensorboardX import SummaryWriter
 from tqdm import tqdm, trange
 
 # This line must be above local package reference
-#####+++++++++++++++
-from transformers import (configuration_bert, configuration_roberta)
-#####+++++++++++++++
 from transformers import (BertConfig, BertForSequenceClassification, BertTokenizer,
                           RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification)
 
 from utils.feature_extraction import (convert_examples_to_features, output_modes, processors)
 
-ALL_MODELS = sum((tuple(conf) for conf in (configuration_bert.BERT_PRETRAINED_CONFIG_ARCHIVE_MAP.keys(),
-                                           configuration_roberta.ROBERTA_PRETRAINED_CONFIG_ARCHIVE_MAP.keys())), ())
+ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig, RobertaConfig)), ())
 MODEL_CLASSES = {
     'bert': (BertConfig, BertForSequenceClassification, BertTokenizer),
     'roberta': (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
