@@ -12,7 +12,7 @@ from csr_mhqa.data_processing import Example, InputFeatures, DataHelper
 from csr_mhqa.utils import *
 
 from models.HGN import *
-from transformers import get_linear_schedule_with_warmup
+from hgntransformers import get_linear_schedule_with_warmup
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',

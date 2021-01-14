@@ -1,9 +1,9 @@
 import envs
 
-from transformers import (BertConfig, BertTokenizer, BertModel,
-                          RobertaConfig, RobertaTokenizer, RobertaModel,
-                          AlbertConfig, AlbertTokenizer, AlbertModel)
-from transformers import (BertModel, XLNetModel, RobertaModel)
+from hgntransformers import (BertConfig, BertTokenizer, BertModel,
+                             RobertaConfig, RobertaTokenizer, RobertaModel,
+                             AlbertConfig, AlbertTokenizer, AlbertModel)
+from hgntransformers import (BertModel, XLNetModel, RobertaModel)
 
 ############################################################
 # Model Related Global Varialbes
