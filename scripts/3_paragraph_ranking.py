@@ -20,8 +20,8 @@ from tensorboardX import SummaryWriter
 from tqdm import tqdm, trange
 
 # This line must be above local package reference
-from transformers import (BertConfig, BertForSequenceClassification, BertTokenizer,
-                          RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification)
+from hgntransformers import (BertConfig, BertForSequenceClassification, BertTokenizer,
+                             RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification)
 
 from utils.feature_extraction import (convert_examples_to_features, output_modes, processors)
 
