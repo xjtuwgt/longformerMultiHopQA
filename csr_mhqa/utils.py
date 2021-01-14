@@ -96,7 +96,7 @@ def eval_model(args, encoder, model, dataloader, example_dict, feature_dict, pre
 
     dataloader.refresh()
 
-    thresholds = np.arange(0.1, 1.0, 0.05)
+    thresholds = np.arange(0.1, 1.0, 0.025)
     N_thresh = len(thresholds)
     total_sp_dict = [{} for _ in range(N_thresh)]
 
