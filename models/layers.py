@@ -5,7 +5,10 @@ import torch.nn.functional as F
 from torch.nn.utils import rnn
 from torch.autograd import Variable
 
-from transformers.modeling_bert import BertLayer, gelu
+# from transformers.modeling_bert import BertLayer, gelu
+##+++++++++++++++++++++++++++++
+from transformers.activations import gelu
+##+++++++++++++++++++++++++++++
 from csr_mhqa.utils import get_weights, get_act
 
 
