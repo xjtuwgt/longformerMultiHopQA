@@ -31,6 +31,10 @@ if args_config_provided.config_file is not None:
 else:
     argv = sys.argv[1:]
 args = parser.parse_args(argv)
+#########################################################################
+for key, value in vars(args).items():
+    print('Hype-parameter\t{} = {}'.format(key, value))
+#########################################################################
 args = complete_default_train_parser(args)
 
 logger.info('-' * 100)
