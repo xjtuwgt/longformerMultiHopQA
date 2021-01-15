@@ -7,10 +7,16 @@ from torch.utils.data import DataLoader
 import torch
 import os
 from tqdm import tqdm
-from longformerDataUtils.ioutils import loadJSONData
 from longformerscripts.longformerIREvaluation import evaluation_graph_step, get_date_time, RetrievalEvaluation
 from pandas import DataFrame
 from time import time
+import pandas as pd
+
+def loadJSONData(json_fileName)->DataFrame:
+    start_time = time()
+    data_frame = pd.read_json(json_fileName, orient='records')
+    print('Loading {} in {:.4f} seconds'.format(data_frame.shape, time() - start_time))
+    return data_frame
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser(
@@ -59,7 +65,7 @@ def rank_paras(data, pred_score):
 
 def test_data_loader(args):
     tokenizer = get_hotpotqa_longformer_tokenizer()
-    test_data_frame = loadJSONData(PATH=args.data_path, json_fileName=args.test_data_name)
+    test_data_frame = loadJSONData(json_fileName=args.input_data)
     test_data_frame['e_id'] = range(0, test_data_frame.shape[0]) ## for alignment
     test_data = HotpotTestDataset(data_frame=test_data_frame, tokenizer=tokenizer, max_doc_num=10)
     dataloader = DataLoader(

@@ -5,10 +5,16 @@ from pandas import DataFrame
 from torch import Tensor as T
 from datetime import date, datetime
 import torch
-from longformerDataUtils.ioutils import loadJSONData
+from time import time
 import swifter
 MAX_ANSWER_DECODE_LEN = 30
 MASK_VALUE = -1e9
+########################################################################################################################
+def loadJSONData(json_fileName)->DataFrame:
+    start_time = time()
+    data_frame = pd.read_json(json_fileName, orient='records')
+    print('Loading {} in {:.4f} seconds'.format(data_frame.shape, time() - start_time))
+    return data_frame
 ########################################################################################################################
 def get_date_time():
     today = date.today()
@@ -74,7 +80,7 @@ def support_doc_test(doc_scores: T, doc_mask: T, top_k=2):
     return doc_res
 ########################################################################################################################
 def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
-    golden_data = loadJSONData(PATH=args.orig_data_path, json_fileName=args.orig_dev_data_name)
+    golden_data = loadJSONData(json_fileName=args.raw_data)
     golden_data['e_id'] = range(0, golden_data.shape[0])
     merge_data = pd.concat([data.set_index('e_id'), golden_data.set_index('e_id')], axis=1, join='inner')
     def graph_process_row(row):
@@ -113,7 +119,6 @@ def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
     counts = temp_data['comb_type'].value_counts(dropna=False).tolist()
     value_dict = dict(zip(values, counts))
     ############
-
     ############
     return recall_metric, value_dict, merge_data
 ########################################################################################################################
