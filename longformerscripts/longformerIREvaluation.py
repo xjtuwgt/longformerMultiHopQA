@@ -93,7 +93,6 @@ def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
         top4_preds = [ctx_titles[_] for _ in top4_predictions if _ < len(ctx_titles)]
         top5_preds = [ctx_titles[_] for _ in top5_predictions if _ < len(ctx_titles)]
         ############
-        ############
         top3_recall = recall_computation(prediction=top3_preds, gold=support_doc_titles)
         top4_recall = recall_computation(prediction=top4_preds, gold=support_doc_titles)
         top5_recall = recall_computation(prediction=top5_preds, gold=support_doc_titles)
@@ -113,6 +112,9 @@ def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
     values = temp_data['comb_type'].value_counts(dropna=False).keys().tolist()
     counts = temp_data['comb_type'].value_counts(dropna=False).tolist()
     value_dict = dict(zip(values, counts))
+    ############
+
+    ############
     return recall_metric, value_dict, merge_data
 ########################################################################################################################
 ########################################################################################################################

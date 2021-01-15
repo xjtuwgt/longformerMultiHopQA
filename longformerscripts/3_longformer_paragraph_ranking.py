@@ -8,6 +8,7 @@ from torch.utils.data import DataLoader
 import logging
 import torch
 import os
+from tqdm import tqdm
 from longformerDataUtils.ioutils import loadJSONData
 from longformerscripts.longformerIREvaluation import evaluation_graph_step, get_date_time, RetrievalEvaluation
 from pandas import DataFrame
@@ -17,19 +18,17 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser(
         description='Training and Testing Long Sequence Reason Model')
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    parser.add_argument('--orig_data_path', type=str, default='../data/hotpotqa')
-    # parser.add_argument('--orig_dev_data_name', type=str, default='hotpot_dev_distractor_v1.json')
-    parser.add_argument('--orig_dev_data_name', type=str, default='hotpot_train_v1.1.json')
+    parser.add_argument('--raw_data_path', type=str)
+    parser.add_argument('--raw_data', type=str)
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    parser.add_argument('--data_path', type=str, default='../data/hotpotqa/distractor_qa')
-    # parser.add_argument('--test_data_name', type=str, default='hotpot_test_distractor_wiki_combined.json')
-    parser.add_argument('--test_data_name', type=str, default='hotpot_train_distractor_wiki_combined.json')
+    parser.add_argument('--data_path', type=str)
+    parser.add_argument('--input_data', type=str)
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    parser.add_argument('-log', '--log_path', default='../gir_hotpot_logs', type=str)
-    parser.add_argument('--checkpoint_path', default='../saved_models/gir_chechpoints/', type=str)
-    parser.add_argument('--checkpoint_name', default='GIR_doc_hotpotQA-epoch=05-valid_loss=0.1821-v0.ckpt', type=str)
-    parser.add_argument('--checkpoint_parameter', default='hparams.yaml', type=str)
+    parser.add_argument('--log_path', default='../gir_hotpot_logs', type=str)
+    parser.add_argument("--eval_ckpt", default='GIR_doc_hotpotQA-epoch=05-valid_loss=0.1821-v0.ckpt', type=str, required=True,
+                        help="evaluation checkpoint")
+    parser.add_argument("--model_type", default='longformer', type=str, help="Longformer retrieval model")
     parser.add_argument('--log_name', default='ir_test_log', type=str)
     parser.add_argument('--gpus', default=0, type=int)
     parser.add_argument('--test_batch_size', default=16, type=int)
@@ -51,13 +50,23 @@ def logger_builder(args):
     set_logger(args=args)
     logging.info('Logging have been set...')
 
-def device_setting(args):
-    if torch.cuda.is_available():
-        device = torch.device("cuda:0")
-    else:
-        device = torch.device("cpu")
-        logging.info('Single cpu setting')
-    return device
+def rank_paras(data, pred_score):
+    ranked_paras = dict()
+    cur_ptr = 0
+    for case in tqdm(data):
+        key = case['_id']
+        tem_ptr = cur_ptr
+
+        all_paras = []
+        while cur_ptr < tem_ptr + len(case['context']):
+            score = pred_score.loc[cur_ptr, 'prob'].item()
+            all_paras.append((case['context'][cur_ptr - tem_ptr][0], score))
+            cur_ptr += 1
+
+        sorted_all_paras = sorted(all_paras, key=lambda x: x[1], reverse=True)
+        ranked_paras[key] = sorted_all_paras
+
+    return ranked_paras
 
 def test_data_loader(args):
     tokenizer = get_hotpotqa_longformer_tokenizer()
@@ -125,17 +134,20 @@ def graph_retrieval_test_procedure(model, test_data_loader, args, device):
 ########################################################################################################################
 def main(args):
     logger_builder(args=args)
-    device = device_setting(args=args)
-    hotpotIR_model = LongformerGraphRetrievalModel.load_from_checkpoint(checkpoint_path=args.checkpoint_path + args.checkpoint_name)
+    if args.gpus > 0:
+        device = torch.device("cuda:0")
+    else:
+        device = torch.device("cpu")
+    hotpotIR_model = LongformerGraphRetrievalModel.load_from_checkpoint(checkpoint_path=args.eval_ckpt)
     hotpotIR_model = hotpotIR_model.to(device)
-    logging.info('Model Parameter Configuration:')
+    print('Model Parameter Configuration:')
     for name, param in hotpotIR_model.named_parameters():
-        logging.info('Parameter {}: {}, require_grad = {}'.format(name, str(param.size()), str(param.requires_grad)))
-    logging.info('*' * 75)
-    logging.info("Model hype-parameter information...")
+        print('Parameter {}: {}, require_grad = {}'.format(name, str(param.size()), str(param.requires_grad)))
+    print('*' * 75)
+    print("Model hype-parameter information...")
     for key, value in vars(args).items():
-        logging.info('Hype-parameter\t{} = {}'.format(key, value))
-    logging.info('*' * 75)
+        print('Hype-parameter\t{} = {}'.format(key, value))
+    print('*' * 75)
     test_data = test_data_loader(args=args)
     res_df = graph_retrieval_test_procedure(model=hotpotIR_model, test_data_loader=test_data, args=args, device=device)
     ####################################################################################################################
@@ -152,7 +164,8 @@ def main(args):
     logging.info('Saving {} records into {}'.format(res_df.shape, save_result_name))
 
 if __name__ == '__main__':
-    main(parse_args())
+    args = parse_args()
+
 
 
 # import argparse
@@ -380,7 +393,7 @@ if __name__ == '__main__':
 #
 #     score = evaluate(args, model, tokenizer, prefix="")
 #
-#     # load source data
-#     source_data = json.load(open(args.raw_data, 'r'))
-#     rank_paras_dict = rank_paras(source_data, score)
-#     json.dump(rank_paras_dict, open(join(args.data_dir, 'para_ranking.json'), 'w'))
+    # load source data
+    # source_data = json.load(open(args.raw_data, 'r'))
+    # rank_paras_dict = rank_paras(source_data, score)
+    # json.dump(rank_paras_dict, open(join(args.data_dir, 'para_ranking.json'), 'w'))
