@@ -625,7 +625,6 @@ def build_graph(args, examples, features, entity_num):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-
     # Required parameters
     parser.add_argument("--para_path", type=str, required=True)
     parser.add_argument("--full_data", type=str, required=True)

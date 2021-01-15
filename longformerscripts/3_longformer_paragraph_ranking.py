@@ -1,11 +1,9 @@
 from __future__ import absolute_import, division, print_function
 from longformerscripts.longformerIRModel import LongformerGraphRetrievalModel
 import argparse
-from longformerDataUtils.ioutils import create_dir_if_not_exist, set_logger
 from longformerDataUtils.fullHotpotQADataSet import HotpotTestDataset
 from longformerscripts.longformerUtils import get_hotpotqa_longformer_tokenizer
 from torch.utils.data import DataLoader
-import logging
 import torch
 import os
 from tqdm import tqdm
@@ -21,15 +19,13 @@ def parse_args(args=None):
     parser.add_argument('--raw_data_path', type=str)
     parser.add_argument('--raw_data', type=str)
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    parser.add_argument('--data_path', type=str)
+    parser.add_argument('--processed_data_path', type=str)
     parser.add_argument('--input_data', type=str)
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    parser.add_argument('--log_path', default='../gir_hotpot_logs', type=str)
     parser.add_argument("--eval_ckpt", default='GIR_doc_hotpotQA-epoch=05-valid_loss=0.1821-v0.ckpt', type=str, required=True,
                         help="evaluation checkpoint")
     parser.add_argument("--model_type", default='longformer', type=str, help="Longformer retrieval model")
-    parser.add_argument('--log_name', default='ir_test_log', type=str)
     parser.add_argument('--gpus', default=0, type=int)
     parser.add_argument('--test_batch_size', default=16, type=int)
     parser.add_argument('--max_doc_num', default=10, type=int)
@@ -43,12 +39,6 @@ def batch2device(batch, device):
     for key, value in batch.items():
         sample[key] = value.to(device)
     return sample
-
-def logger_builder(args):
-    if args.log_path is not None:
-        create_dir_if_not_exist(save_path=args.log_path, sub_folder=args.log_name)
-    set_logger(args=args)
-    logging.info('Logging have been set...')
 
 def rank_paras(data, pred_score):
     ranked_paras = dict()
@@ -95,7 +85,7 @@ def graph_retrieval_test_procedure(model, test_data_loader, args, device):
             output = evaluation_graph_step(output_scores=output_scores, batch=batch, mode='test')
             # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             if (batch_idx + 1) % args.test_log_steps == 0:
-                logging.info('Evaluating the model... {}/{} in {:.4f} seconds'.format(batch_idx + 1, total_steps, time()-start_time))
+                print('Evaluating the model... {}/{} in {:.4f} seconds'.format(batch_idx + 1, total_steps, time()-start_time))
             out_puts.append(output)
     example_ids = []
     doc_scores = []
@@ -133,7 +123,6 @@ def graph_retrieval_test_procedure(model, test_data_loader, args, device):
     return res_data_frame
 ########################################################################################################################
 def main(args):
-    logger_builder(args=args)
     if args.gpus > 0:
         device = torch.device("cuda:0")
     else:
@@ -153,19 +142,19 @@ def main(args):
     ####################################################################################################################
     metric_name = get_date_time() + '_doc_gir'
     metric, comb_dict, res_df = RetrievalEvaluation(data=res_df, args=args, graph=True)
-    logging.info('Doc retrieval metrics = {}'.format(metric))
+    print('Doc retrieval metrics = {}'.format(metric))
     for key, value in comb_dict.items():
-        logging.info('{}:{}'.format(key, value))
-    logging.info('*'*75)
+        print('{}:{}'.format(key, value))
+    print('*'*75)
     ####################################################################################################################
     save_result_name = os.path.join(args.log_path, args.log_name, metric_name + '.json')
     res_df.to_json(save_result_name)
     ####################################################################################################################
-    logging.info('Saving {} records into {}'.format(res_df.shape, save_result_name))
+    print('Saving {} records into {}'.format(res_df.shape, save_result_name))
 
 if __name__ == '__main__':
     args = parse_args()
-
+    main(args)
 
 
 # import argparse
