@@ -14,6 +14,7 @@ db_path = sys.argv[2]
 #output
 output_file = sys.argv[3]
 
+
 EDGE_XY = re.compile(r'<a href="(.*?)">(.*?)</a>')
 def get_edges(sentence):
     #ret = EDGE_XY.findall(sentence)
@@ -95,7 +96,6 @@ title_to_id = {}
 doc_ids = doc_db.get_doc_ids()
 for doc_id in doc_ids:
     title = doc_db.get_doc_title(doc_id)
-    print(title)
     if title not in title_to_id:
         title_to_id[title] = doc_id
 
