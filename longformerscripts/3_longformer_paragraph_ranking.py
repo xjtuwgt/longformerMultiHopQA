@@ -6,6 +6,7 @@ from longformerscripts.longformerUtils import get_hotpotqa_longformer_tokenizer
 from torch.utils.data import DataLoader
 import torch
 import os
+from utils.gpu_utils import gpu_setting
 from tqdm import tqdm
 from longformerscripts.longformerIREvaluation import evaluation_graph_step, get_date_time, RetrievalEvaluation
 from pandas import DataFrame
@@ -127,11 +128,25 @@ def graph_retrieval_test_procedure(model, test_data_loader, args, device):
     res_data_frame = DataFrame(result_dict)
     return res_data_frame
 ########################################################################################################################
-def main(args):
-    if args.gpus > 0 and torch.cuda.is_available():
-        device = torch.device("cuda:0")
+def device_setting(args):
+    if torch.cuda.is_available():
+        free_gpu_ids, used_memory = gpu_setting(num_gpu=args.gpus)
+        print('{} gpus with used memory = {}, gpu ids = {}'.format(len(free_gpu_ids), used_memory, free_gpu_ids))
+        if args.gpus > 0:
+            gpu_ids = free_gpu_ids
+            device = torch.device("cuda:%d" % gpu_ids[0])
+            print('Single GPU setting')
+        else:
+            device = torch.device("cpu")
+            print('Single cpu setting')
     else:
         device = torch.device("cpu")
+        print('Single cpu setting')
+    return device
+########################################################################################################################
+
+def main(args):
+    device = device_setting(args=args)
     hotpotIR_model = LongformerGraphRetrievalModel.load_from_checkpoint(checkpoint_path=args.eval_ckpt)
     hotpotIR_model = hotpotIR_model.to(device)
     print('Model Parameter Configuration:')
