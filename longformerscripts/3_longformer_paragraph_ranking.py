@@ -16,14 +16,14 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser(
         description='Evaluating Longformer based retrieval Model')
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    parser.add_argument('--raw_data', default=None,type=str, required=True)
+    parser.add_argument('--raw_data', default=None, type=str, required=True)
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     parser.add_argument('--input_data', default=None, type=str, required=True)
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ##++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     parser.add_argument("--eval_ckpt", default=None, type=str, required=True,
                         help="evaluation checkpoint")
-    parser.add_argument("--model_type", default='Longformer', type=str, help="longformer retrieval model")
+    parser.add_argument("--model_type", default='Longformer', type=str, help="Longformer retrieval model")
     parser.add_argument('--gpus', default=0, type=int)
     parser.add_argument('--test_batch_size', default=16, type=int)
     parser.add_argument('--max_doc_num', default=10, type=int)
