@@ -101,6 +101,7 @@ for doc_id in doc_ids:
 
 # 2. extract hyperlink and NER
 input_data = json.load(open(input_file, 'r'))
+print(len(input_data))
 output_data = {}
 for data in input_data:
     context = dict(data['context'])
