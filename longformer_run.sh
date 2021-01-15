@@ -48,22 +48,23 @@ preprocess() {
         [[ -d $OUTPUT_PROCESSED ]] || mkdir -p $OUTPUT_PROCESSED
         [[ -d $OUTPUT_FEAT ]] || mkdir -p $OUTPUT_FEAT
 
-        echo "1. Extract Wiki Link & NER from DB"
-        # Input: INPUT_FILE, enwiki_ner.db
-        # Output: doc_link_ner.json
-        python scripts/1_extract_db.py $INPUT_FILE $DATA_ROOT/knowledge/enwiki_ner.db $OUTPUT_PROCESSED/doc_link_ner.json
-
-        echo "2. Extract NER for Question and Context"
-        # Input: doc_link_ner.json
-        # Output: ner.json
-        python scripts/2_extract_ner.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json
-
-#        echo "3. Paragraph ranking"
-#        # Output: para_ranking.json
-#        python scripts/3_longformer_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv
+#        echo "1. Extract Wiki Link & NER from DB"
+#        # Input: INPUT_FILE, enwiki_ner.db
+#        # Output: doc_link_ner.json
+#        python scripts/1_extract_db.py $INPUT_FILE $DATA_ROOT/knowledge/enwiki_ner.db $OUTPUT_PROCESSED/doc_link_ner.json
 #
-#        # Output: para_ranking.json
-#        python longformerscripts/3_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv
+#        echo "2. Extract NER for Question and Context"
+#        # Input: doc_link_ner.json
+#        # Output: ner.json
+#        python scripts/2_extract_ner.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json
+
+        echo "3. Paragraph ranking (1)"
+        # Output: para_ranking.json
+        python scripts/3_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv
+
+        echo "3. Paragraph ranking (2): longformer retrieval data preprocess"
+        # Output: para_ranking.json
+        python longformerscripts/3_longformer_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/para_ir_combined.json
 #
 #        # switch to RoBERTa for final leaderboard
 #        python longformerscripts/3_longformer_paragraph_ranking.py --data_dir $OUTPUT_PROCESSED --eval_ckpt $DATA_ROOT/models/finetuned/PS/pytorch_model.bin --raw_data $INPUT_FILE --input_data $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv --model_name_or_path roberta-large --model_type roberta --max_seq_length 256 --per_gpu_eval_batch_size 128 --fp16
