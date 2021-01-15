@@ -1,16 +1,24 @@
 from __future__ import absolute_import, division, print_function
-import os
 import sys
-from longformerDataUtils.ioutils import loadJSONData
+from pandas import DataFrame
+import pandas as pd
+from time import time
 from longformerDataUtils.RetrievalOfflineProcess import Hotpot_Retrieval_Train_Dev_Data_Preprocess
 from longformerscripts.longformerUtils import get_hotpotqa_longformer_tokenizer
 
-data_path = sys.argv[1]
-input_file = sys.argv[2]
-output_file = sys.argv[3]
+########################################################################################################################
+# data preprocess for longformer (long sequence based retrieval)
+########################################################################################################################
+def loadJSONData(json_fileName)->DataFrame:
+    start_time = time()
+    data_frame = pd.read_json(json_fileName, orient='records')
+    print('Loading {} in {:.4f} seconds'.format(data_frame.shape, time() - start_time))
+    return data_frame
+
+input_file = sys.argv[1]
+output_file = sys.argv[2]
 
 longformer_tokenizer = get_hotpotqa_longformer_tokenizer()
-data_frame = loadJSONData(PATH=data_path, json_fileName=input_file)
-all_data, combined_data_res, ind_norm_dev_data_res = Hotpot_Retrieval_Train_Dev_Data_Preprocess(data=data_frame,
-                                                                                                tokenizer=longformer_tokenizer)
-combined_data_res.to_json(os.path.join(data_path, output_file))
+data_frame = loadJSONData(json_fileName=input_file)
+_, combined_data_res, _ = Hotpot_Retrieval_Train_Dev_Data_Preprocess(data=data_frame, tokenizer=longformer_tokenizer)
+combined_data_res.to_json(output_file)
