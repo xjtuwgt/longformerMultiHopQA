@@ -65,8 +65,10 @@ preprocess() {
         echo "3. Paragraph ranking (2): longformer retrieval data preprocess"
         # Output: para_ranking.json
         python longformerscripts/3_longformer_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/para_ir_combined.json
-#
-#        # switch to RoBERTa for final leaderboard
+
+        echo "3. Paragraph ranking (3): longformer retrieval ranking scores"
+
+        # switch to RoBERTa for final leaderboard
 #        python longformerscripts/3_longformer_paragraph_ranking.py --data_dir $OUTPUT_PROCESSED --eval_ckpt $DATA_ROOT/models/finetuned/PS/pytorch_model.bin --raw_data $INPUT_FILE --input_data $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv --model_name_or_path roberta-large --model_type roberta --max_seq_length 256 --per_gpu_eval_batch_size 128 --fp16
 #
 ##        echo "4. MultiHop Paragraph Selection"
