@@ -95,7 +95,7 @@ title_to_id = {}
 doc_ids = doc_db.get_doc_ids()
 for doc_id in doc_ids:
     title = doc_db.get_doc_title(doc_id)
-
+    print(title)
     if title not in title_to_id:
         title_to_id[title] = doc_id
 
