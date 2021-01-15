@@ -139,14 +139,14 @@ def main(args):
     test_data = test_data_loader(args=args)
     res_df = graph_retrieval_test_procedure(model=hotpotIR_model, test_data_loader=test_data, args=args, device=device)
     ####################################################################################################################
-    metric_name = get_date_time() + '_doc_gir'
+    metric_name = 'para_gir'
     metric, comb_dict, res_df = RetrievalEvaluation(data=res_df, args=args, graph=True)
     print('Doc retrieval metrics = {}'.format(metric))
     for key, value in comb_dict.items():
         print('{}:{}'.format(key, value))
     print('*'*75)
     ####################################################################################################################
-    save_result_name = os.path.join(args.log_path, args.log_name, metric_name + '.json')
+    save_result_name = os.path.join(args.data_dir, metric_name + '.json')
     res_df.to_json(save_result_name)
     ####################################################################################################################
     print('Saving {} records into {}'.format(res_df.shape, save_result_name))
