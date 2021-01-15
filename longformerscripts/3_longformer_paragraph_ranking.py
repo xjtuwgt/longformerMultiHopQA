@@ -31,7 +31,7 @@ def parse_args(args=None):
     parser.add_argument("--eval_ckpt", default=None, type=str, required=True,
                         help="evaluation checkpoint")
     parser.add_argument("--model_type", default='Longformer', type=str, help="Longformer retrieval model")
-    parser.add_argument('--gpus', default=0, type=int)
+    parser.add_argument('--gpus', default=1, type=int)
     parser.add_argument('--test_batch_size', default=16, type=int)
     parser.add_argument('--max_doc_num', default=10, type=int)
     parser.add_argument('--test_log_steps', default=10, type=int)
@@ -128,7 +128,7 @@ def graph_retrieval_test_procedure(model, test_data_loader, args, device):
     return res_data_frame
 ########################################################################################################################
 def main(args):
-    if args.gpus > 0:
+    if args.gpus > 0 and torch.cuda.is_available():
         device = torch.device("cuda:0")
     else:
         device = torch.device("cpu")
