@@ -20,17 +20,14 @@ from tensorboardX import SummaryWriter
 from tqdm import tqdm, trange
 
 # This line must be above local package reference
-from hgntransformers import (BertConfig, BertForSequenceClassification, BertTokenizer,
-                             RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification)
-
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+from transformers import (configuration_longformer, LongformerConfig, LongformerForSequenceClassification, LongformerTokenizer)
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 from utils.feature_extraction import (convert_examples_to_features, output_modes, processors)
-
-
-ALL_MODELS = sum((tuple(conf.pretrained_config_archive_map.keys()) for conf in (BertConfig, RobertaConfig)), ())
-
+ALL_MODELS = sum((tuple(conf) for conf in (configuration_longformer.LONGFORMER_PRETRAINED_CONFIG_ARCHIVE_MAP.keys())), ())
+##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 MODEL_CLASSES = {
-    'bert': (BertConfig, BertForSequenceClassification, BertTokenizer),
-    'roberta': (RobertaConfig, RobertaForSequenceClassification, RobertaTokenizer)
+    'longformer': (LongformerConfig, LongformerForSequenceClassification, LongformerTokenizer)
 }
 
 logger = logging.getLogger(__name__)

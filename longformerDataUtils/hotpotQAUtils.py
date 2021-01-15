@@ -8,13 +8,6 @@ import torch.nn.functional as F
 from scipy.linalg import block_diag
 from transformers import LongformerTokenizer
 ########################################################################################################################
-# SPECIAL_QUERY_START = '<q>' ### for query marker
-# SPECIAL_QUERY_END = '</q>' ### for query marker
-# SPECIAL_TITLE_START = '<t>' ### for document maker
-# SPECIAL_TITLE_END = '</t>' ## for setence marker
-# SPECIAL_SENTENCE_TOKEN = '<p>'
-# CLS_TOKEN = '<s>'
-########################################################################################################################
 SPECIAL_QUERY_START = '<s>' ### for query marker
 SPECIAL_QUERY_END = '</s>' ### for query marker
 SPECIAL_TITLE_START = '<s>' ### for document maker
@@ -520,7 +513,6 @@ def dev_context_merge_longer(query_encode_ids, context_tuple_list, span_flag):
     answer_infor_tuple = (answer_pos_start, answer_pos_end, answer_position_tuple)
     ################################################################################################################
     return doc_infor_tuple, sent_infor_tuple, token_infor_tuple, answer_infor_tuple
-
 
 def test_context_merge_longer(query_encode_ids, context_tuple_list):
     ################################################################################################################

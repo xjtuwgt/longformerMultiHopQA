@@ -2,7 +2,7 @@ import torch
 from pandas import DataFrame
 from torch.utils.data import Dataset
 from transformers import LongformerTokenizer
-from dataUtils.hotpotQAUtils import mask_generation
+from longformerDataUtils.hotpotQAUtils import mask_generation
 
 ####+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class HotpotTrainDataset(Dataset): ##for training data loader

@@ -3,8 +3,8 @@ import numpy as np
 from pandas import DataFrame
 from torch.utils.data import Dataset
 from transformers import LongformerTokenizer
-from dataUtils.hotpotQAUtils import mask_generation
-from dataUtils.hotpotQAUtils import context_random_selection, context_merge_longer, dev_context_merge_longer, test_context_merge_longer
+from longformerDataUtils.hotpotQAUtils import mask_generation
+from longformerDataUtils.hotpotQAUtils import context_random_selection, context_merge_longer, dev_context_merge_longer, test_context_merge_longer
 ####+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class HotpotTrainDataset(Dataset): ##for training data loader
     def __init__(self, data_frame: DataFrame, tokenizer: LongformerTokenizer, max_token_num=4096, max_doc_num=10, max_sent_num=150,

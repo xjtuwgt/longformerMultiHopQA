@@ -6,20 +6,19 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 hotpot_path = '../data/hotpotqa/'
 abs_hotpot_path = os.path.abspath(hotpot_path)
 print('Abs hotpot Path = {}'.format(abs_hotpot_path))
-from dataUtils.ioutils import create_dir_if_not_exist
+from longformerDataUtils.ioutils import create_dir_if_not_exist
 create_dir_if_not_exist(save_path=abs_hotpot_path, sub_folder='distractor_qa')
 distractor_wiki_path = '../data/hotpotqa/distractor_qa'
 abs_distractor_wiki_path = os.path.abspath(distractor_wiki_path)
 print('Abs pre-process path = {}'.format(abs_distractor_wiki_path))
 
 import swifter
-from dataUtils.hotpotQAUtils import *
+from longformerDataUtils.hotpotQAUtils import *
 from pandas import DataFrame
 from time import time
 from transformers import LongformerTokenizer
-from modelUtils.longformerUtils import PRE_TAINED_LONFORMER_BASE
-from modelUtils.longformerUtils import get_hotpotqa_longformer_tokenizer
-from dataUtils.ioutils import HOTPOT_DevData_Distractor, HOTPOT_TrainData
+from longformerscripts.longformerUtils import PRE_TAINED_LONFORMER_BASE, get_hotpotqa_longformer_tokenizer
+from longformerDataUtils.ioutils import HOTPOT_DevData_Distractor, HOTPOT_TrainData
 import numpy as np
 import pandas as pd
 
