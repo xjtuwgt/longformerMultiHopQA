@@ -12,6 +12,7 @@ from longformerscripts.longformerIREvaluation import evaluation_graph_step, get_
 from pandas import DataFrame
 from time import time
 import pandas as pd
+import json
 
 def loadJSONData(json_fileName)->DataFrame:
     start_time = time()
@@ -144,7 +145,11 @@ def device_setting(args):
         print('Single cpu setting')
     return device
 ########################################################################################################################
+def retrival_to_para_ranking_score(data: DataFrame):
+    para_ranking_dict = {}
 
+    return
+########################################################################################################################
 def main(args):
     device = device_setting(args=args)
     hotpotIR_model = LongformerGraphRetrievalModel.load_from_checkpoint(checkpoint_path=args.eval_ckpt)
@@ -161,7 +166,7 @@ def main(args):
     res_df = graph_retrieval_test_procedure(model=hotpotIR_model, test_data_loader=test_data, args=args, device=device)
     ####################################################################################################################
     metric_name = 'para_gir'
-    metric, comb_dict, res_df = RetrievalEvaluation(data=res_df, args=args, graph=True)
+    metric, comb_dict, res_df, rank_paras_dict = RetrievalEvaluation(data=res_df, args=args, graph=True)
     print('Doc retrieval metrics = {}'.format(metric))
     for key, value in comb_dict.items():
         print('{}:{}'.format(key, value))
@@ -171,6 +176,8 @@ def main(args):
     res_df.to_json(save_result_name)
     ####################################################################################################################
     print('Saving {} records into {}'.format(res_df.shape, save_result_name))
+    json.dump(rank_paras_dict, open(os.path.join(args.data_dir, 'para_ranking.json'), 'w'))
+    print('Saving {} records into {}'.format(len(rank_paras_dict), os.path.join(args.data_dir, 'para_ranking.json')))
 
 
 if __name__ == '__main__':

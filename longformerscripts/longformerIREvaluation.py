@@ -92,6 +92,11 @@ def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
         ############
         support_doc_titles = [x[0] for x in row['supporting_facts']]
         ctx_titles = [x[0] for x in row['context']]
+        ############
+        predicted_scores = row['doc_score']
+        predicted_scores = predicted_scores[:(len(ctx_titles))]
+        title_score_pair_list = list(zip(ctx_titles, predicted_scores))
+        ############
         pred_titles = [ctx_titles[_] for _ in predictions]
         em_recall = recall_computation(prediction=pred_titles, gold=support_doc_titles)
         ############
@@ -109,8 +114,8 @@ def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
             combined_type = graph_type + '_' + orig_type
         else:
             combined_type = 'null'
-        return em_recall, top3_recall, top4_recall, top5_recall, combined_type
-    res_names = ['em', 'top3', 'top4', 'top5', 'comb_type']
+        return em_recall, top3_recall, top4_recall, top5_recall, combined_type, title_score_pair_list
+    res_names = ['em', 'top3', 'top4', 'top5', 'comb_type', 'ti_s_pair']
     merge_data[res_names] = merge_data.apply(lambda row: pd.Series(graph_process_row(row)), axis=1)
     recall_metric = merge_data[['em', 'top3', 'top4', 'top5']].mean()
     # temp_data = merge_data[merge_data['em']==1]
@@ -119,8 +124,10 @@ def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
     counts = temp_data['comb_type'].value_counts(dropna=False).tolist()
     value_dict = dict(zip(values, counts))
     ############
+    doc_ids, para_score_pair = merge_data['_id'].tolist(), merge_data['ti_s_pair'].tolist()
+    para_score_dict = dict(zip(doc_ids, para_score_pair))
     ############
-    return recall_metric, value_dict, merge_data
+    return recall_metric, value_dict, merge_data, para_score_dict
 ########################################################################################################################
 ########################################################################################################################
 def graph_decoder_step(attn_scores: T, predictions: list):
