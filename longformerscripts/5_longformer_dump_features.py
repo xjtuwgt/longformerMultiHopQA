@@ -284,10 +284,14 @@ def read_hotpot_examples(para_file,
 def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_length, max_entity_num,
                                  cls_token='[CLS]',
                                  sep_token='[SEP]',
-                                 is_roberta=False,
+                                 model_type='longformer',
                                  filter_no_ans=False):
     features = []
     failed = 0
+    ##
+    is_roberta = model_type in ['roberta']
+    is_longformer = model_type in ['longformer']
+    ##
     for (example_index, example) in enumerate(tqdm(examples)):
         def relocate_tok_span(orig_to_tok_index, orig_to_tok_back_index, word_tokens, subword_tokens,
                               orig_start_position, orig_end_position, orig_text):
@@ -306,6 +310,11 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
             if is_roberta:  # hack for roberta now
                 tok_end_position = orig_to_tok_back_index[orig_end_position]
                 return tok_start_position, tok_end_position
+            # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            elif is_longformer:
+                tok_end_position = orig_to_tok_back_index[orig_end_position]
+                return tok_start_position, tok_end_position
+            # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
             else:
                 return _improve_answer_span(
                     subword_tokens, tok_start_position, tok_end_position, tokenizer, orig_text)
@@ -320,6 +329,10 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
             ques_orig_to_tok_index.append(len(all_query_tokens))
             if is_roberta:
                 sub_tokens = tokenizer.tokenize(token, add_prefix_space=True)
+            #++++++++++++++++++++++++++++
+            elif is_longformer:
+                sub_tokens = tokenizer.tokenize(token)
+            #++++++++++++++++++++++++++++
             else:
                 sub_tokens = tokenizer.tokenize(token)
 
@@ -334,6 +347,13 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
             tok_to_orig_index = tok_to_orig_index[:max_query_length - 2] + [-1, -1]
             # roberta uses an extra separator b/w pairs of sentences
             all_query_tokens += [sep_token, sep_token]
+        # ++++++++++++++++++++++++++++
+        elif is_longformer:
+            all_query_tokens = all_query_tokens[:max_query_length - 2]
+            tok_to_orig_index = tok_to_orig_index[:max_query_length - 2] + [-1, -1]
+            # roberta uses an extra separator b/w pairs of sentences
+            all_query_tokens += [sep_token, sep_token]
+        # ++++++++++++++++++++++++++++
         else:
             all_query_tokens = all_query_tokens[:max_query_length - 1]
             tok_to_orig_index = tok_to_orig_index[:max_query_length - 1] + [-1]
@@ -645,7 +665,7 @@ if __name__ == '__main__':
     parser.add_argument("--max_entity_num", default=60, type=int)
     parser.add_argument("--max_sent_num", default=40, type=int)
     parser.add_argument("--max_query_length", default=50, type=int)
-    parser.add_argument("--max_seq_length", default=512, type=int,
+    parser.add_argument("--max_seq_length", default=4096, type=int,
                         help="The maximum total input sequence length after WordPiece tokenization. Sequences longer "
                              "than this will be truncated, and sequences shorter than this will be padded.")
     parser.add_argument("--filter_no_ans", action='store_true',
@@ -671,7 +691,7 @@ if __name__ == '__main__':
                                             max_entity_num=args.max_entity_num,
                                             cls_token=tokenizer.cls_token,
                                             sep_token=tokenizer.sep_token,
-                                            is_roberta=bool(args.model_type in ['roberta']),
+                                            model_type=args.model_type,
                                             filter_no_ans=args.filter_no_ans)
     cached_features_file = os.path.join(args.output_dir,
                                         get_cached_filename('features', args))
