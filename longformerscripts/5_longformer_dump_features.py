@@ -281,10 +281,9 @@ def read_hotpot_examples(para_file,
     return examples
 
 
-def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_length, max_entity_num,
+def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_length, max_entity_num, model_type,
                                  cls_token='[CLS]',
                                  sep_token='[SEP]',
-                                 model_type='longformer',
                                  filter_no_ans=False):
     features = []
     failed = 0
@@ -665,7 +664,7 @@ if __name__ == '__main__':
     parser.add_argument("--max_entity_num", default=60, type=int)
     parser.add_argument("--max_sent_num", default=40, type=int)
     parser.add_argument("--max_query_length", default=50, type=int)
-    parser.add_argument("--max_seq_length", default=4096, type=int,
+    parser.add_argument("--max_seq_length", default=512, type=int,
                         help="The maximum total input sequence length after WordPiece tokenization. Sequences longer "
                              "than this will be truncated, and sequences shorter than this will be padded.")
     parser.add_argument("--filter_no_ans", action='store_true',
