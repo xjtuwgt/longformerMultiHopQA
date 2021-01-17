@@ -176,8 +176,8 @@ def main(args):
     res_df.to_json(save_result_name)
     ####################################################################################################################
     print('Saving {} records into {}'.format(res_df.shape, save_result_name))
-    json.dump(rank_paras_dict, open(os.path.join(args.data_dir, 'para_ranking.json'), 'w'))
-    print('Saving {} records into {}'.format(len(rank_paras_dict), os.path.join(args.data_dir, 'para_ranking.json')))
+    json.dump(rank_paras_dict, open(os.path.join(args.data_dir, 'long_para_ranking.json'), 'w'))
+    print('Saving {} records into {}'.format(len(rank_paras_dict), os.path.join(args.data_dir, 'long_para_ranking.json')))
 
 
 if __name__ == '__main__':
