@@ -3,8 +3,8 @@ from hgntransformers import (BertConfig, BertTokenizer, BertModel,
                              RobertaConfig, RobertaTokenizer, RobertaModel,
                              AlbertConfig, AlbertTokenizer, AlbertModel)
 from hgntransformers import (BertModel, XLNetModel, RobertaModel)
-from transformers import LongformerTokenizer, LongformerConfig, configuration_longformer
-from transformers import LongformerModel
+from transformers import LongformerModel, LongformerTokenizer, LongformerConfig
+from transformers import configuration_longformer
 
 ############################################################
 # Model Related Global Varialbes
