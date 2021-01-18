@@ -145,10 +145,6 @@ def device_setting(args):
         print('Single cpu setting')
     return device
 ########################################################################################################################
-def retrival_to_para_ranking_score(data: DataFrame):
-    para_ranking_dict = {}
-
-    return
 ########################################################################################################################
 def main(args):
     device = device_setting(args=args)
