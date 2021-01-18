@@ -282,8 +282,8 @@ def read_hotpot_examples(para_file,
 
 
 def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_length, max_entity_num, model_type,
-                                 cls_token='[CLS]',
-                                 sep_token='[SEP]',
+                                 cls_token,
+                                 sep_token,
                                  filter_no_ans=False):
     features = []
     failed = 0

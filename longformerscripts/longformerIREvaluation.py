@@ -96,6 +96,7 @@ def RetrievalEvaluation(data: DataFrame, args: Namespace, graph=True):
         predicted_scores = row['doc_score']
         predicted_scores = predicted_scores[:(len(ctx_titles))]
         title_score_pair_list = list(zip(ctx_titles, predicted_scores))
+        title_score_pair_list.sort(key=lambda x: x[1], reverse=True)
         ############
         pred_titles = [ctx_titles[_] for _ in predictions]
         em_recall = recall_computation(prediction=pred_titles, gold=support_doc_titles)
