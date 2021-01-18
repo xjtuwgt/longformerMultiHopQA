@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # DEFINE data related (please make changes according to your configurations)
-# DATA ROOT folder where you put data files
+# DATA ROOT folder where you put data files, transformers 3.3.0
 DATA_ROOT=./data/
 LONG_FORMER_ROOT=allenai
 
@@ -59,29 +59,29 @@ preprocess() {
 #        # Output: ner.json
 #        python scripts/2_extract_ner.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json
 #
-        echo "3. Paragraph ranking (1)"
-        # Output: para_ranking.json
-        python scripts/3_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv
-
-        echo "3. Paragraph ranking (2): longformer retrieval data preprocess"
-        # Output: para_ranking.json
-        python longformerscripts/3_longformer_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/para_ir_combined.json
-
-        echo "3. Paragraph ranking (3): longformer retrieval ranking scores"
-
-        # switch to Longformer for final leaderboard
-        python longformerscripts/3_longformer_paragraph_ranking.py --data_dir $OUTPUT_PROCESSED --eval_ckpt $DATA_ROOT/models/finetuned/PS/longformer_pytorchlighting_model.ckpt --raw_data $INPUT_FILE --input_data $OUTPUT_PROCESSED/para_ir_combined.json
-
-#        echo "4. MultiHop Paragraph Selection"
-#        # Input: $INPUT_FILE, doc_link_ner.json,  ner.json, long_para_ranking.json
-#        # Output: long_multihop_para.json
-#        python scripts/4_multihop_ps.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json $OUTPUT_PROCESSED/long_para_ranking.json $OUTPUT_PROCESSED/long_multihop_para.json
+#        echo "3. Paragraph ranking (1)"
+#        # Output: para_ranking.json
+#        python scripts/3_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv
 #
-#        echo "5. Dump features"
-##        python longformerscripts/5_longformer_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path $LONG_FORMER_ROOT/longformer-large-4096 --do_lower_case --ner_path $OUTPUT_PROCESSED/ner.json --model_type longformer --tokenizer_name longformer-large-4096 --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
-#        python longformerscripts/5_longformer_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path roberta-large --ner_path $OUTPUT_PROCESSED/ner.json --model_type roberta --tokenizer_name roberta-large --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
-##        python longformerscripts/5_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path roberta-large --do_lower_case --ner_path $OUTPUT_PROCESSED/ner.json --model_type roberta --tokenizer_name roberta-large --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
-##        python longformerscripts/5_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path albert-xxlarge-v2 --do_lower_case --ner_path $OUTPUT_PROCESSED/ner.json --model_type albert --tokenizer_name albert-xxlarge-v2 --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
+#        echo "3. Paragraph ranking (2): longformer retrieval data preprocess"
+#        # Output: para_ranking.json
+#        python longformerscripts/3_longformer_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/para_ir_combined.json
+#
+#        echo "3. Paragraph ranking (3): longformer retrieval ranking scores"
+#
+#        # switch to Longformer for final leaderboard
+#        python longformerscripts/3_longformer_paragraph_ranking.py --data_dir $OUTPUT_PROCESSED --eval_ckpt $DATA_ROOT/models/finetuned/PS/longformer_pytorchlighting_model.ckpt --raw_data $INPUT_FILE --input_data $OUTPUT_PROCESSED/para_ir_combined.json
+
+        echo "4. MultiHop Paragraph Selection"
+        # Input: $INPUT_FILE, doc_link_ner.json,  ner.json, long_para_ranking.json
+        # Output: long_multihop_para.json
+        python scripts/4_multihop_ps.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json $OUTPUT_PROCESSED/long_para_ranking.json $OUTPUT_PROCESSED/long_multihop_para.json
+
+        echo "5. Dump features"
+#        python longformerscripts/5_longformer_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path $LONG_FORMER_ROOT/longformer-large-4096 --do_lower_case --ner_path $OUTPUT_PROCESSED/ner.json --model_type longformer --tokenizer_name longformer-large-4096 --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
+        python longformerscripts/5_longformer_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path roberta-large --ner_path $OUTPUT_PROCESSED/ner.json --model_type roberta --tokenizer_name roberta-large --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
+#        python longformerscripts/5_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path roberta-large --do_lower_case --ner_path $OUTPUT_PROCESSED/ner.json --model_type roberta --tokenizer_name roberta-large --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
+#        python longformerscripts/5_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path albert-xxlarge-v2 --do_lower_case --ner_path $OUTPUT_PROCESSED/ner.json --model_type albert --tokenizer_name albert-xxlarge-v2 --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
 
 #        echo "6. Test dumped features"
         #python scripts/6_test_features.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --output_dir $OUTPUT_FEAT --model_type roberta --model_name_or_path roberta-large
