@@ -1,9 +1,9 @@
 from __future__ import absolute_import, division, print_function
+from transformers import LongformerModel, LongformerTokenizer, LongformerConfig
 from hgntransformers import (BertConfig, BertTokenizer, BertModel,
                              RobertaConfig, RobertaTokenizer, RobertaModel,
                              AlbertConfig, AlbertTokenizer, AlbertModel)
 from hgntransformers import (BertModel, XLNetModel, RobertaModel)
-from transformers import LongformerModel, LongformerTokenizer, LongformerConfig
 
 ############################################################
 # Model Related Global Varialbes
