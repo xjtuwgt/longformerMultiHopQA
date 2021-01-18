@@ -110,12 +110,18 @@ def bfs_step(start_vec, graph):
 
 para_num = []
 selected_para_dict = {}
+#####++++++++++++++++++++++++++++++++++++
+selected_para_score_threshold_dict = {}
+#####++++++++++++++++++++++++++++++++++++
 
 for case in tqdm(raw_data):
     guid = case['_id']
     context = dict(case['context'])
     para_scores = para_data[guid]
     selected_para_dict[guid] = []
+    #####++++++++++++++++++++++++++++++++++++++++++
+    selected_para_score_threshold_dict[guid] = []
+    #####++++++++++++++++++++++++++++++++++++++++++
 
     if len(para_scores) == 0:
         print(guid)
@@ -189,6 +195,9 @@ for case in tqdm(raw_data):
 
     # others, keep a high recall
     other_titles = []
+    ######+++++++++++++++++++++++++++++++
+    other_scores = []
+    ######+++++++++++++++++++++++++++++++
     for para, score in para_scores:
         if para not in title_to_id:
             continue
@@ -199,7 +208,13 @@ for case in tqdm(raw_data):
         if sel_para_idx[ind] == 0:
             sel_para_idx[ind] = 1
             other_titles.append(para)
+            ######+++++++++++++++++++++++++++++++
+            other_scores.append(score)
+            ######+++++++++++++++++++++++++++++++
     selected_para_dict[guid].append(other_titles)
+    #++++++++++++++++++++++++++++++++++++++++++++
+    selected_para_score_threshold_dict[guid].append(other_scores)
+    #++++++++++++++++++++++++++++++++++++++++++++
     para_num.append(sum(sel_para_idx))
 
 json.dump(selected_para_dict, open(output_file, 'w'))
