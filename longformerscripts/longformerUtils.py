@@ -1,6 +1,6 @@
 from transformers import LongformerModel, LongformerTokenizer
 from torch import nn
-from transformers.configuration_longformer import LongformerConfig
+from transformers import LongformerConfig
 PRE_TAINED_LONFORMER_BASE = 'allenai/longformer-base-4096'
 PRE_TAINED_LONFORMER_LARGE = 'allenai/longformer-large-4096'
 FINE_TUNED_SQUADV_MODEL_NAME = 'valhalla/longformer-base-4096-finetuned-squadv1'
