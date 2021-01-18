@@ -9,7 +9,7 @@ import sys
 from tqdm import tqdm
 from collections import Counter
 
-assert len(sys.argv) == 6
+assert len(sys.argv) == 7
 
 raw_data = json.load(open(sys.argv[1], 'r'))
 doc_link_data = json.load(open(sys.argv[2], 'r'))
