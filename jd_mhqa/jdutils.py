@@ -47,7 +47,9 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         answer_type_prob_dict.update(answer_type_prob_dict_)
         answer_dict.update(answer_dict_)
 
+        print('sent shape {}'.format(sent.shape))
         predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
+        print('supp sent np shape {}'.format(predict_support_np.shape))
 
         for i in range(predict_support_np.shape[0]):
             cur_sp_pred = [[] for _ in range(N_thresh)]
