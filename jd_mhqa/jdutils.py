@@ -71,22 +71,23 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         # print('supp sent np shape {}'.format(predict_support_np.shape))
 
         for i in range(predict_support_np.shape[0]):
-            cur_id = batch['ids'][i]
-            predict_support_np_ith = predict_support_np[i]
-            cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
-                                               example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            # ###################################
-            # cur_sp_pred = [[] for _ in range(N_thresh)]
+            ####################################
             # cur_id = batch['ids'][i]
-            #
-            # for j in range(predict_support_np.shape[1]):
-            #     if j >= len(example_dict[cur_id].sent_names):
-            #         break
-            #
-            #     for thresh_i in range(N_thresh):
-            #         if predict_support_np[i, j] > thresholds[thresh_i]:
-            #             cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[j])
-            #             # print(example_dict[cur_id].sent_names[j])
+            # predict_support_np_ith = predict_support_np[i]
+            # cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
+            #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
+            # ###################################
+            cur_sp_pred = [[] for _ in range(N_thresh)]
+            cur_id = batch['ids'][i]
+
+            for j in range(predict_support_np.shape[1]):
+                if j >= len(example_dict[cur_id].sent_names):
+                    break
+
+                for thresh_i in range(N_thresh):
+                    if predict_support_np[i, j] > thresholds[thresh_i]:
+                        cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[j])
+                        # print(example_dict[cur_id].sent_names[j])
             # ###################################
 
             for thresh_i in range(N_thresh):
