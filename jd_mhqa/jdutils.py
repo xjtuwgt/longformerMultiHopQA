@@ -8,6 +8,7 @@ import torch
 import os
 import torch.nn.functional as F
 from eval.hotpot_evaluate_v1 import normalize_answer, eval as hotpot_eval
+from eval.hotpot_doc_evaluate import doc_recall_eval
 import json
 import shutil
 from csr_mhqa.utils import convert_to_tokens
@@ -31,9 +32,11 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
     return cur_sp_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_doc_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith):
-    print(example_dict[batch_ids_ith].para_names)
-    print(example_dict[batch_ids_ith].sent_names)
-    return
+    arg_order_ids = np.argsort(predict_para_support_np_ith)[::-1].tolist()
+    cand_para_names = example_dict[batch_ids_ith].para_names
+    assert len(cand_para_names) >=2
+    cur_sp_para_pred = [cand_para_names[arg_order_ids[0]], cand_para_names[arg_order_ids[1]]]
+    return cur_sp_para_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
@@ -68,6 +71,9 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     thresholds = np.arange(0.1, 1.0, 0.025)
     N_thresh = len(thresholds)
     total_sp_dict = [{} for _ in range(N_thresh)]
+    ##++++++++++++++++++++++++++++++++++
+    total_para_sp_dict = {}
+    ##++++++++++++++++++++++++++++++++++
 
     for batch in tqdm(dataloader):
         with torch.no_grad():
@@ -101,7 +107,8 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             cur_id = batch['ids'][i]
             ####################################
             predict_para_support_np_ith = predict_para_support_np[i]
-            supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
+            cur_para_sp_pred = supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
+            total_para_sp_dict[cur_id] = cur_para_sp_pred
             ####################################
             predict_support_np_ith = predict_support_np[i]
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
@@ -148,7 +155,10 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         return best_metrics, best_threshold
 
     best_metrics, best_threshold = choose_best_threshold(answer_dict, prediction_file)
+    ##############++++++++++++
+    doc_recall_metric = doc_recall_eval(doc_prediction=total_para_sp_dict, gold_file=dev_gold_file)
+    ##############++++++++++++
     json.dump(best_metrics, open(eval_file, 'w'))
 
-    return best_metrics, best_threshold
+    return best_metrics, best_threshold, doc_recall_metric
 
