@@ -551,7 +551,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
                           start_position=ans_start_position,
                           end_position=ans_end_position)
         )
-    print(failed)
+    print('Number of failed examples = {}'.format(failed))
 
     return features
 
