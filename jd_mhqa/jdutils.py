@@ -88,12 +88,12 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         answer_dict.update(answer_dict_)
 
         ##++++++++++++++++++++++++++++++++++++++++
-        predict_para_support_np = paras
+        predict_para_support_np = torch.sigmoid(paras[:, :, 1]).data.cpu().numpy()
         print(predict_para_support_np.shape)
         ##++++++++++++++++++++++++++++++++++++++++
-        # print('sent shape {}'.format(sent.shape))
+        print('sent shape {}'.format(sent.shape))
         predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
-        # print('supp sent np shape {}'.format(predict_support_np.shape))
+        print('supp sent np shape {}'.format(predict_support_np.shape))
 
         for i in range(predict_support_np.shape[0]):
             ####################################
