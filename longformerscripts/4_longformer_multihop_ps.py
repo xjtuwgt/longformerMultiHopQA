@@ -18,6 +18,7 @@ para_data = json.load(open(sys.argv[4], 'r'))
 output_file = sys.argv[5]
 ###################################################
 num_selected_docs = sys.argv[6]
+print('num of selected docs = {}'.format(num_selected_docs))
 ###################################################
 
 def select_titles(question_text, question_entities):
@@ -214,7 +215,6 @@ for case in tqdm(raw_data):
     selected_para_dict[guid].append(other_titles)
     #++++++++++++++++++++++++++++++++++++++++++++
     selected_para_score_threshold_dict[guid].append(other_scores)
-    print(sum(sel_para_idx))
     #++++++++++++++++++++++++++++++++++++++++++++
     para_num.append(sum(sel_para_idx))
 
