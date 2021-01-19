@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 parser = default_train_parser()
 
 logger.info("IN CMD MODE")
-print(sys.argv[1:])
+# print(sys.argv[1:])
 args_config_provided = parser.parse_args(sys.argv[1:])
 # print(args_config_provided)
 if args_config_provided.config_file is not None:
@@ -36,6 +36,7 @@ else:
 args = parser.parse_args(argv)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 args.output_dir = OUTPUT_FOLDER
+args.max_para_num = int(args_config_provided.max_para_num)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #########################################################################
 for key, value in vars(args).items():
@@ -88,6 +89,7 @@ model.eval()
 
 #########################################################################
 # Evaluation
+# python jdpredict.py --config_file configs/predict.roberta.json --max_para_num 5
 ##########################################################################
 output_pred_file = join(args.exp_name, 'pred.json')
 output_eval_file = join(args.exp_name, 'eval.txt')
