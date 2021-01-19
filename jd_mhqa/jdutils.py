@@ -3,7 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tqdm
+from tqdm import tqdm
 import torch
 import os
 import torch.nn.functional as F
