@@ -32,6 +32,7 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_doc_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith):
     print(example_dict[batch_ids_ith].para_names)
+    print(example_dict[batch_ids_ith].sent_names)
     return
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
