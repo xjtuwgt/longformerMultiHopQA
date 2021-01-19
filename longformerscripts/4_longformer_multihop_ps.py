@@ -17,8 +17,8 @@ ent_data = json.load(open(sys.argv[3], 'r'))
 para_data = json.load(open(sys.argv[4], 'r'))
 output_file = sys.argv[5]
 ###################################################
-num_selected_docs = sys.argv[6]
-print('num of selected docs = {}'.format(num_selected_docs))
+num_selected_docs = int(sys.argv[6])
+print('num of selected docs = {}, type of para'.format(num_selected_docs, type(num_selected_docs)))
 ###################################################
 
 def select_titles(question_text, question_entities):
