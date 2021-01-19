@@ -62,7 +62,7 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
                 for thresh_i in range(N_thresh):
                     if predict_support_np[i, j] > thresholds[thresh_i]:
                         cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[j])
-                        print(example_dict[cur_id].sent_names[j])
+                        # print(example_dict[cur_id].sent_names[j])
 
             for thresh_i in range(N_thresh):
                 if cur_id not in total_sp_dict[thresh_i]:
