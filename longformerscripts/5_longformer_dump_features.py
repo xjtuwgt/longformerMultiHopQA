@@ -882,7 +882,7 @@ def build_graph(args, examples, features, entity_num):
     graphs = {}
     for case in tqdm(features):
         graph = create_graphs(case,
-                              max_para_num=args.max_paranum, #max_para_num=4,
+                              max_para_num=args.max_para_num, #max_para_num=4,
                               max_sent_num=args.max_sent_num,
                               max_entity_num=entity_num)
         graphs[case.qas_id] = {'adj': graph}
