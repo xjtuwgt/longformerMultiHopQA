@@ -203,8 +203,8 @@ for case in tqdm(raw_data):
         if para not in title_to_id:
             continue
         # if sum(sel_para_idx) == 4:
-        print(sum(sel_para_idx))
-        if sum(sel_para_idx) == num_selected_docs:
+        print(sum(sel_para_idx), num_selected_docs)
+        if sum(sel_para_idx) == 4:
             break
         ind = title_to_id[para]
         if sel_para_idx[ind] == 0:
