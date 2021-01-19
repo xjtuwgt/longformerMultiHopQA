@@ -122,6 +122,7 @@ def read_hotpot_examples(para_file,
                     (ques_char_to_word_offset[q_start], ques_char_to_word_offset[q_end - 1]))
 
         sel_paras = para_data[key]
+        print(sel_paras)
         ner_context = dict(ner_data[key]['context'])
 
         for title in itertools.chain.from_iterable(sel_paras):
