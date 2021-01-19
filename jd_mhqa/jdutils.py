@@ -31,6 +31,27 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
     return cur_sp_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
+    N_thresh = len(thresholds)
+    cur_sp_pred = [[] for _ in range(N_thresh)]
+    cur_id = batch_ids_ith
+    arg_order_ids = np.argsort(predict_support_np_ith)[::-1].tolist()
+    filtered_arg_order_ids = [_ for _ in arg_order_ids if _ < len(example_dict[cur_id].sent_names)]
+    assert len(filtered_arg_order_ids) >= 2
+    for thresh_i in range(N_thresh):
+        cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[filtered_arg_order_ids[0]])
+        cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[filtered_arg_order_ids[1]])
+    second_score = predict_support_np_ith[filtered_arg_order_ids[1]]
+    for j in range(2, len(filtered_arg_order_ids)):
+        jth_idx = filtered_arg_order_ids[j]
+        for thresh_i in range(N_thresh):
+            if predict_support_np_ith[jth_idx] > thresholds[thresh_i] * second_score:
+                cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[jth_idx])
+
+    return cur_sp_pred
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, prediction_file, eval_file, dev_gold_file):
     encoder.eval()
     model.eval()
@@ -66,28 +87,32 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         answer_type_prob_dict.update(answer_type_prob_dict_)
         answer_dict.update(answer_dict_)
 
+        ##++++++++++++++++++++++++++++++++++++++++
+        predict_para_support_np = paras
+        print(predict_para_support_np.shape)
+        ##++++++++++++++++++++++++++++++++++++++++
         # print('sent shape {}'.format(sent.shape))
         predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
         # print('supp sent np shape {}'.format(predict_support_np.shape))
 
         for i in range(predict_support_np.shape[0]):
             ####################################
-            # cur_id = batch['ids'][i]
-            # predict_support_np_ith = predict_support_np[i]
-            # cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
-            #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            # ###################################
-            cur_sp_pred = [[] for _ in range(N_thresh)]
             cur_id = batch['ids'][i]
-
-            for j in range(predict_support_np.shape[1]):
-                if j >= len(example_dict[cur_id].sent_names):
-                    break
-
-                for thresh_i in range(N_thresh):
-                    if predict_support_np[i, j] > thresholds[thresh_i]:
-                        cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[j])
-                        # print(example_dict[cur_id].sent_names[j])
+            predict_support_np_ith = predict_support_np[i]
+            cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
+                                               example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
+            # ###################################
+            # cur_sp_pred = [[] for _ in range(N_thresh)]
+            # cur_id = batch['ids'][i]
+            #
+            # for j in range(predict_support_np.shape[1]):
+            #     if j >= len(example_dict[cur_id].sent_names):
+            #         break
+            #
+            #     for thresh_i in range(N_thresh):
+            #         if predict_support_np[i, j] > thresholds[thresh_i]:
+            #             cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[j])
+            #             # print(example_dict[cur_id].sent_names[j])
             # ###################################
 
             for thresh_i in range(N_thresh):
