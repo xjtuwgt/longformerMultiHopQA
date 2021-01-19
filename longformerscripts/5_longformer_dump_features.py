@@ -19,7 +19,8 @@ from tqdm import tqdm
 
 from model_envs import MODEL_CLASSES
 from envs import DATASET_FOLDER
-from csr_mhqa.data_processing import Example, InputFeatures, get_cached_filename
+# from csr_mhqa.data_processing import Example, InputFeatures, get_cached_filename
+from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filename
 from eval.hotpot_evaluate_v1 import normalize_answer
 
 infix_re = re.compile(r'''[-—–~]''')
@@ -123,10 +124,16 @@ def read_hotpot_examples(para_file,
 
         sel_paras = para_data[key]
         ner_context = dict(ner_data[key]['context'])
+        ####+++++++++++
+        para_names = []
+        ####+++++++++++
 
         for title in itertools.chain.from_iterable(sel_paras):
             stripped_title = re.sub(r' \(.*?\)$', '', title)
             stripped_title_norm = normalize_answer(stripped_title)
+            ####+++++++++++
+            para_names.append(title)
+            ####+++++++++++
 
             sents = context[title]
             sents_ner = ner_context[title]
@@ -253,6 +260,7 @@ def read_hotpot_examples(para_file,
             start_position = ans_start_position
             end_position = ans_end_position
 
+        print('Para number = {}'.format(len(para_names)))
         example = Example(
             qas_id=key,
             qas_type=qas_type,
@@ -260,6 +268,7 @@ def read_hotpot_examples(para_file,
             doc_tokens=doc_tokens,
             sent_num=sent_id + 1,
             sent_names=sent_names,
+            para_names=para_names,
             sup_fact_id=sup_facts_sent_id,
             sup_para_id=list(sup_para_id),
             ques_entities_text=ques_entities_text,
