@@ -4,7 +4,7 @@
 # DATA ROOT folder where you put data files, transformers 3.3.0
 DATA_ROOT=./data/
 LONG_FORMER_ROOT=allenai
-SELECTEED_DOC_NUM=6
+SELECTEED_DOC_NUM=4
 
 
 PROCS=${1:-"download"} # define the processes you want to run, e.g. "download,preprocess,train" or "preprocess" only
