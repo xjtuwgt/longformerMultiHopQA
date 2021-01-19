@@ -882,7 +882,7 @@ def build_graph(args, examples, features, entity_num):
     graphs = {}
     for case in tqdm(features):
         graph = create_graphs(case,
-                              max_para_num=4,
+                              max_para_num=args.max_paranum, #max_para_num=4,
                               max_sent_num=args.max_sent_num,
                               max_entity_num=entity_num)
         graphs[case.qas_id] = {'adj': graph}
@@ -909,6 +909,7 @@ if __name__ == '__main__':
                         help="Path to pre-trained model")
     parser.add_argument("--do_lower_case", action='store_true',
                         help="Set this flag if you are using an uncased model.")
+    parser.add_argument("--max_para_num", default=4, type=int)
     parser.add_argument("--max_entity_num", default=60, type=int)
     parser.add_argument("--max_sent_num", default=40, type=int)
     parser.add_argument("--max_query_length", default=50, type=int)
