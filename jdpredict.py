@@ -5,8 +5,9 @@ import sys
 from os.path import join
 
 from csr_mhqa.argument_parser import default_train_parser, complete_default_train_parser, json_to_argv
-from csr_mhqa.data_processing import Example, InputFeatures, DataHelper
-from csr_mhqa.utils import *
+# from csr_mhqa.data_processing import Example, InputFeatures, DataHelper
+from jd_mhqa.jd_data_processing import Example, InputFeatures, DataHelper
+from csr_mhqa.utils import load_encoder_model
 from jd_mhqa.jdutils import jd_eval_model
 
 from models.HGN import *
