@@ -30,7 +30,9 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
                 cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[jth_idx])
     return cur_sp_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+def supp_doc_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith):
+    print(example_dict[batch_ids_ith])
+    return
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
@@ -89,15 +91,17 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
 
         ##++++++++++++++++++++++++++++++++++++++++
         predict_para_support_np = torch.sigmoid(paras[:, :, 1]).data.cpu().numpy()
-        print(predict_para_support_np.shape)
         ##++++++++++++++++++++++++++++++++++++++++
-        print('sent shape {}'.format(sent.shape))
+        # print('sent shape {}'.format(sent.shape))
         predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
-        print('supp sent np shape {}'.format(predict_support_np.shape))
+        # print('supp sent np shape {}'.format(predict_support_np.shape))
 
         for i in range(predict_support_np.shape[0]):
-            ####################################
             cur_id = batch['ids'][i]
+            ####################################
+            predict_para_support_np_ith = predict_para_support_np[i]
+            supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
+            ####################################
             predict_support_np_ith = predict_support_np[i]
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
