@@ -90,7 +90,7 @@ model.eval()
 #########################################################################
 # Evaluation
 # python jdpredict.py --config_file configs/predict.roberta.json --max_para_num 5
-# python jdpredict.py --config_file configs/predict.roberta.json --max_para_num 6
+# python jdpredict.py --config_file configs/predict.albert.json --max_para_num 6
 ##########################################################################
 output_pred_file = join(args.exp_name, 'pred.json')
 output_eval_file = join(args.exp_name, 'eval.txt')
