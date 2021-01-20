@@ -61,7 +61,6 @@ def read_hotpot_examples(para_file,
             # token match a-b, then split further
             words.append(token.text)
             word_start_idx.append(token.idx)
-            print(token)
         ###++++++++++++++++++++++++++++++++++++++++++++++++++++
         if model_type in ['roberta', 'longformer']:
             words.append(sep_token)
@@ -74,9 +73,6 @@ def read_hotpot_examples(para_file,
             else:
                 char_to_word_offset.append(word_offset + offset + 1)
                 word_offset += 1
-        print(sent)
-        print(words, char_to_word_offset, word_start_idx)
-        print('*'*10)
         return words, char_to_word_offset, word_start_idx
 
     max_sent_cnt, max_entity_cnt = 0, 0
