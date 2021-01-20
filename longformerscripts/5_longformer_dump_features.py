@@ -965,7 +965,9 @@ if __name__ == '__main__':
     examples = read_hotpot_examples(para_file=args.para_path,
                                     full_file=args.full_data,
                                     ner_file=args.ner_path,
-                                    doc_link_file=args.doc_link_ner)
+                                    doc_link_file=args.doc_link_ner,
+                                    model_type=args.model_type,
+                                    sep_token=tokenizer.sep_token)
     cached_examples_file = os.path.join(args.output_dir,
                                         get_cached_filename('examples', args))
     with gzip.open(cached_examples_file, 'wb') as fout:
