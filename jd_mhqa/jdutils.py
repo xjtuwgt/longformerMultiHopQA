@@ -50,6 +50,7 @@ def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sen
 
     total_inconsist_num = 0
     total_inconsist_gold_num = 0
+
     with open(gold_file) as f:
         gold = json.load(f)
     for dp in gold:
@@ -65,7 +66,12 @@ def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sen
 
     return total_inconsist_num
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
+def supp_sent_prediction_with_para_constraint(predict_para_support_np_ith, predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
+    ############################################
+    cur_sp_para_pred = supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict,
+                                           batch_ids_ith=batch_ids_ith)
+    assert len(cur_sp_para_pred) == 2
+    ############################################
     N_thresh = len(thresholds)
     cur_sp_pred = [[] for _ in range(N_thresh)]
     cur_id = batch_ids_ith
@@ -79,9 +85,12 @@ def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, b
     for j in range(2, len(filtered_arg_order_ids)):
         jth_idx = filtered_arg_order_ids[j]
         for thresh_i in range(N_thresh):
-            if predict_support_np_ith[jth_idx] > thresholds[thresh_i] * second_score:
+            if predict_para_support_np_ith[jth_idx] > thresholds[thresh_i] * second_score \
+                    and example_dict[cur_id].sent_names[jth_idx][0] in cur_sp_para_pred:
+            # if predict_support_np_ith[jth_idx] > thresholds[thresh_i] * second_score:
                 cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[jth_idx])
-    return cur_sp_pred
+    ############################################
+    return cur_sp_pred, cur_sp_para_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, prediction_file, eval_file, dev_gold_file):
@@ -130,16 +139,20 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         # print('supp sent np shape {}'.format(predict_support_np.shape))
         for i in range(predict_support_np.shape[0]):
             cur_id = batch['ids'][i]
-            ####################################
             predict_para_support_np_ith = predict_para_support_np[i]
-            cur_para_sp_pred = supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
+            predict_support_np_ith = predict_support_np[i]
+            # ####################################
+            # cur_para_sp_pred = supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
+            # total_para_sp_dict[cur_id] = cur_para_sp_pred
+            # ####################################
+            # cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
+            #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
+            ####################################
+            cur_sp_pred, cur_para_sp_pred = supp_sent_prediction_with_para_constraint(predict_para_support_np_ith=predict_para_support_np_ith,
+                                                                    predict_support_np_ith=predict_support_np_ith, example_dict=example_dict,
+                                                                    batch_ids_ith=cur_id, thresholds=thresholds)
             total_para_sp_dict[cur_id] = cur_para_sp_pred
             ####################################
-            predict_support_np_ith = predict_support_np[i]
-            cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
-                                               example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            ####################################
-            # ###################################
             # cur_sp_pred = [[] for _ in range(N_thresh)]
             # cur_id = batch['ids'][i]
             #
