@@ -39,18 +39,22 @@ def supp_doc_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith
     return cur_sp_para_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def supp_doc_sent_consistent_checker(predict_para_support, predicted_supp_sents):
-    print(predicted_supp_sents)
-    pred_titles = list(set([x[0] for x in predicted_supp_sents]))
-    print(predict_para_support)
-    print(pred_titles)
-    print('*'*10)
-    if len(pred_titles) != len(predict_para_support):
-        return False
-    for p_title in pred_titles:
-        if p_title not in predict_para_support:
+def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sent_dict: dict):
+    def consistent_checker(predict_para_support, pred_titles):
+        if len(pred_titles) != len(predict_para_support):
             return False
-    return True
+        for p_title in pred_titles:
+            if p_title not in predict_para_support:
+                return False
+        return True
+    total_consist_num = 0
+    for para_id, predict_para in predict_para_dict.items():
+        predict_supp_sents = predicted_supp_sent_dict[para_id]
+        pred_titles = predicted_supp_sent_dict[para_id]
+        whether_consist = consistent_checker(predict_para_support=predict_para, pred_titles=pred_titles)
+        if whether_consist:
+            total_consist_num = total_consist_num + 1
+    return total_consist_num
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
@@ -86,7 +90,6 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     total_sp_dict = [{} for _ in range(N_thresh)]
     ##++++++++++++++++++++++++++++++++++
     total_para_sp_dict = {}
-    total_inconsistent_num = 0
     ##++++++++++++++++++++++++++++++++++
 
     for batch in tqdm(dataloader):
@@ -116,7 +119,6 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         # print('sent shape {}'.format(sent.shape))
         predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
         # print('supp sent np shape {}'.format(predict_support_np.shape))
-
         for i in range(predict_support_np.shape[0]):
             cur_id = batch['ids'][i]
             ####################################
@@ -127,10 +129,6 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             predict_support_np_ith = predict_support_np[i]
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            ####################################
-            consist_or_not = supp_doc_sent_consistent_checker(predict_para_support=cur_para_sp_pred, predicted_supp_sents=cur_sp_pred)
-            if not consist_or_not:
-                total_inconsistent_num = total_inconsistent_num + 1
             ####################################
             # ###################################
             # cur_sp_pred = [[] for _ in range(N_thresh)]
@@ -156,6 +154,9 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         best_joint_f1 = 0
         best_metrics = None
         best_threshold = 0
+        #####
+        best_threshold_idx = -1
+        #####
         for thresh_i in range(N_thresh):
             prediction = {'answer': ans_dict,
                           'sp': total_sp_dict[thresh_i],
@@ -168,16 +169,21 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             if metrics['joint_f1'] >= best_joint_f1:
                 best_joint_f1 = metrics['joint_f1']
                 best_threshold = thresholds[thresh_i]
+                #####
+                best_threshold_idx = thresh_i
+                #####
                 best_metrics = metrics
                 shutil.move(tmp_file, pred_file)
 
-        return best_metrics, best_threshold
+        return best_metrics, best_threshold, best_threshold_idx
 
-    best_metrics, best_threshold = choose_best_threshold(answer_dict, prediction_file)
+    best_metrics, best_threshold, best_threshold_idx = choose_best_threshold(answer_dict, prediction_file)
     ##############++++++++++++
     doc_recall_metric = doc_recall_eval(doc_prediction=total_para_sp_dict, gold_file=dev_gold_file)
+    total_consistent_number = supp_doc_sent_consistent_checker(predict_para_dict=total_para_sp_dict,
+                                                               predicted_supp_sent_dict=total_sp_dict[best_threshold_idx])
     ##############++++++++++++
     json.dump(best_metrics, open(eval_file, 'w'))
 
-    return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_num
+    return best_metrics, best_threshold, doc_recall_metric, total_consistent_number
 
