@@ -960,15 +960,24 @@ if __name__ == '__main__':
                                         get_cached_filename('examples', args))
     with gzip.open(cached_examples_file, 'wb') as fout:
         pickle.dump(examples, fout)
-
-    features = convert_examples_to_features(examples, tokenizer,
-                                            max_seq_length=args.max_seq_length,
-                                            max_query_length=args.max_query_length,
-                                            max_entity_num=args.max_entity_num,
-                                            cls_token=tokenizer.cls_token,
-                                            sep_token=tokenizer.sep_token,
-                                            model_type=args.model_type,
-                                            filter_no_ans=args.filter_no_ans)
+    if args.model_type in ['longformer']:
+        features = convert_examples_to_longformer_features(examples, tokenizer,
+                                                max_seq_length=args.max_seq_length,
+                                                max_query_length=args.max_query_length,
+                                                max_entity_num=args.max_entity_num,
+                                                cls_token=tokenizer.cls_token,
+                                                sep_token=tokenizer.sep_token,
+                                                model_type=args.model_type,
+                                                filter_no_ans=args.filter_no_ans)
+    else:
+        features = convert_examples_to_features(examples, tokenizer,
+                                                max_seq_length=args.max_seq_length,
+                                                max_query_length=args.max_query_length,
+                                                max_entity_num=args.max_entity_num,
+                                                cls_token=tokenizer.cls_token,
+                                                sep_token=tokenizer.sep_token,
+                                                model_type=args.model_type,
+                                                filter_no_ans=args.filter_no_ans)
     cached_features_file = os.path.join(args.output_dir,
                                         get_cached_filename('features', args))
 
