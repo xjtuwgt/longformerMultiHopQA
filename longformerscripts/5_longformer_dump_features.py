@@ -390,6 +390,13 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
                 all_doc_tokens.append(sub_token)
             orig_to_tok_back_index.append(len(all_doc_tokens) - 1)
 
+        ##############
+        if len(all_doc_tokens) > 512:
+            tokenized_token_len_512 = tokenized_token_len_512 + 1
+        print(all_doc_tokens)
+        print(all_query_tokens)
+        ##############
+
         for sent_span in example.sent_start_end_position:
             if sent_span[0] >= len(orig_to_tok_index) or sent_span[0] >= sent_span[1]:
                 continue
@@ -496,12 +503,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
         if len(answer_in_entity_ids) > 0:
             assert answer_in_entity_ids[0] in answer_candidates_ids
 
-        ##############
-        if len(all_doc_tokens) > 512:
-            tokenized_token_len_512 = tokenized_token_len_512 + 1
-        print(all_doc_tokens)
-        print(all_query_tokens)
-        ##############
+
         # Padding Document
         all_doc_tokens = all_doc_tokens[:max_seq_length - 1] + [sep_token]
         doc_input_ids = tokenizer.convert_tokens_to_ids(all_doc_tokens)
