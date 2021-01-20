@@ -96,10 +96,11 @@ model.eval()
 output_pred_file = join(args.exp_name, 'pred.json')
 output_eval_file = join(args.exp_name, 'eval.txt')
 
-metrics, threshold, doc_recall_metric = jd_eval_model(args, encoder, model,
+metrics, threshold, doc_recall_metric, total_inconsist_number = jd_eval_model(args, encoder, model,
                                 dev_dataloader, dev_example_dict, dev_feature_dict,
                                 output_pred_file, output_eval_file, args.dev_gold_file)
 print("Best threshold: {}".format(threshold))
 print("Top 2 document recall {}".format(doc_recall_metric))
+print("Total inconsistent number {}".format(total_inconsist_number))
 for key, val in metrics.items():
     print("{} = {}".format(key, val))
