@@ -39,7 +39,9 @@ nlp.tokenizer.infix_finditer = infix_re.finditer
 def read_hotpot_examples(para_file,
                          full_file,
                          ner_file,
-                         doc_link_file):
+                         doc_link_file,
+                         model_type,
+                         sep_token):
     with open(para_file, 'r', encoding='utf-8') as reader:
         para_data = json.load(reader)
 
@@ -59,7 +61,12 @@ def read_hotpot_examples(para_file,
             # token match a-b, then split further
             words.append(token.text)
             word_start_idx.append(token.idx)
-
+            print(token)
+        ###++++++++++++++++++++++++++++++++++++++++++++++++++++
+        if model_type in ['roberta', 'longformer']:
+            words.append(sep_token)
+            word_start_idx.append(len(sent))
+        ###++++++++++++++++++++++++++++++++++++++++++++++++++++
         word_offset = 0
         for c in range(len(sent)):
             if word_offset >= len(word_start_idx) - 1 or c < word_start_idx[word_offset + 1]:
