@@ -142,16 +142,16 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             predict_para_support_np_ith = predict_para_support_np[i]
             predict_support_np_ith = predict_support_np[i]
             # ####################################
-            # cur_para_sp_pred = supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
-            # total_para_sp_dict[cur_id] = cur_para_sp_pred
-            # ####################################
-            # cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
-            #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            ####################################
-            cur_sp_pred, cur_para_sp_pred = supp_sent_prediction_with_para_constraint(predict_para_support_np_ith=predict_para_support_np_ith,
-                                                                    predict_support_np_ith=predict_support_np_ith, example_dict=example_dict,
-                                                                    batch_ids_ith=cur_id, thresholds=thresholds)
+            cur_para_sp_pred = supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
             total_para_sp_dict[cur_id] = cur_para_sp_pred
+            # ####################################
+            cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
+                                               example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
+            ####################################
+            # cur_sp_pred, cur_para_sp_pred = supp_sent_prediction_with_para_constraint(predict_para_support_np_ith=predict_para_support_np_ith,
+            #                                                         predict_support_np_ith=predict_support_np_ith, example_dict=example_dict,
+            #                                                         batch_ids_ith=cur_id, thresholds=thresholds)
+            # total_para_sp_dict[cur_id] = cur_para_sp_pred
             ####################################
             # cur_sp_pred = [[] for _ in range(N_thresh)]
             # cur_id = batch['ids'][i]
