@@ -50,7 +50,7 @@ def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sen
     total_consist_num = 0
     for para_id, predict_para in predict_para_dict.items():
         predict_supp_sents = predicted_supp_sent_dict[para_id]
-        pred_titles = predicted_supp_sent_dict[para_id]
+        pred_titles = list(set([x[0] for x in predict_supp_sents]))
         whether_consist = consistent_checker(predict_para_support=predict_para, pred_titles=pred_titles)
         if whether_consist:
             total_consist_num = total_consist_num + 1
