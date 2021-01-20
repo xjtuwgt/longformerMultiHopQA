@@ -35,7 +35,7 @@ def supp_sent_prediction_hgn(predict_support_np_ith, example_dict, batch_ids_ith
     N_thresh = len(thresholds)
     cur_sp_pred = [[] for _ in range(N_thresh)]
     cur_id = batch_ids_ith
-    for j in range(predict_support_np_ith.shape[1]):
+    for j in range(predict_support_np_ith.shape[0]):
         if j >= len(example_dict[cur_id].sent_names):
             break
         for thresh_i in range(N_thresh):
