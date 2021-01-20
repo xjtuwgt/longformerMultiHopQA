@@ -30,62 +30,63 @@ def predict(examples, features, pred_file, tokenizer, use_ent_ans=False):
         feature = features[qid]
         example = examples[qid]
         q_type = feature.ans_type
+        print(qid, example)
 
-        max_sent_num = max(max_sent_num, len(feature.sent_spans))
-        max_entity_num = max(max_entity_num, len(feature.entity_spans))
-        q_type_counter[q_type] += 1
-
-        def get_ans_from_pos(y1, y2):
-            tok_to_orig_map = feature.token_to_orig_map
-
-            final_text = " "
-            if y1 < len(tok_to_orig_map) and y2 < len(tok_to_orig_map):
-                orig_tok_start = tok_to_orig_map[y1]
-                orig_tok_end = tok_to_orig_map[y2]
-
-                ques_tok_len = len(example.question_tokens)
-                if orig_tok_start < ques_tok_len and orig_tok_end < ques_tok_len:
-                    ques_start_idx = example.question_word_to_char_idx[orig_tok_start]
-                    ques_end_idx = example.question_word_to_char_idx[orig_tok_end] + len(example.question_tokens[orig_tok_end])
-                    final_text = example.question_text[ques_start_idx:ques_end_idx]
-                else:
-                    orig_tok_start -= len(example.question_tokens)
-                    orig_tok_end -= len(example.question_tokens)
-                    ctx_start_idx = example.ctx_word_to_char_idx[orig_tok_start]
-                    ctx_end_idx = example.ctx_word_to_char_idx[orig_tok_end] + len(example.doc_tokens[orig_tok_end])
-                    final_text = example.ctx_text[example.ctx_word_to_char_idx[orig_tok_start]:example.ctx_word_to_char_idx[orig_tok_end]+len(example.doc_tokens[orig_tok_end])]
-
-            return final_text
-            #return tokenizer.convert_tokens_to_string(tok_tokens)
-
-        answer_text = ''
-        if q_type == 0 or q_type == 3:
-            if len(feature.start_position) == 0 or len(feature.end_position) == 0:
-                answer_text = ""
-            else:
-                #st, ed = example.start_position[0], example.end_position[0]
-                #answer_text = example.ctx_text[example.ctx_word_to_char_idx[st]:example.ctx_word_to_char_idx[ed]+len(example.doc_tokens[example.end_position[0]])]
-                answer_text = get_ans_from_pos(feature.start_position[0], feature.end_position[0])
-                if normalize_answer(answer_text) != normalize_answer(example.orig_answer_text):
-                    print("{} | {} | {} | {} | {}".format(qid, answer_text, example.orig_answer_text, feature.start_position[0], feature.end_position[0]))
-                    answer_no_match_cnt += 1
-            if q_type == 3 and use_ent_ans:
-                ans_id = feature.answer_in_entity_ids[0]
-                st, ed = feature.entity_spans[ans_id]
-                answer_text = get_ans_from_pos(st, ed)
-        elif q_type == 1:
-            answer_text = 'yes'
-        elif q_type == 2:
-            answer_text = 'no'
-
-        answer_dict[qid] = answer_text
-        cur_sp = []
-        for sent_id in feature.sup_fact_ids:
-            cur_sp.append(example.sent_names[sent_id])
-        sp_dict[qid] = cur_sp
-
-    # final_pred = {'answer': answer_dict, 'sp': sp_dict}
-    # json.dump(final_pred, open(pred_file, 'w'))
+    #     max_sent_num = max(max_sent_num, len(feature.sent_spans))
+    #     max_entity_num = max(max_entity_num, len(feature.entity_spans))
+    #     q_type_counter[q_type] += 1
+    #
+    #     def get_ans_from_pos(y1, y2):
+    #         tok_to_orig_map = feature.token_to_orig_map
+    #
+    #         final_text = " "
+    #         if y1 < len(tok_to_orig_map) and y2 < len(tok_to_orig_map):
+    #             orig_tok_start = tok_to_orig_map[y1]
+    #             orig_tok_end = tok_to_orig_map[y2]
+    #
+    #             ques_tok_len = len(example.question_tokens)
+    #             if orig_tok_start < ques_tok_len and orig_tok_end < ques_tok_len:
+    #                 ques_start_idx = example.question_word_to_char_idx[orig_tok_start]
+    #                 ques_end_idx = example.question_word_to_char_idx[orig_tok_end] + len(example.question_tokens[orig_tok_end])
+    #                 final_text = example.question_text[ques_start_idx:ques_end_idx]
+    #             else:
+    #                 orig_tok_start -= len(example.question_tokens)
+    #                 orig_tok_end -= len(example.question_tokens)
+    #                 ctx_start_idx = example.ctx_word_to_char_idx[orig_tok_start]
+    #                 ctx_end_idx = example.ctx_word_to_char_idx[orig_tok_end] + len(example.doc_tokens[orig_tok_end])
+    #                 final_text = example.ctx_text[example.ctx_word_to_char_idx[orig_tok_start]:example.ctx_word_to_char_idx[orig_tok_end]+len(example.doc_tokens[orig_tok_end])]
+    #
+    #         return final_text
+    #         #return tokenizer.convert_tokens_to_string(tok_tokens)
+    #
+    #     answer_text = ''
+    #     if q_type == 0 or q_type == 3:
+    #         if len(feature.start_position) == 0 or len(feature.end_position) == 0:
+    #             answer_text = ""
+    #         else:
+    #             #st, ed = example.start_position[0], example.end_position[0]
+    #             #answer_text = example.ctx_text[example.ctx_word_to_char_idx[st]:example.ctx_word_to_char_idx[ed]+len(example.doc_tokens[example.end_position[0]])]
+    #             answer_text = get_ans_from_pos(feature.start_position[0], feature.end_position[0])
+    #             if normalize_answer(answer_text) != normalize_answer(example.orig_answer_text):
+    #                 print("{} | {} | {} | {} | {}".format(qid, answer_text, example.orig_answer_text, feature.start_position[0], feature.end_position[0]))
+    #                 answer_no_match_cnt += 1
+    #         if q_type == 3 and use_ent_ans:
+    #             ans_id = feature.answer_in_entity_ids[0]
+    #             st, ed = feature.entity_spans[ans_id]
+    #             answer_text = get_ans_from_pos(st, ed)
+    #     elif q_type == 1:
+    #         answer_text = 'yes'
+    #     elif q_type == 2:
+    #         answer_text = 'no'
+    #
+    #     answer_dict[qid] = answer_text
+    #     cur_sp = []
+    #     for sent_id in feature.sup_fact_ids:
+    #         cur_sp.append(example.sent_names[sent_id])
+    #     sp_dict[qid] = cur_sp
+    #
+    # # final_pred = {'answer': answer_dict, 'sp': sp_dict}
+    # # json.dump(final_pred, open(pred_file, 'w'))
 
     print("Maximum sentence num: {}".format(max_sent_num))
     print("Maximum entity num: {}".format(max_entity_num))
