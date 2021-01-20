@@ -41,6 +41,9 @@ def supp_doc_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_doc_sent_consistent_checker(predict_para_support, predicted_supp_sents):
     pred_titles = list(set([x[0] for x in predicted_supp_sents]))
+    print(predict_para_support)
+    print(pred_titles)
+    print('*'*10)
     if len(pred_titles) != len(predict_para_support):
         return False
     for p_title in pred_titles:
