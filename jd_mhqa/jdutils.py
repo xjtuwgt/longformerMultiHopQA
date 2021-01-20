@@ -85,7 +85,7 @@ def supp_sent_prediction_with_para_constraint(predict_para_support_np_ith, predi
     for j in range(2, len(filtered_arg_order_ids)):
         jth_idx = filtered_arg_order_ids[j]
         for thresh_i in range(N_thresh):
-            if predict_para_support_np_ith[jth_idx] > thresholds[thresh_i] * second_score \
+            if predict_support_np_ith[jth_idx] > thresholds[thresh_i] * second_score \
                     and example_dict[cur_id].sent_names[jth_idx][0] in cur_sp_para_pred:
             # if predict_support_np_ith[jth_idx] > thresholds[thresh_i] * second_score:
                 cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[jth_idx])
