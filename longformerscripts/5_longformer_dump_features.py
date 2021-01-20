@@ -509,7 +509,6 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
         if len(answer_in_entity_ids) > 0:
             assert answer_in_entity_ids[0] in answer_candidates_ids
 
-
         # Padding Document
         all_doc_tokens = all_doc_tokens[:max_seq_length - 1] + [sep_token]
         doc_input_ids = tokenizer.convert_tokens_to_ids(all_doc_tokens)

@@ -31,6 +31,19 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
                 cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[jth_idx])
     return cur_sp_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def supp_sent_prediction_hgn(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
+    N_thresh = len(thresholds)
+    cur_sp_pred = [[] for _ in range(N_thresh)]
+    cur_id = batch_ids_ith
+    for j in range(predict_support_np_ith.shape[1]):
+        if j >= len(example_dict[cur_id].sent_names):
+            break
+        for thresh_i in range(N_thresh):
+            if predict_support_np_ith[j] > thresholds[thresh_i]:
+                cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[j])
+                # print(example_dict[cur_id].sent_names[j])
+    return cur_sp_pred
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_doc_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith):
     arg_order_ids = np.argsort(predict_para_support_np_ith)[::-1].tolist()
     cand_para_names = example_dict[batch_ids_ith].para_names
@@ -145,9 +158,11 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             cur_para_sp_pred = supp_doc_prediction(predict_para_support_np_ith=predict_para_support_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
             total_para_sp_dict[cur_id] = cur_para_sp_pred
             # ####################################
-            cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
-                                               example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
+            # cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
+            #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
             ####################################
+            cur_sp_pred = supp_sent_prediction_hgn(predict_support_np_ith=predict_support_np_ith,
+                                               example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
             # cur_sp_pred, cur_para_sp_pred = supp_sent_prediction_with_para_constraint(predict_para_support_np_ith=predict_para_support_np_ith,
             #                                                         predict_support_np_ith=predict_support_np_ith, example_dict=example_dict,
             #                                                         batch_ids_ith=cur_id, thresholds=thresholds)
