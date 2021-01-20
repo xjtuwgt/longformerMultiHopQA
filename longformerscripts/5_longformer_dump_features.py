@@ -72,6 +72,7 @@ def read_hotpot_examples(para_file,
     max_sent_cnt, max_entity_cnt = 0, 0
     #################################
     max_token_cnt = 0
+    spacy_token_cnt_512 = 0
     #################################
 
     examples = []
@@ -247,6 +248,8 @@ def read_hotpot_examples(para_file,
         max_entity_cnt = max(max_entity_cnt, len(ctx_entity_start_end_position))
         #############################
         max_token_cnt = max((max_token_cnt, len(doc_tokens)))
+        if len(doc_tokens) > 512:
+            spacy_token_cnt_512 = spacy_token_cnt_512 + 1
         #############################
 
         if len(ans_start_position) > 1:
@@ -294,6 +297,7 @@ def read_hotpot_examples(para_file,
     print("Maximum sentence cnt: {}".format(max_sent_cnt))
     print("Maximum entity cnt: {}".format(max_entity_cnt))
     print("Maximum token cnt: {} before tokenized".format(max_token_cnt))
+    print("Spacy tokenization leads to longer 512 {}".format(spacy_token_cnt_512))
 
     return examples
 
