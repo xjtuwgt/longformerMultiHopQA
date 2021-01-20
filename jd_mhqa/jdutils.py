@@ -39,7 +39,7 @@ def supp_doc_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith
     return cur_sp_para_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sent_dict: dict):
+def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sent_dict: dict, gold_file):
     def consistent_checker(predict_para_support, pred_titles):
         if len(pred_titles) != len(predict_para_support):
             return False
@@ -47,13 +47,22 @@ def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sen
             if p_title not in predict_para_support:
                 return False
         return True
+
     total_inconsist_num = 0
-    for para_id, predict_para in predict_para_dict.items():
+    total_inconsist_gold_num = 0
+    with open(gold_file) as f:
+        gold = json.load(f)
+    for dp in gold:
+        para_id = dp['_id']
+        supp_titles = list(set([x[0] for x in dp['supporting_facts']]))
+        predict_para = predict_para_dict[para_id]
         predict_supp_sents = predicted_supp_sent_dict[para_id]
         pred_titles = list(set([x[0] for x in predict_supp_sents]))
         whether_consist = consistent_checker(predict_para_support=predict_para, pred_titles=pred_titles)
+        whether_good_consist = consistent_checker(predict_para_support=predict_para, pred_titles=supp_titles)
         if not whether_consist:
             total_inconsist_num = total_inconsist_num + 1
+
     return total_inconsist_num
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
@@ -181,7 +190,7 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     ##############++++++++++++
     doc_recall_metric = doc_recall_eval(doc_prediction=total_para_sp_dict, gold_file=dev_gold_file)
     total_inconsistent_number = supp_doc_sent_consistent_checker(predict_para_dict=total_para_sp_dict,
-                                                               predicted_supp_sent_dict=total_sp_dict[best_threshold_idx])
+                                                               predicted_supp_sent_dict=total_sp_dict[best_threshold_idx], gold_file=dev_gold_file)
     ##############++++++++++++
     json.dump(best_metrics, open(eval_file, 'w'))
 
