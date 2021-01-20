@@ -40,8 +40,8 @@ args.output_dir = OUTPUT_FOLDER
 args.max_para_num = int(args_config_provided.max_para_num)
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #########################################################################
-for key, value in vars(args).items():
-    print('Hype-parameter\t{} = {}'.format(key, value))
+# for key, value in vars(args).items():
+#     print('Hype-parameter\t{} = {}'.format(key, value))
 #########################################################################
 args = complete_default_train_parser(args)
 
