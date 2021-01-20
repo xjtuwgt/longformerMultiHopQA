@@ -309,6 +309,9 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
     features = []
     failed = 0
     is_roberta = model_type in ['roberta']
+    ##############
+    tokenized_token_len_512 = 0
+    ##############
     for (example_index, example) in enumerate(tqdm(examples)):
         def relocate_tok_span(orig_to_tok_index, orig_to_tok_back_index, word_tokens, subword_tokens, orig_start_position, orig_end_position, orig_text):
             if orig_start_position is None:
@@ -493,6 +496,12 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
         if len(answer_in_entity_ids) > 0:
             assert answer_in_entity_ids[0] in answer_candidates_ids
 
+        ##############
+        if len(all_doc_tokens) > 512:
+            tokenized_token_len_512 = tokenized_token_len_512 + 1
+        print(all_doc_tokens)
+        print(all_query_tokens)
+        ##############
         # Padding Document
         all_doc_tokens = all_doc_tokens[:max_seq_length - 1] + [sep_token]
         doc_input_ids = tokenizer.convert_tokens_to_ids(all_doc_tokens)
@@ -566,7 +575,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
                           end_position=ans_end_position)
         )
     print('Number of failed examples = {}'.format(failed))
-
+    print('Number of tokenized seq length > 512: {}'.format(tokenized_token_len_512))
     return features
 
 
