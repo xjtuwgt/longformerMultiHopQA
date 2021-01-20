@@ -47,14 +47,14 @@ def supp_doc_sent_consistent_checker(predict_para_dict: dict, predicted_supp_sen
             if p_title not in predict_para_support:
                 return False
         return True
-    total_consist_num = 0
+    total_inconsist_num = 0
     for para_id, predict_para in predict_para_dict.items():
         predict_supp_sents = predicted_supp_sent_dict[para_id]
         pred_titles = list(set([x[0] for x in predict_supp_sents]))
         whether_consist = consistent_checker(predict_para_support=predict_para, pred_titles=pred_titles)
-        if whether_consist:
-            total_consist_num = total_consist_num + 1
-    return total_consist_num
+        if not whether_consist:
+            total_inconsist_num = total_inconsist_num + 1
+    return total_inconsist_num
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_with_constraint(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
@@ -180,10 +180,10 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     best_metrics, best_threshold, best_threshold_idx = choose_best_threshold(answer_dict, prediction_file)
     ##############++++++++++++
     doc_recall_metric = doc_recall_eval(doc_prediction=total_para_sp_dict, gold_file=dev_gold_file)
-    total_consistent_number = supp_doc_sent_consistent_checker(predict_para_dict=total_para_sp_dict,
+    total_inconsistent_number = supp_doc_sent_consistent_checker(predict_para_dict=total_para_sp_dict,
                                                                predicted_supp_sent_dict=total_sp_dict[best_threshold_idx])
     ##############++++++++++++
     json.dump(best_metrics, open(eval_file, 'w'))
 
-    return best_metrics, best_threshold, doc_recall_metric, total_consistent_number
+    return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number
 
