@@ -84,8 +84,8 @@ def predict(examples, features, pred_file, tokenizer, use_ent_ans=False):
             cur_sp.append(example.sent_names[sent_id])
         sp_dict[qid] = cur_sp
 
-    final_pred = {'answer': answer_dict, 'sp': sp_dict}
-    json.dump(final_pred, open(pred_file, 'w'))
+    # final_pred = {'answer': answer_dict, 'sp': sp_dict}
+    # json.dump(final_pred, open(pred_file, 'w'))
 
     print("Maximum sentence num: {}".format(max_sent_num))
     print("Maximum entity num: {}".format(max_entity_num))
@@ -136,8 +136,8 @@ if __name__ == '__main__':
     print("Loading features from: {}".format(cached_features_file))
     print("Loading graphs from: {}".format(cached_graphs_file))
 
-    # pred_file = join(args.output_dir, 'pred.json')
-    # predict(example_dict, feature_dict, pred_file, tokenizer, use_ent_ans=False)
+    pred_file = join(args.output_dir, 'pred.json')
+    predict(example_dict, feature_dict, pred_file, tokenizer, use_ent_ans=False)
     # metrics = hotpot_eval(pred_file, args.raw_data)
     # for key, val in metrics.items():
     #     print("{} = {}".format(key, val))
