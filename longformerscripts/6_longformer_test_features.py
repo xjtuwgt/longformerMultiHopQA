@@ -31,8 +31,10 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         feature = features[qid]
         example = examples[qid]
         q_type = feature.ans_type
+        answer = row['answer']
+        q_type = feature.ans_type
         ctx_names = [_[0] for _ in row['context']]
-        print(qid, example.para_names, ctx_names)
+        print(qid, answer, q_type)
 
     # max_sent_num = 0
     # max_entity_num = 0
