@@ -97,7 +97,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         q_type_counter[q_type] += 1
         ans_type_counter[answer] += 1
         e_doc_tokens = example.doc_tokens
-        f_doc_tokens = features.doc_tokens
+        f_doc_tokens = feature.doc_tokens
         print(len(e_doc_tokens), len(f_doc_tokens))
 
     # max_sent_num = 0
