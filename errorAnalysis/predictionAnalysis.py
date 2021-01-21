@@ -176,7 +176,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
             if raw_answer == ans_prediction:
                 ans_type = 'em'
             else:
-                ans_type = 'other'
+                ans_type = 'others'
 
         prediction_ans_type_counter[ans_type] += 1
         pred_ans_type_list.append(ans_type)
