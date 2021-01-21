@@ -107,7 +107,9 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         token_num_list.append(len(e_doc_tokens))
         e_sent_span = example.sent_start_end_position
         f_sent_span = feature.sent_spans
-        print(len(e_sent_span), len(f_sent_span))
+        if len(e_sent_span) < len(f_sent_span):
+            print(len(e_sent_span), len(f_sent_span))
+
         # print(len(q_tokens), len(e_doc_tokens), len(f_doc_tokens), len(f_doc_input_ids))
         # if len(e_doc_tokens) > len(f_doc_tokens):
         #     print(len(q_tokens), len(e_doc_tokens), len(f_doc_tokens), len(f_doc_input_ids))
