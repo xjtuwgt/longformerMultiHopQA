@@ -6,6 +6,7 @@ import numpy as np
 import argparse
 import os
 from sklearn.metrics import confusion_matrix
+from eval.hotpot_evaluate_v1 import normalize_answer
 
 from os.path import join
 from collections import Counter
@@ -88,13 +89,17 @@ def feature_infor_collection(feature: InputFeatures):
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
     yes_no_span_true = []
-
+    span_types = ['em', 'sub_set', 'super_set', 'others']
+    prediction_ans_type_counter = Counter()
+    span_prediction_types = []
     for row in raw_data:
         qid = row['_id']
         sp_predictions = predictions['sp'][qid]
         ans_prediction = predictions['answer'][qid]
 
         raw_answer = row['answer']
+        raw_answer = normalize_answer(raw_answer)
+        ans_prediction = normalize_answer(ans_prediction)
         sp_golds = row['supporting_facts']
         sp_para_golds =list(set([_[0] for _ in sp_golds]))
         if raw_answer not in ['yes', 'no']:
@@ -107,8 +112,22 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         else:
             yes_no_span_predictions.append(ans_prediction)
 
+        if raw_answer not in ['yes', 'no']:
+            if raw_answer == ans_prediction:
+                prediction_ans_type_counter['em'] += 1
+            elif raw_answer in ans_prediction:
+                prediction_ans_type_counter['sub_set'] += 1
+            elif ans_prediction in raw_answer:
+                prediction_ans_type_counter['super_set'] += 1
+            else:
+                prediction_ans_type_counter['others'] += 1
+
+
+
+
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
-    print(conf_matrix)
+    print('Ans type conf matrix {}'.format(conf_matrix))
+    print("Ans prediction type: {}".format(prediction_ans_type_counter))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
