@@ -90,6 +90,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     yes_no_span_predictions = []
     yes_no_span_true = []
     span_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
+    sent_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
     prediction_ans_type_counter = Counter()
     span_prediction_types = []
     ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
