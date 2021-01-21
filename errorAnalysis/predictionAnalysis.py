@@ -117,13 +117,11 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 prediction_ans_type_counter['em'] += 1
             elif raw_answer in ans_prediction:
                 prediction_ans_type_counter['sub_set'] += 1
+                print('raw {} predict {}'.format(raw_answer, ans_prediction))
             elif ans_prediction in raw_answer:
                 prediction_ans_type_counter['super_set'] += 1
             else:
                 prediction_ans_type_counter['others'] += 1
-
-
-
 
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     print('Ans type conf matrix {}'.format(conf_matrix))
