@@ -10,7 +10,8 @@ from os.path import join
 from collections import Counter
 
 from model_envs import MODEL_CLASSES
-from csr_mhqa.data_processing import Example, InputFeatures, get_cached_filename
+from csr_mhqa.data_processing import InputFeatures, get_cached_filename
+from jd_mhqa.jd_data_processing import Example
 from csr_mhqa.utils import get_final_text
 from envs import DATASET_FOLDER, OUTPUT_FOLDER
 from eval.hotpot_evaluate_v1 import eval as hotpot_eval
@@ -30,7 +31,8 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         feature = features[qid]
         example = examples[qid]
         q_type = feature.ans_type
-        print(qid, example)
+        ctx_names = [_[0] for _ in row['context']]
+        print(qid, example.para_names, ctx_names)
 
     # max_sent_num = 0
     # max_entity_num = 0
