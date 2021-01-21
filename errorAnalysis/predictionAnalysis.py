@@ -89,7 +89,7 @@ def feature_infor_collection(feature: InputFeatures):
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
     yes_no_span_true = []
-    span_types = ['em', 'sub_set', 'super_set', 'others']
+    span_types = ['em', 'sub_set', 'super_set', 'inter0.9', 'others']
     prediction_ans_type_counter = Counter()
     span_prediction_types = []
     for row in raw_data:
@@ -124,7 +124,11 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 print('-'*75)
             else:
-                prediction_ans_type_counter['others'] += 1
+                inter_res_len = len(set(ans_prediction).intersection(raw_answer))
+                if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.9:
+                    prediction_ans_type_counter['inter'] += 1
+                else:
+                    prediction_ans_type_counter['others'] += 1
 
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     print('Ans type conf matrix {}'.format(conf_matrix))
