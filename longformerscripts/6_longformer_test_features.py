@@ -21,16 +21,23 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     sp_dict = dict()
     ids = list(examples.keys())
 
-    max_sent_num = 0
-    max_entity_num = 0
-    q_type_counter = Counter()
-
-    answer_no_match_cnt = 0
-    for i, qid in enumerate(ids):
+    for row in raw_data:
+        qid = row['_id']
         feature = features[qid]
         example = examples[qid]
         q_type = feature.ans_type
         print(qid, example)
+
+    # max_sent_num = 0
+    # max_entity_num = 0
+    # q_type_counter = Counter()
+    #
+    # answer_no_match_cnt = 0
+    # for i, qid in enumerate(ids):
+    #     feature = features[qid]
+    #     example = examples[qid]
+    #     q_type = feature.ans_type
+    #     print(qid, example)
 
     #     max_sent_num = max(max_sent_num, len(feature.sent_spans))
     #     max_entity_num = max(max_entity_num, len(feature.entity_spans))
@@ -135,7 +142,7 @@ if __name__ == '__main__':
 
     with open(args.raw_data, 'r', encoding='utf-8') as reader:
         raw_data = json.load(reader)
-
+    print('Loading row data from: {}'.format(args.raw_data))
     print("Loading examples from: {}".format(cached_examples_file))
     print("Loading features from: {}".format(cached_features_file))
     print("Loading graphs from: {}".format(cached_graphs_file))
