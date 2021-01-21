@@ -10,12 +10,69 @@ from os.path import join
 from collections import Counter
 
 from model_envs import MODEL_CLASSES
-from csr_mhqa.data_processing import InputFeatures, get_cached_filename
-from jd_mhqa.jd_data_processing import Example
+from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filename
 from csr_mhqa.utils import get_final_text
 from envs import DATASET_FOLDER, OUTPUT_FOLDER
 from eval.hotpot_evaluate_v1 import eval as hotpot_eval
 from eval.hotpot_evaluate_v1 import normalize_answer
+
+# features
+# self.qas_id = qas_id
+#         self.doc_tokens = doc_tokens
+#         self.doc_input_ids = doc_input_ids
+#         self.doc_input_mask = doc_input_mask
+#         self.doc_segment_ids = doc_segment_ids
+#
+#         self.query_tokens = query_tokens
+#         self.query_input_ids = query_input_ids
+#         self.query_input_mask = query_input_mask
+#         self.query_segment_ids = query_segment_ids
+#
+#         self.para_spans = para_spans
+#         self.sent_spans = sent_spans
+#         self.entity_spans = entity_spans
+#         self.q_entity_cnt = q_entity_cnt
+#         self.sup_fact_ids = sup_fact_ids
+#         self.sup_para_ids = sup_para_ids
+#         self.ans_type = ans_type
+#
+#         self.edges = edges
+#         self.token_to_orig_map = token_to_orig_map
+#         self.orig_answer_text = orig_answer_text
+#         self.answer_in_entity_ids = answer_in_entity_ids
+#         self.answer_candidates_ids = answer_candidates_ids
+#
+#         self.start_position = start_position
+#         self.end_position = end_position
+
+# Example
+# self.qas_id = qas_id
+#         self.doc_tokens = doc_tokens
+#         self.doc_input_ids = doc_input_ids
+#         self.doc_input_mask = doc_input_mask
+#         self.doc_segment_ids = doc_segment_ids
+#
+#         self.query_tokens = query_tokens
+#         self.query_input_ids = query_input_ids
+#         self.query_input_mask = query_input_mask
+#         self.query_segment_ids = query_segment_ids
+#
+#         self.para_spans = para_spans
+#         self.sent_spans = sent_spans
+#         self.entity_spans = entity_spans
+#         self.q_entity_cnt = q_entity_cnt
+#         self.sup_fact_ids = sup_fact_ids
+#         self.sup_para_ids = sup_para_ids
+#         self.ans_type = ans_type
+#
+#         self.edges = edges
+#         self.token_to_orig_map = token_to_orig_map
+#         self.orig_answer_text = orig_answer_text
+#         self.answer_in_entity_ids = answer_in_entity_ids
+#         self.answer_candidates_ids = answer_candidates_ids
+#
+#         self.start_position = start_position
+#         self.end_position = end_position
 
 def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=False):
     answer_dict = dict()
@@ -36,9 +93,12 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         answer = row['answer']
         q_type = feature.ans_type
         ctx_names = [_[0] for _ in row['context']]
-        print(qid, answer, q_type)
+        # print(qid, answer, q_type)
         q_type_counter[q_type] += 1
         ans_type_counter[answer] += 1
+        e_doc_tokens = example.doc_tokens
+        f_doc_tokens = features.doc_tokens
+        print(len(e_doc_tokens), len(f_doc_tokens))
 
     # max_sent_num = 0
     # max_entity_num = 0
