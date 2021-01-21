@@ -30,6 +30,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     for row in raw_data:
         qid = row['_id']
         feature = features[qid]
+        print(features)
         example = examples[qid]
         q_type = feature.ans_type
         answer = row['answer']
@@ -109,7 +110,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     # print("Maximum sentence num: {}".format(max_sent_num))
     # print("Maximum entity num: {}".format(max_entity_num))
     print("Question type: {}".format(q_type_counter))
-    print("Ans type: {}".format(ans_type_counter))
+    # print("Ans type: {}".format(ans_type_counter))
     # print("Answer doesnot match: {}".format(answer_no_match_cnt))
 
 if __name__ == '__main__':
