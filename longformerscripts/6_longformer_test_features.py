@@ -123,7 +123,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         #     # print('-'*75)
         #     # print(f_doc_tokens)
         #     print('+' * 75)
-        print('token number', len(e_doc_tokens) + len(e_q_tokens), len(f_ent_span))
+        print('token number', len(e_doc_tokens) + len(e_q_tokens), len(f_doc_tokens))
 
     print('Max token num = {}'.format(max_token_num))
 
