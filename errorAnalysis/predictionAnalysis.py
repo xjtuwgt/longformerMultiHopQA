@@ -126,7 +126,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
             else:
                 inter_res_len = len(set(ans_prediction).intersection(raw_answer))
                 if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.9:
-                    prediction_ans_type_counter['inter'] += 1
+                    prediction_ans_type_counter['inter0.9'] += 1
                 else:
                     prediction_ans_type_counter['others'] += 1
 
