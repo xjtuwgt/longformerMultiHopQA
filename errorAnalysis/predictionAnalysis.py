@@ -83,7 +83,6 @@ def feature_infor_collection(feature: InputFeatures):
     doc_tokens = feature.doc_tokens
     sent_spans = feature.sent_spans
     ent_spans = feature.entity_spans
-
     return
 
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
@@ -92,18 +91,21 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     span_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
     sent_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
     prediction_ans_type_counter = Counter()
+    prediction_sent_type_counter = Counter()
     span_prediction_types = []
     ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     for row in raw_data:
         qid = row['_id']
         sp_predictions = predictions['sp'][qid]
+        sp_predictions = [(x[0], x[1]) for x in sp_predictions]
         ans_prediction = predictions['answer'][qid]
 
         raw_answer = row['answer']
         raw_answer = normalize_answer(raw_answer)
         ans_prediction = normalize_answer(ans_prediction)
         sp_golds = row['supporting_facts']
+        sp_golds = [(x[0], x[1]) for x in sp_golds]
         sp_para_golds =list(set([_[0] for _ in sp_golds]))
         if raw_answer not in ['yes', 'no']:
             yes_no_span_true.append('span')
