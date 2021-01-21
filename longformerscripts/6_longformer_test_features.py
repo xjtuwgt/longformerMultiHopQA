@@ -111,7 +111,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
 
         f_sent_span = feature.sent_spans
         f_ent_span = feature.entity_spans
-        # print(len(e_ent_span), len(f_ent_span))
+        print(len(e_ent_span), len(f_ent_span))
         # if len(e_sent_span) < len(f_sent_span):
         #     print(len(e_sent_span), len(f_sent_span))
 
