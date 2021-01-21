@@ -24,6 +24,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     max_sent_num = 0
     max_entity_num = 0
     q_type_counter = Counter()
+    ans_type_counter = Counter()
     answer_no_match_cnt = 0
 
     for row in raw_data:
@@ -35,6 +36,8 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         q_type = feature.ans_type
         ctx_names = [_[0] for _ in row['context']]
         print(qid, answer, q_type)
+        q_type_counter[q_type] += 1
+        ans_type_counter[answer] += 1
 
     # max_sent_num = 0
     # max_entity_num = 0
@@ -105,7 +108,8 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
 
     # print("Maximum sentence num: {}".format(max_sent_num))
     # print("Maximum entity num: {}".format(max_entity_num))
-    # print("Question type: {}".format(q_type_counter))
+    print("Question type: {}".format(q_type_counter))
+    print("Ans type: {}".format(ans_type_counter))
     # print("Answer doesnot match: {}".format(answer_no_match_cnt))
 
 if __name__ == '__main__':
