@@ -89,7 +89,7 @@ def feature_infor_collection(feature: InputFeatures):
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
     yes_no_span_true = []
-    span_types = ['em', 'sub_set', 'super_set', 'inter0.9', 'others']
+    span_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
     prediction_ans_type_counter = Counter()
     span_prediction_types = []
     for row in raw_data:
@@ -125,9 +125,9 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 # print('-'*75)
             else:
                 inter_res_len = len(set(ans_prediction).intersection(raw_answer))
-                print(inter_res_len)
+                # print(inter_res_len)
                 if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.5:
-                    prediction_ans_type_counter['inter0.9'] += 1
+                    prediction_ans_type_counter['inter0.5'] += 1
                     print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                     print('-'*75)
                 else:
