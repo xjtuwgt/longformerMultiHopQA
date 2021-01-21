@@ -85,11 +85,32 @@ def feature_infor_collection(feature: InputFeatures):
     ent_spans = feature.entity_spans
     return
 
+def set_comparison(prediction_list, true_list):
+    def em():
+        if len(prediction_list) != len(true_list):
+            return False
+        for pred in prediction_list:
+            if pred not in true_list:
+                return False
+        return True
+    if em():
+        return 'em'
+
+    is_subset = set(true_list).issubset(set(prediction_list))
+    if is_subset:
+        return 'sub_set'
+    is_super_set = set(prediction_list).issubset(set(true_list))
+    if is_super_set:
+        return 'super_set'
+    return 'others'
+
+
+
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
     yes_no_span_true = []
     span_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
-    sent_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
+    sent_types = ['em', 'sub_set', 'super_set', 'others']
     prediction_ans_type_counter = Counter()
     prediction_sent_type_counter = Counter()
     span_prediction_types = []
@@ -106,6 +127,8 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         ans_prediction = normalize_answer(ans_prediction)
         sp_golds = row['supporting_facts']
         sp_golds = [(x[0], x[1]) for x in sp_golds]
+        sp_sent_type = set_comparison(prediction_list=sp_predictions, true_list=sp_golds)
+        prediction_sent_type_counter[sp_sent_type] +=1
         sp_para_golds =list(set([_[0] for _ in sp_golds]))
         if raw_answer not in ['yes', 'no']:
             yes_no_span_true.append('span')
@@ -143,6 +166,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     print('Ans type conf matrix {}'.format(conf_matrix))
     print("Ans prediction type: {}".format(prediction_ans_type_counter))
+    print("Sent prediction type: {}".format(prediction_sent_type_counter))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
