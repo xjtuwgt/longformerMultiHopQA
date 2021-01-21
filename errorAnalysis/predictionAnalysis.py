@@ -95,7 +95,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         ans_prediction = predictions['answer'][qid]
 
         raw_answer = row['answer']
-        sp_golds = row['supporting_fact']
+        sp_golds = row['supporting_facts']
         sp_para_golds =list(set([_[0] for _ in sp_golds]))
         if raw_answer not in ['yes', 'no']:
             yes_no_span_true.append('span')
