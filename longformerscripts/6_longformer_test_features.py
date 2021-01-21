@@ -83,7 +83,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     q_type_counter = Counter()
     ans_type_counter = Counter()
     answer_no_match_cnt = 0
-
+    max_token_num = 0
     for row in raw_data:
         qid = row['_id']
         feature = features[qid]
@@ -100,7 +100,8 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
 
         f_doc_input_ids = feature.doc_input_ids
         f_doc_tokens = feature.doc_tokens
-        print(len(q_tokens), len(e_doc_tokens), len(f_doc_tokens), len(f_doc_input_ids))
+        max_token_num = max(max_token_num, len(e_doc_tokens))
+        # print(len(q_tokens), len(e_doc_tokens), len(f_doc_tokens), len(f_doc_input_ids))
         if len(e_doc_tokens) > len(f_doc_tokens):
             print(len(q_tokens), len(e_doc_tokens), len(f_doc_tokens), len(f_doc_input_ids))
             # print(e_doc_tokens)
@@ -108,6 +109,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
             # print(f_doc_tokens)
             print('+' * 75)
 
+    print('Max token num = {}'.format(max_token_num))
     # max_sent_num = 0
     # max_entity_num = 0
     # q_type_counter = Counter()
