@@ -87,7 +87,6 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     for row in raw_data:
         qid = row['_id']
         feature = features[qid]
-        print(features)
         example = examples[qid]
         q_type = feature.ans_type
         answer = row['answer']
