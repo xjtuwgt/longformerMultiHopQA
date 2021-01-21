@@ -102,9 +102,10 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         f_doc_tokens = feature.doc_tokens
         print(len(q_tokens), len(e_doc_tokens), len(f_doc_tokens), len(f_doc_input_ids))
         if len(e_doc_tokens) > len(f_doc_tokens):
-            print(e_doc_tokens)
-            print('-'*75)
-            print(f_doc_tokens)
+            print(len(q_tokens), len(e_doc_tokens), len(f_doc_tokens), len(f_doc_input_ids))
+            # print(e_doc_tokens)
+            # print('-'*75)
+            # print(f_doc_tokens)
             print('+' * 75)
 
     # max_sent_num = 0
