@@ -92,16 +92,15 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     for row in raw_data:
         qid = row['_id']
         sp_predictions = predictions['sp'][qid]
-        ans_prediction = predictions['answer']
+        ans_prediction = predictions['answer'][qid]
 
-        raw_answer = row['answer'][qid]
-        raw_answer_type = row['type']
+        raw_answer = row['answer']
         sp_golds = row['supporting_fact']
         sp_para_golds =list(set([_[0] for _ in sp_golds]))
-        if raw_answer_type not in ['yes', 'no']:
+        if raw_answer not in ['yes', 'no']:
             yes_no_span_true.append('span')
         else:
-            yes_no_span_true.append(raw_answer_type)
+            yes_no_span_true.append(raw_answer)
 
         if ans_prediction not in ['yes', 'no']:
             yes_no_span_predictions.append('span')
