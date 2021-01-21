@@ -61,18 +61,18 @@ preprocess() {
 #        # Output: ner.json
 #        python scripts/2_extract_ner.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json
 #
-#        echo "3. Paragraph ranking (1)"
-#        # Output: para_ranking.json
-#        python scripts/3_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv
-#
-#        echo "3. Paragraph ranking (2): longformer retrieval data preprocess"
-#        # Output: para_ranking.json
-#        python longformerscripts/3_longformer_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/para_ir_combined.json
-#
-#        echo "3. Paragraph ranking (3): longformer retrieval ranking scores"
-#
-#        # switch to Longformer for final leaderboard
-#        python longformerscripts/3_longformer_paragraph_ranking.py --data_dir $OUTPUT_PROCESSED --eval_ckpt $DATA_ROOT/models/finetuned/PS/longformer_pytorchlighting_model.ckpt --raw_data $INPUT_FILE --input_data $OUTPUT_PROCESSED/para_ir_combined.json
+        echo "3. Paragraph ranking (1)"
+        # Output: para_ranking.json
+        python scripts/3_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/hotpot_ss_$DATA_TYPE.csv
+
+        echo "3. Paragraph ranking (2): longformer retrieval data preprocess"
+        # Output: para_ranking.json
+        python longformerscripts/3_longformer_prepare_para_sel.py $INPUT_FILE $OUTPUT_PROCESSED/para_ir_combined.json
+
+        echo "3. Paragraph ranking (3): longformer retrieval ranking scores"
+
+        # switch to Longformer for final leaderboard
+        python longformerscripts/3_longformer_paragraph_ranking.py --data_dir $OUTPUT_PROCESSED --eval_ckpt $DATA_ROOT/models/finetuned/PS/longformer_pytorchlighting_model.ckpt --raw_data $INPUT_FILE --input_data $OUTPUT_PROCESSED/para_ir_combined.json
 
         echo "4. MultiHop Paragraph Selection"
         # Input: $INPUT_FILE, doc_link_ner.json,  ner.json, long_para_ranking.json
