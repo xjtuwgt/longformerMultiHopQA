@@ -16,7 +16,7 @@ from envs import DATASET_FOLDER, OUTPUT_FOLDER
 from eval.hotpot_evaluate_v1 import eval as hotpot_eval
 from eval.hotpot_evaluate_v1 import normalize_answer
 
-def predict(examples, features, pred_file, tokenizer, use_ent_ans=False):
+def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=False):
     answer_dict = dict()
     sp_dict = dict()
     ids = list(examples.keys())
@@ -133,12 +133,15 @@ if __name__ == '__main__':
     example_dict = { example.qas_id: example for example in examples}
     feature_dict = { feature.qas_id: feature for feature in features}
 
+    with open(args.raw_data, 'r', encoding='utf-8') as reader:
+        raw_data = json.load(reader)
+
     print("Loading examples from: {}".format(cached_examples_file))
     print("Loading features from: {}".format(cached_features_file))
     print("Loading graphs from: {}".format(cached_graphs_file))
 
     pred_file = join(args.output_dir, 'pred.json')
-    predict(example_dict, feature_dict, pred_file, tokenizer, use_ent_ans=False)
+    predict(raw_data, example_dict, feature_dict, pred_file, tokenizer, use_ent_ans=False)
     # metrics = hotpot_eval(pred_file, args.raw_data)
     # for key, val in metrics.items():
     #     print("{} = {}".format(key, val))
