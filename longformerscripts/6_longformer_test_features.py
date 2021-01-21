@@ -47,30 +47,29 @@ from eval.hotpot_evaluate_v1 import normalize_answer
 
 # Example
 # self.qas_id = qas_id
+#         self.qas_type = qas_type
+#         self.question_tokens = question_tokens
 #         self.doc_tokens = doc_tokens
-#         self.doc_input_ids = doc_input_ids
-#         self.doc_input_mask = doc_input_mask
-#         self.doc_segment_ids = doc_segment_ids
-#
-#         self.query_tokens = query_tokens
-#         self.query_input_ids = query_input_ids
-#         self.query_input_mask = query_input_mask
-#         self.query_segment_ids = query_segment_ids
-#
-#         self.para_spans = para_spans
-#         self.sent_spans = sent_spans
-#         self.entity_spans = entity_spans
-#         self.q_entity_cnt = q_entity_cnt
-#         self.sup_fact_ids = sup_fact_ids
-#         self.sup_para_ids = sup_para_ids
-#         self.ans_type = ans_type
-#
+#         self.question_text = question_text
+#         self.sent_num = sent_num
+#         self.sent_names = sent_names
+#         self.para_names = para_names
+#         self.sup_fact_id = sup_fact_id
+#         self.sup_para_id = sup_para_id
+#         self.ques_entities_text = ques_entities_text
+#         self.ctx_entities_text = ctx_entities_text
+#         self.para_start_end_position = para_start_end_position
+#         self.sent_start_end_position = sent_start_end_position
+#         self.ques_entity_start_end_position = ques_entity_start_end_position
+#         self.ctx_entity_start_end_position = ctx_entity_start_end_position
+#         self.question_word_to_char_idx = question_word_to_char_idx
+#         self.ctx_text = ctx_text
+#         self.ctx_word_to_char_idx = ctx_word_to_char_idx
 #         self.edges = edges
-#         self.token_to_orig_map = token_to_orig_map
 #         self.orig_answer_text = orig_answer_text
-#         self.answer_in_entity_ids = answer_in_entity_ids
-#         self.answer_candidates_ids = answer_candidates_ids
-#
+#         self.answer_in_ques_entity_ids = answer_in_ques_entity_ids
+#         self.answer_in_ctx_entity_ids = answer_in_ctx_entity_ids
+#         self.answer_candidates_in_ctx_entity_ids= answer_candidates_in_ctx_entity_ids
 #         self.start_position = start_position
 #         self.end_position = end_position
 
@@ -106,7 +105,8 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         max_token_num = max(max_token_num, len(e_doc_tokens))
         token_num_list.append(len(e_doc_tokens))
         e_sent_span = example.sent_start_end_position
-        e_ent_span = example.ctx_entity_start_end_position
+        e_ent_span = example.ctx_entities_text
+
 
         f_sent_span = feature.sent_spans
         f_ent_span = feature.entity_spans
