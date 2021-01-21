@@ -125,6 +125,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 # print('-'*75)
             else:
                 inter_res_len = len(set(ans_prediction).intersection(raw_answer))
+                print(inter_res_len)
                 if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.9:
                     prediction_ans_type_counter['inter0.9'] += 1
                     print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
