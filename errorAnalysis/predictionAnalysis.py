@@ -5,16 +5,13 @@ import torch
 import numpy as np
 import argparse
 import os
+from sklearn.metrics import confusion_matrix
 
 from os.path import join
 from collections import Counter
 
 from model_envs import MODEL_CLASSES
 from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filename
-from csr_mhqa.utils import get_final_text
-from envs import DATASET_FOLDER, OUTPUT_FOLDER
-from eval.hotpot_evaluate_v1 import eval as hotpot_eval
-from eval.hotpot_evaluate_v1 import normalize_answer
 
 def exmple_infor_collection(example: Example):
     # Example
@@ -88,30 +85,31 @@ def feature_infor_collection(feature: InputFeatures):
 
     return
 
-def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=False):
-    answer_dict = dict()
-    sp_dict = dict()
-    ids = list(examples.keys())
-    max_sent_num = 0
-    max_entity_num = 0
-    q_type_counter = Counter()
-    ans_type_counter = Counter()
-    answer_no_match_cnt = 0
-    max_token_num = 0
-    max_deep_token_num = 0
-    token_num_list = []
-    deep_token_num_list = []
-    sent_num_list = []
-    ent_num_list = []
+def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
+    yes_no_span_predictions = []
+    yes_no_span_true = []
+
     for row in raw_data:
         qid = row['_id']
-        feature = features[qid]
-        example = examples[qid]
-        q_type = feature.ans_type
-        answer = row['answer']
-        q_type = feature.ans_type
-        ctx_names = [_[0] for _ in row['context']]
-        # print(qid, answer, q_type)
+        sp_predictions = predictions['sp'][qid]
+        ans_prediction = predictions['answer']
+
+        raw_answer = row['answer'][qid]
+        raw_answer_type = row['type']
+        sp_golds = row['supporting_fact']
+        sp_para_golds =list(set([_[0] for _ in sp_golds]))
+        if raw_answer_type not in ['yes', 'no']:
+            yes_no_span_true.append('span')
+        else:
+            yes_no_span_true.append(raw_answer_type)
+
+        if ans_prediction not in ['yes', 'no']:
+            yes_no_span_predictions.append('span')
+        else:
+            yes_no_span_predictions.append(ans_prediction)
+
+    conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
+    print(conf_matrix)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -120,10 +118,11 @@ if __name__ == '__main__':
     parser.add_argument("--raw_data", type=str, required=True)
     parser.add_argument("--input_dir", type=str, required=True, help='define output directory')
     parser.add_argument("--output_dir", type=str, required=True, help='define output directory')
+    parser.add_argument("--pred_dir", type=str, required=True, help='define output directory')
     parser.add_argument("--graph_id", type=str, default="1", help='define output directory')
 
     # Other parameters
-    parser.add_argument("--model_type", default="bert", type=str)
+    parser.add_argument("--model_type", default="roberta", type=str)
     parser.add_argument("--model_name_or_path", default=None, type=str, required=True,
                         help="Path to pre-trained model")
 
@@ -143,7 +142,7 @@ if __name__ == '__main__':
                                         get_cached_filename('examples', args))
     cached_features_file = os.path.join(args.input_dir,
                                         get_cached_filename('features',  args))
-    cached_graphs_file = os.path.join(args.input_dir, 
+    cached_graphs_file = os.path.join(args.input_dir,
                                      get_cached_filename('graphs', args))
 
     examples = pickle.load(gzip.open(cached_examples_file, 'rb'))
@@ -155,13 +154,18 @@ if __name__ == '__main__':
 
     with open(args.raw_data, 'r', encoding='utf-8') as reader:
         raw_data = json.load(reader)
-    print('Loading row data from: {}'.format(args.raw_data))
+
+    pred_results_file = os.path.join(args.pred_dir, args.model_type, 'pred.json')
+    with open(pred_results_file, 'r', encoding='utf-8') as reader:
+        pred_data = json.load(reader)
+
+    print('Loading predictions from: {}'.format(pred_results_file))
+    print('Loading raw data from: {}'.format(args.raw_data))
     print("Loading examples from: {}".format(cached_examples_file))
     print("Loading features from: {}".format(cached_features_file))
     print("Loading graphs from: {}".format(cached_graphs_file))
 
-    pred_file = join(args.output_dir, 'pred.json')
-    predict(raw_data, example_dict, feature_dict, pred_file, tokenizer, use_ent_ans=False)
+    error_analysis(raw_data, example_dict, feature_dict, pred_data, tokenizer, use_ent_ans=False)
     # metrics = hotpot_eval(pred_file, args.raw_data)
     # for key, val in metrics.items():
     #     print("{} = {}".format(key, val))
