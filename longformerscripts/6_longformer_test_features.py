@@ -127,7 +127,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         #     # print(f_doc_tokens)
         #     print('+' * 75)
         deep_token_num_list.append(len(f_doc_tokens))
-        print('token number spacy tokenizer: {}, deep tokenizer {}', len(e_doc_tokens) + len(e_q_tokens), len(f_doc_tokens))
+        print('token number spacy tokenizer: {}, deep tokenizer {}'.format(len(e_doc_tokens) + len(e_q_tokens), len(f_doc_tokens)))
 
     print('Max token num = {}'.format(max_token_num))
     print('Max deep token num = {}'.format(max_deep_token_num))
