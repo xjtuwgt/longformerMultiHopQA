@@ -121,12 +121,14 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 # print('-'*75)
             elif ans_prediction in raw_answer:
                 prediction_ans_type_counter['super_set'] += 1
-                print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                print('-'*75)
+                # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                # print('-'*75)
             else:
                 inter_res_len = len(set(ans_prediction).intersection(raw_answer))
                 if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.9:
                     prediction_ans_type_counter['inter0.9'] += 1
+                    print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                    print('-'*75)
                 else:
                     prediction_ans_type_counter['others'] += 1
 
