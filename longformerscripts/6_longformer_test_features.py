@@ -96,8 +96,10 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         q_type_counter[q_type] += 1
         ans_type_counter[answer] += 1
         e_doc_tokens = example.doc_tokens
+        e_doc_input_ids = example.doc_input_ids
+        f_doc_input_ids = feature.doc_input_ids
         f_doc_tokens = feature.doc_tokens
-        print(len(e_doc_tokens), len(f_doc_tokens))
+        print(len(e_doc_tokens), len(f_doc_tokens), len(e_doc_input_ids), len(f_doc_input_ids))
 
     # max_sent_num = 0
     # max_entity_num = 0
