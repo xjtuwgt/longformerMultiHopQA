@@ -98,7 +98,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         q_type_counter[q_type] += 1
         ans_type_counter[answer] += 1
         e_doc_tokens = example.doc_tokens
-        q_tokens = example.question_tokens
+        e_q_tokens = example.question_tokens
 
         f_doc_input_ids = feature.doc_input_ids
         f_doc_tokens = feature.doc_tokens
@@ -108,11 +108,11 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         e_ent_span = example.ctx_entities_text
         e_q_ent_span = example.ques_entities_text
 
-        print('entity number', len(example.ctx_entities_text), len(example.ctx_entity_start_end_position))
+        # print('entity number', len(example.ctx_entities_text), len(example.ctx_entity_start_end_position))
 
         f_sent_span = feature.sent_spans
         f_ent_span = feature.entity_spans
-        print(len(e_ent_span) + len(e_q_ent_span), len(f_ent_span))
+        print('entity number', len(e_ent_span) + len(e_q_ent_span), len(f_ent_span))
         # if len(e_sent_span) < len(f_sent_span):
         #     print(len(e_sent_span), len(f_sent_span))
 
@@ -123,6 +123,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         #     # print('-'*75)
         #     # print(f_doc_tokens)
         #     print('+' * 75)
+        print('token number', len(e_doc_tokens) + len(e_q_tokens), len(f_ent_span))
 
     print('Max token num = {}'.format(max_token_num))
 
