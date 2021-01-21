@@ -170,8 +170,8 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 #     print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 #     print('-'*75)
                 ans_type = 'others'
-                print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                print('-' * 75)
+                # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                # print('-' * 75)
         else:
             if raw_answer == ans_prediction:
                 ans_type = 'em'
