@@ -109,11 +109,13 @@ def set_comparison(prediction_list, true_list):
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
     yes_no_span_true = []
-    span_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
+    span_types = ['em', 'sub_set', 'super_set', 'others']
     sent_types = ['em', 'sub_set', 'super_set', 'others']
     prediction_ans_type_counter = Counter()
     prediction_sent_type_counter = Counter()
     span_prediction_types = []
+    pred_ans_type_list = []
+    pred_sent_type_list = []
     ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     for row in raw_data:
@@ -128,7 +130,10 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         sp_golds = row['supporting_facts']
         sp_golds = [(x[0], x[1]) for x in sp_golds]
         sp_sent_type = set_comparison(prediction_list=sp_predictions, true_list=sp_golds)
+        ###+++++++++
         prediction_sent_type_counter[sp_sent_type] +=1
+        pred_sent_type_list.append(sp_sent_type)
+        ###+++++++++
         sp_para_golds =list(set([_[0] for _ in sp_golds]))
         if raw_answer not in ['yes', 'no']:
             yes_no_span_true.append('span')
@@ -140,17 +145,19 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         else:
             yes_no_span_predictions.append(ans_prediction)
 
+        ans_type = 'em'
         if raw_answer not in ['yes', 'no']:
+            pred_sent_type_list.append(sp_sent_type)
             if raw_answer == ans_prediction:
-                prediction_ans_type_counter['em'] += 1
+                ans_type = 'em'
             elif raw_answer in ans_prediction:
-                prediction_ans_type_counter['sub_set'] += 1
                 # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 # print('-'*75)
+                ans_type = 'subset'
             elif ans_prediction in raw_answer:
-                prediction_ans_type_counter['super_set'] += 1
                 # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 # print('-'*75)
+                ans_type = 'super_set'
             else:
                 # inter_res_len = len(set(ans_prediction).intersection(raw_answer))
                 # # print(inter_res_len)
@@ -162,9 +169,20 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 #     prediction_ans_type_counter['others'] += 1
                 #     print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 #     print('-'*75)
-                prediction_ans_type_counter['others'] += 1
+                ans_type = 'others'
                 print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 print('-' * 75)
+        else:
+            if raw_answer == ans_prediction:
+                ans_type = 'em'
+            else:
+                ans_type = 'other'
+
+        prediction_ans_type_counter[ans_type] += 1
+        pred_ans_type_list.append(ans_type)
+
+
+
 
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     print('Ans type conf matrix {}'.format(conf_matrix))
