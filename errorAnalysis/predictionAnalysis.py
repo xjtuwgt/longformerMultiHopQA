@@ -152,16 +152,19 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 # print('-'*75)
             else:
-                inter_res_len = len(set(ans_prediction).intersection(raw_answer))
-                # print(inter_res_len)
-                if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.5:
-                    prediction_ans_type_counter['inter0.5'] += 1
-                    # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                    # print('-'*75)
-                else:
-                    prediction_ans_type_counter['others'] += 1
-                    print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                    print('-'*75)
+                # inter_res_len = len(set(ans_prediction).intersection(raw_answer))
+                # # print(inter_res_len)
+                # if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.5:
+                #     prediction_ans_type_counter['inter0.5'] += 1
+                #     # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                #     # print('-'*75)
+                # else:
+                #     prediction_ans_type_counter['others'] += 1
+                #     print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                #     print('-'*75)
+                prediction_ans_type_counter['others'] += 1
+                print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                print('-' * 75)
 
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     print('Ans type conf matrix {}'.format(conf_matrix))
