@@ -117,10 +117,12 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 prediction_ans_type_counter['em'] += 1
             elif raw_answer in ans_prediction:
                 prediction_ans_type_counter['sub_set'] += 1
-                print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                print('-'*75)
+                # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                # print('-'*75)
             elif ans_prediction in raw_answer:
                 prediction_ans_type_counter['super_set'] += 1
+                print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
+                print('-'*75)
             else:
                 prediction_ans_type_counter['others'] += 1
 
