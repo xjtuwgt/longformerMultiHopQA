@@ -92,6 +92,8 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     span_types = ['em', 'sub_set', 'super_set', 'inter0.5', 'others']
     prediction_ans_type_counter = Counter()
     span_prediction_types = []
+    ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     for row in raw_data:
         qid = row['_id']
         sp_predictions = predictions['sp'][qid]
