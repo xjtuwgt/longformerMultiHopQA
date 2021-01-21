@@ -20,6 +20,10 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     answer_dict = dict()
     sp_dict = dict()
     ids = list(examples.keys())
+    max_sent_num = 0
+    max_entity_num = 0
+    q_type_counter = Counter()
+    answer_no_match_cnt = 0
 
     for row in raw_data:
         qid = row['_id']
@@ -95,10 +99,10 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     # # final_pred = {'answer': answer_dict, 'sp': sp_dict}
     # # json.dump(final_pred, open(pred_file, 'w'))
 
-    print("Maximum sentence num: {}".format(max_sent_num))
-    print("Maximum entity num: {}".format(max_entity_num))
-    print("Question type: {}".format(q_type_counter))
-    print("Answer doesnot match: {}".format(answer_no_match_cnt))
+    # print("Maximum sentence num: {}".format(max_sent_num))
+    # print("Maximum entity num: {}".format(max_entity_num))
+    # print("Question type: {}".format(q_type_counter))
+    # print("Answer doesnot match: {}".format(answer_no_match_cnt))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
