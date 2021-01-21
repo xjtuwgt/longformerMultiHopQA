@@ -83,7 +83,9 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
     ans_type_counter = Counter()
     answer_no_match_cnt = 0
     max_token_num = 0
+    max_deep_token_num = 0
     token_num_list = []
+    deep_token_num_list = []
     sent_num_list = []
     ent_num_list = []
     for row in raw_data:
@@ -103,6 +105,7 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         f_doc_input_ids = feature.doc_input_ids
         f_doc_tokens = feature.doc_tokens
         max_token_num = max(max_token_num, len(e_doc_tokens))
+        max_deep_token_num = max((max_deep_token_num, len(f_doc_tokens)))
         token_num_list.append(len(e_doc_tokens))
         e_sent_span = example.sent_start_end_position
         e_ent_span = example.ctx_entities_text
@@ -123,9 +126,11 @@ def predict(raw_data, examples, features, pred_file, tokenizer, use_ent_ans=Fals
         #     # print('-'*75)
         #     # print(f_doc_tokens)
         #     print('+' * 75)
+        deep_token_num_list.append(len(f_doc_tokens))
         print('token number spacy tokenizer: {}, deep tokenizer {}', len(e_doc_tokens) + len(e_q_tokens), len(f_doc_tokens))
 
     print('Max token num = {}'.format(max_token_num))
+    print('Max deep token num = {}'.format(max_deep_token_num))
 
     # max_sent_num = 0
     # max_entity_num = 0
