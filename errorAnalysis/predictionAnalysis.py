@@ -124,8 +124,9 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         feature_dict = vars(feature)
         doc_input_ids = feature_dict['doc_input_ids']
         assert len(doc_input_ids) == 512
-        doc_512_context = tokenizer.decode(doc_input_ids, skip_special_tokens=True)
-        print(doc_512_context)
+        # doc_512_context = tokenizer.decode(doc_input_ids, skip_special_tokens=True)
+        para_spans = feature_dict['para_spans']
+        print(para_spans)
         ################################################################################################################
         # for key, value in feature_dict.items():
         #     example_sent_num_list.append()
