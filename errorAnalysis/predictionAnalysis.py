@@ -55,6 +55,7 @@ def feature_infor_collection(feature: InputFeatures):
     instance_variables = vars(feature)
     for key, value in instance_variables.items():
         print(key)
+
     # print(instance_variables)
     # features
     # self.qas_id = qas_id
@@ -112,7 +113,15 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
     for row in raw_data:
         qid = row['_id']
         feature = features[qid]
-        feature_infor_collection(feature)
+        feature_dict = vars(features)
+        for key, value in feature_dict.items():
+            print(key)
+        example = examples[qid]
+        print('*' * 100)
+        example_dict = vars(example)
+        for key, value in example_dict.items():
+            print(key)
+
         break
 
 
