@@ -126,10 +126,10 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         #     example_sent_num_list.append()
         #     print('F\t{}: \t {}'.format(qid, key, value))
         example = examples[qid]
-        example_doc_names = example['para_names']
+        example_dict = vars(example)
+        example_doc_names = example_dict['para_names']
         em_recall = recall_computation(prediction=example_doc_names, gold=gold_doc_names)
         example_doc_recall_list.append(em_recall)
-        # example_dict = vars(example)
         # for key, value in example_dict.items():
         #     print('E\t: \t {}'.format(key, value))
 
