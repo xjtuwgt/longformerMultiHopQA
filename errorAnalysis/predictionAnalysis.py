@@ -164,8 +164,9 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
                         print('Cut para {}:\n{}'.format(c_idx, ctx[1]))
             print('*'*100)
 
-    print('Example recall: {}'.format(sum(example_doc_recall_list)/len(example_doc_recall_list)))
-    print('Example recall (512 trim): {}'.format(sum(feature_doc_recall_list)/len(feature_doc_recall_list)))
+    print('Example doc recall: {}'.format(sum(example_doc_recall_list)/len(example_doc_recall_list)))
+    print('Example doc recall (512 trim): {}'.format(sum(feature_doc_recall_list)/len(feature_doc_recall_list)))
+    print('Example sent recall: {}'.format(sum(example_sent_recall_list) / len(example_sent_recall_list)))
 
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
