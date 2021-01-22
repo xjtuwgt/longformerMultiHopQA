@@ -126,7 +126,6 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         assert len(doc_input_ids) == 512
         # doc_512_context = tokenizer.decode(doc_input_ids, skip_special_tokens=True)
         para_spans = feature_dict['para_spans']
-        print(para_spans)
         ################################################################################################################
         # for key, value in feature_dict.items():
         #     example_sent_num_list.append()
@@ -138,6 +137,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         example_doc_recall_list.append(em_recall)
         # for key, value in example_dict.items():
         #     print('E\t: \t {}'.format(key, value))
+        print(len(example_doc_names), len(para_spans))
 
     print(sum(example_doc_recall_list)/len(example_doc_recall_list))
 
