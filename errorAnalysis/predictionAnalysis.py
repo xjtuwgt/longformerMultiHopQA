@@ -110,7 +110,8 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
     for row in raw_data:
         qid = row['_id']
         feature = features[qid]
-
+        feature_infor_collection(feature)
+        break
 
 
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
