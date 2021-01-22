@@ -115,12 +115,16 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
     # example_ent_num_list = []
     # example_ctx_num_list = []
     example_doc_recall_list = []
+    feature_doc_recall_list = []
     for row in raw_data:
         qid = row['_id']
         gold_doc_names = list(set([_[0] for _ in row['supporting_facts']]))
         ################################################################################################################
         feature = features[qid]
         feature_dict = vars(feature)
+        doc_input_ids = feature_dict['doc_input_ids']
+        assert len(doc_input_ids) == 512
+        doc_512_context = tokenizer.decode(doc_input_ids, skip_special_tokens=True)
         ################################################################################################################
         # for key, value in feature_dict.items():
         #     example_sent_num_list.append()
