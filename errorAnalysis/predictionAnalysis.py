@@ -148,7 +148,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
             print('-' * 100)
             print('Feature context:\n{}'.format(tokenizer.decode(doc_input_ids, skip_special_tokens=True)))
             print('+' * 100)
-            cut_para_names = [x[2] for x in para_spans if x[2] not in example_doc_names]
+            cut_para_names = [x for x in example_doc_names if x not in trim_doc_names]
             for c_idx, cut_para in enumerate(cut_para_names):
                 for ctx_idx, ctx in enumerate(raw_context):
                     if cut_para == ctx[0]:
