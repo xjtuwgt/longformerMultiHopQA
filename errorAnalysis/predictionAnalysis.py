@@ -134,6 +134,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         trim_doc_names = [_[2] for _ in para_spans]
         feature_em_recall = recall_computation(prediction=trim_doc_names, gold=gold_doc_names)
         feature_doc_recall_list.append(feature_em_recall)
+        trim_sent_spans = feature_dict['sent_spans']
 
         ################################################################################################################
         # for key, value in feature_dict.items():
@@ -146,28 +147,34 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         example_doc_recall_list.append(em_recall)
         example_sent_names = example_dict['sent_names']
         em_sent_recall = recall_computation(prediction=example_sent_names, gold=raw_supp_sents)
-
         example_sent_recall_list.append(em_sent_recall)
+        trim_span_sent_names = [example_sent_names[i] for i in range(len(trim_sent_spans))]
+        trim_em_sent_recall = recall_computation(prediction=trim_span_sent_names, gold=raw_supp_sents)
+        feature_sent_recall_list.append(trim_em_sent_recall)
         # for key, value in example_dict.items():
         #     print('E\t: \t {}'.format(key, value))
         # print(len(example_doc_names), len(para_spans))
-        if len(example_doc_names) > len(para_spans):
+        # if len(example_doc_names) > len(para_spans):
+        #     print(qid)
+        #     print('Example context:\n{}'.format(example_dict['ctx_text']))
+        #     print('-' * 100)
+        #     print('Feature context:\n{}'.format(tokenizer.decode(doc_input_ids, skip_special_tokens=True)))
+        #     print('+' * 100)
+        #     cut_para_names = [x for x in example_doc_names if x not in trim_doc_names]
+        #     print(len(example_doc_names), len(para_spans), len(cut_para_names))
+        #     for c_idx, cut_para in enumerate(cut_para_names):
+        #         for ctx_idx, ctx in enumerate(raw_context):
+        #             if cut_para == ctx[0]:
+        #                 print('Cut para {}:\n{}'.format(c_idx, ctx[1]))
+        #     print('*'*100)
+
+        if len(example_sent_names) > len(trim_sent_spans):
             print(qid)
-            print('Example context:\n{}'.format(example_dict['ctx_text']))
-            print('-' * 100)
-            print('Feature context:\n{}'.format(tokenizer.decode(doc_input_ids, skip_special_tokens=True)))
-            print('+' * 100)
-            cut_para_names = [x for x in example_doc_names if x not in trim_doc_names]
-            print(len(example_doc_names), len(para_spans), len(cut_para_names))
-            for c_idx, cut_para in enumerate(cut_para_names):
-                for ctx_idx, ctx in enumerate(raw_context):
-                    if cut_para == ctx[0]:
-                        print('Cut para {}:\n{}'.format(c_idx, ctx[1]))
-            print('*'*100)
 
     print('Example doc recall: {}'.format(sum(example_doc_recall_list)/len(example_doc_recall_list)))
     print('Example doc recall (512 trim): {}'.format(sum(feature_doc_recall_list)/len(feature_doc_recall_list)))
     print('Example sent recall: {}'.format(sum(example_sent_recall_list) / len(example_sent_recall_list)))
+    print('Example sent recall (512 trim): {}'.format(sum(feature_sent_recall_list) / len(feature_sent_recall_list)))
 
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
