@@ -113,9 +113,10 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     sent_types = ['em', 'sub_set', 'super_set', 'others']
     prediction_ans_type_counter = Counter()
     prediction_sent_type_counter = Counter()
-    span_prediction_types = []
+    prediction_para_type_counter = Counter()
     pred_ans_type_list = []
     pred_sent_type_list = []
+    pred_doc_type_list = []
     ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     for row in raw_data:
@@ -134,7 +135,13 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         prediction_sent_type_counter[sp_sent_type] +=1
         pred_sent_type_list.append(sp_sent_type)
         ###+++++++++
-        sp_para_golds =list(set([_[0] for _ in sp_golds]))
+        sp_para_golds = list(set([_[0] for _ in sp_golds]))
+        sp_para_preds = list(set([_[0] for _ in sp_predictions]))
+        para_type = set_comparison(prediction_list=sp_para_preds, true_list=sp_para_golds)
+        prediction_para_type_counter[para_type] += 1
+        pred_doc_type_list.append(para_type)
+        ###+++++++++
+
         if raw_answer not in ['yes', 'no']:
             yes_no_span_true.append('span')
         else:
