@@ -198,7 +198,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     print("Para prediction type: {}".format(prediction_para_type_counter))
     print('*' * 75)
     pred_sent_para_type_counter = Counter()
-    for (sent_type, para_type) in zip(pred_sent_type_list, pred_doc_type_list):
+    for (sent_type, para_type) in zip(pred_doc_type_list, pred_sent_type_list):
         pred_sent_para_type_counter[(sent_type, para_type)] += 1
     print('*' * 75)
     for key, value in dict(pred_sent_para_type_counter).items():
