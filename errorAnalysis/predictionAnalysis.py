@@ -145,7 +145,8 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         em_recall = recall_computation(prediction=example_doc_names, gold=gold_doc_names)
         example_doc_recall_list.append(em_recall)
         example_sent_names = example_dict['sent_names']
-        em_sent_recall = recall_computation(prediction=example_sent_names, gold=gold_doc_names)
+        em_sent_recall = recall_computation(prediction=example_sent_names, gold=raw_supp_sents)
+
         example_sent_recall_list.append(em_sent_recall)
         # for key, value in example_dict.items():
         #     print('E\t: \t {}'.format(key, value))
