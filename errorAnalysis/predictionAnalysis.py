@@ -197,12 +197,19 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     print("Sent prediction type: {}".format(prediction_sent_type_counter))
     print("Para prediction type: {}".format(prediction_para_type_counter))
     print('*' * 75)
-    pred_sent_para_type_counter = Counter()
-    for (sent_type, para_type) in zip(pred_doc_type_list, pred_sent_type_list):
-        pred_sent_para_type_counter[(sent_type, para_type)] += 1
-    print('*' * 75)
-    for key, value in dict(pred_sent_para_type_counter).items():
-        print('{} vs {}: {}'.format(key[0], key[1], value))
+
+    conf_matrix_para_vs_sent = confusion_matrix(pred_doc_type_list, pred_sent_type_list, labels=result_types)
+    print('Para Type vs Sent Type conf matrix:\n{}'.format(conf_matrix_para_vs_sent))
+
+
+    conf_matrix_para_vs_ans = confusion_matrix(pred_doc_type_list, pred_sent_type_list, labels=result_types)
+    print('Para Type vs Sent Type conf matrix:\n{}'.format(conf_matrix_para_vs_ans))
+    # pred_sent_para_type_counter = Counter()
+    # for (sent_type, para_type) in zip(pred_doc_type_list, pred_sent_type_list):
+    #     pred_sent_para_type_counter[(sent_type, para_type)] += 1
+    # print('*' * 75)
+    # for key, value in dict(pred_sent_para_type_counter).items():
+    #     print('{} vs {}: {}'.format(key[0], key[1], value))
     # print('Para sent type: {}'.format(pred_sent_para_type_counter))
 
 if __name__ == '__main__':
