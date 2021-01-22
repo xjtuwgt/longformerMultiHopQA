@@ -116,10 +116,14 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
     # example_ctx_num_list = []
     example_doc_recall_list = []
     feature_doc_recall_list = []
+
+    example_sent_recall_list = []
+    feature_sent_recall_list = []
     for row in raw_data:
         qid = row['_id']
         gold_doc_names = list(set([_[0] for _ in row['supporting_facts']]))
         raw_context = row['context']
+        raw_supp_sents = [(x[0], x[1]) for x in row['supporting_facts']]
         ################################################################################################################
         feature = features[qid]
         feature_dict = vars(feature)
@@ -130,6 +134,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         trim_doc_names = [_[2] for _ in para_spans]
         feature_em_recall = recall_computation(prediction=trim_doc_names, gold=gold_doc_names)
         feature_doc_recall_list.append(feature_em_recall)
+
         ################################################################################################################
         # for key, value in feature_dict.items():
         #     example_sent_num_list.append()
@@ -139,6 +144,9 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         example_doc_names = example_dict['para_names']
         em_recall = recall_computation(prediction=example_doc_names, gold=gold_doc_names)
         example_doc_recall_list.append(em_recall)
+        example_sent_names = example_dict['sent_names']
+        em_sent_recall = recall_computation(prediction=example_sent_names, gold=gold_doc_names)
+        example_sent_recall_list.append(em_sent_recall)
         # for key, value in example_dict.items():
         #     print('E\t: \t {}'.format(key, value))
         # print(len(example_doc_names), len(para_spans))
