@@ -139,9 +139,9 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         trim_sent_spans = feature_dict['sent_spans']
 
         ################################################################################################################
-        # for key, value in feature_dict.items():
-        #     example_sent_num_list.append()
-        #     print('F\t{}: \t {}'.format(qid, key, value))
+        for key, value in feature_dict.items():
+            print('F\t{}: \t {}'.format(qid, key, value))
+        ################################################################################################################
         example = examples[qid]
         example_dict = vars(example)
         example_doc_names = example_dict['para_names']
@@ -156,8 +156,10 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         if trim_em_sent_recall != 1:
             if answer in ['yes', 'no']:
                 trim_yes_no_count += 1
-        # for key, value in example_dict.items():
-        #     print('E\t: \t {}'.format(key, value))
+        ################################################################################################################
+        for key, value in example_dict.items():
+            print('E\t: \t {}'.format(key, value))
+        ################################################################################################################
         # print(len(example_doc_names), len(para_spans))
         # if len(example_doc_names) > len(para_spans):
         #     print(qid)
@@ -175,6 +177,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
 
         if len(example_sent_names) > len(trim_sent_spans):
             print(qid)
+            break
 
     print('Example doc recall: {}'.format(sum(example_doc_recall_list)/len(example_doc_recall_list)))
     print('Example doc recall (512 trim): {}'.format(sum(feature_doc_recall_list)/len(feature_doc_recall_list)))
