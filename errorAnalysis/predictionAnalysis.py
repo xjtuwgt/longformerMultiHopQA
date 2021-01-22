@@ -53,7 +53,9 @@ def exmple_infor_collection(example: Example):
 
 def feature_infor_collection(feature: InputFeatures):
     instance_variables = vars(feature)
-    print(instance_variables)
+    for key, value in instance_variables.items():
+        print(key)
+    # print(instance_variables)
     # features
     # self.qas_id = qas_id
     #         self.doc_tokens = doc_tokens
