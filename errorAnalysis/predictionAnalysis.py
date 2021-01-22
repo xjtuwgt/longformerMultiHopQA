@@ -113,7 +113,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
     for row in raw_data:
         qid = row['_id']
         feature = features[qid]
-        feature_dict = vars(features)
+        feature_dict = vars(feature)
         for key, value in feature_dict.items():
             print(key)
         example = examples[qid]
