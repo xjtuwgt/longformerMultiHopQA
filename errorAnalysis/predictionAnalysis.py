@@ -115,12 +115,12 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         feature = features[qid]
         feature_dict = vars(feature)
         for key, value in feature_dict.items():
-            print(key)
+            print('F {}: \t'.format(key, value))
         example = examples[qid]
         print('*' * 100)
         example_dict = vars(example)
         for key, value in example_dict.items():
-            print(key)
+            print('E {}: \t'.format(key, value))
 
         break
 
