@@ -119,6 +119,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
     for row in raw_data:
         qid = row['_id']
         gold_doc_names = list(set([_[0] for _ in row['supporting_facts']]))
+        raw_context = row['context']
         ################################################################################################################
         feature = features[qid]
         feature_dict = vars(feature)
@@ -146,6 +147,12 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
             print('Example context:\n{}'.format(example_dict['ctx_text']))
             print('-' * 100)
             print('Feature context:\n{}'.format(tokenizer.decode(doc_input_ids, skip_special_tokens=True)))
+            print('+' * 100)
+            cut_para_names = [x[2] for x in para_spans if x[2] not in example_doc_names]
+            for c_idx, cut_para in enumerate(cut_para_names):
+                for ctx_idx, ctx in enumerate(raw_context):
+                    if cut_para == ctx[0]:
+                        print('Cut para {}:\n{}'.format(c_idx, ctx[1]))
             print('*'*100)
 
     print('Example recall: {}'.format(sum(example_doc_recall_list)/len(example_doc_recall_list)))
