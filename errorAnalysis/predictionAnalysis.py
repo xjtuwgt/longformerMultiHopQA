@@ -119,8 +119,10 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
 
     example_sent_recall_list = []
     feature_sent_recall_list = []
+    trim_yes_no_count = 0
     for row in raw_data:
         qid = row['_id']
+        answer = row['answer']
         gold_doc_names = list(set([_[0] for _ in row['supporting_facts']]))
         raw_context = row['context']
         raw_supp_sents = [(x[0], x[1]) for x in row['supporting_facts']]
@@ -151,6 +153,9 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         trim_span_sent_names = [example_sent_names[i] for i in range(len(trim_sent_spans))]
         trim_em_sent_recall = recall_computation(prediction=trim_span_sent_names, gold=raw_supp_sents)
         feature_sent_recall_list.append(trim_em_sent_recall)
+        if trim_em_sent_recall != 1:
+            if answer in ['yes', 'no']:
+                trim_yes_no_count += 1
         # for key, value in example_dict.items():
         #     print('E\t: \t {}'.format(key, value))
         # print(len(example_doc_names), len(para_spans))
@@ -175,6 +180,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
     print('Example doc recall (512 trim): {}'.format(sum(feature_doc_recall_list)/len(feature_doc_recall_list)))
     print('Example sent recall: {}'.format(sum(example_sent_recall_list) / len(example_sent_recall_list)))
     print('Example sent recall (512 trim): {}'.format(sum(feature_sent_recall_list) / len(feature_sent_recall_list)))
+    print('Trim yes no : {}'.format(trim_yes_no_count))
 
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
