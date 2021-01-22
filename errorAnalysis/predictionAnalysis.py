@@ -10,6 +10,7 @@ from eval.hotpot_evaluate_v1 import normalize_answer
 
 from os.path import join
 from collections import Counter
+from longformerscripts.longformerIREvaluation import recall_computation
 
 from model_envs import MODEL_CLASSES
 from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filename
@@ -110,20 +111,29 @@ def set_comparison(prediction_list, true_list):
     return 'others'
 
 def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
+    # example_sent_num_list = []
+    # example_ent_num_list = []
+    # example_ctx_num_list = []
+    example_doc_recall_list = []
     for row in raw_data:
         qid = row['_id']
+        gold_doc_names = list(set([_[0] for _ in row['supporting_facts']]))
+        ################################################################################################################
         feature = features[qid]
         feature_dict = vars(feature)
-        for key, value in feature_dict.items():
-            print('F {}: \t {}'.format(key, value))
+        ################################################################################################################
+        # for key, value in feature_dict.items():
+        #     example_sent_num_list.append()
+        #     print('F\t{}: \t {}'.format(qid, key, value))
         example = examples[qid]
-        print('*' * 100)
-        example_dict = vars(example)
-        for key, value in example_dict.items():
-            print('E {}: \t {}'.format(key, value))
+        example_doc_names = example['para_names']
+        em_recall = recall_computation(prediction=example_doc_names, gold=gold_doc_names)
+        example_doc_recall_list.append(em_recall)
+        # example_dict = vars(example)
+        # for key, value in example_dict.items():
+        #     print('E\t: \t {}'.format(key, value))
 
-        break
-
+    print(sum(example_doc_recall_list)/len(example_doc_recall_list))
 
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
