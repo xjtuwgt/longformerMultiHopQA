@@ -142,6 +142,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         #     print('E\t: \t {}'.format(key, value))
         # print(len(example_doc_names), len(para_spans))
         if len(example_doc_names) > len(para_spans):
+            print(qid)
             print('Example context:\n{}'.format(example_dict['ctx_text']))
             print('Feature context:\n{}'.format(tokenizer.decode(doc_input_ids, skip_special_tokens=True)))
             print('*'*100)
