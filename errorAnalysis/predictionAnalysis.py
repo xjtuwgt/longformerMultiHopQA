@@ -185,7 +185,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
 
     print(len(pred_sent_type_list), len(pred_ans_type_list), len(pred_doc_type_list))
 
-    result_types = ['em', 'sub_of_gold', 'super_of_gold', 'others']
+    result_types = ['em', 'sub_of_gold', 'super_of_gold', 'no_over_lap', 'others']
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     conf_ans_sent_matrix = confusion_matrix(pred_sent_type_list, pred_ans_type_list, labels=result_types)
     print('*' * 75)
