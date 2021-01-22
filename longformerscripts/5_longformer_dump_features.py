@@ -742,7 +742,6 @@ def convert_examples_to_longformer_features(examples, tokenizer, max_seq_length,
                 for _e in edge:
                     if not is_out_of_bound(keys, _e):
                         edges[keys].append(_e)
-
         else:
             edges = example.edges
         # reassign entity id
@@ -857,9 +856,7 @@ def convert_examples_to_longformer_features(examples, tokenizer, max_seq_length,
                           start_position=ans_start_position,
                           end_position=ans_end_position)
         )
-
     print('Out of index {}'.format(failed))
-
     return features
 
 
