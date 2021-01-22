@@ -198,6 +198,11 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     print("Sent prediction type: {}".format(prediction_sent_type_counter))
     print("Para prediction type: {}".format(prediction_para_type_counter))
 
+    pred_sent_para_type_counter = Counter()
+    for (sent_type, para_type) in zip(pred_sent_type_list, pred_doc_type_list):
+        pred_sent_para_type_counter[(sent_type, para_type)] += 1
+    print('Para sent type: {}'.format(pred_sent_para_type_counter))
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
