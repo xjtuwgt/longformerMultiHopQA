@@ -109,8 +109,6 @@ def set_comparison(prediction_list, true_list):
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
     yes_no_span_true = []
-    span_types = ['em', 'sub_of_gold', 'super_of_gold', 'others']
-    sent_types = ['em', 'sub_of_gold', 'super_of_gold', 'others']
     prediction_ans_type_counter = Counter()
     prediction_sent_type_counter = Counter()
     prediction_para_type_counter = Counter()
@@ -188,13 +186,14 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         pred_ans_type_list.append(ans_type)
 
 
-    print(len(pred_sent_type_list), len(pred_ans_type_list))
+    print(len(pred_sent_type_list), len(pred_ans_type_list), len(pred_doc_type_list))
 
-
+    result_types = ['em', 'sub_of_gold', 'super_of_gold', 'others']
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
-    conf_ans_sent_matrix = confusion_matrix(pred_ans_type_list, pred_sent_type_list, labels=['em', 'sub_set', 'super_set', 'others'])
+    conf_ans_sent_matrix = confusion_matrix(pred_ans_type_list, pred_sent_type_list, labels=result_types)
     print('Ans type conf matrix:\n{}'.format(conf_matrix))
     print('Type conf matrix:\n{}'.format(conf_ans_sent_matrix))
+
     print("Ans prediction type: {}".format(prediction_ans_type_counter))
     print("Sent prediction type: {}".format(prediction_sent_type_counter))
     print("Para prediction type: {}".format(prediction_para_type_counter))
