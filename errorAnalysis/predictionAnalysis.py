@@ -98,10 +98,10 @@ def set_comparison(prediction_list, true_list):
 
     is_subset = set(true_list).issubset(set(prediction_list))
     if is_subset:
-        return 'sub_set'
+        return 'super_of_gold'
     is_super_set = set(prediction_list).issubset(set(true_list))
     if is_super_set:
-        return 'super_set'
+        return 'sub_of_gold'
     return 'others'
 
 
@@ -109,8 +109,8 @@ def set_comparison(prediction_list, true_list):
 def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent_ans=False):
     yes_no_span_predictions = []
     yes_no_span_true = []
-    span_types = ['em', 'sub_set', 'super_set', 'others']
-    sent_types = ['em', 'sub_set', 'super_set', 'others']
+    span_types = ['em', 'sub_of_gold', 'super_of_gold', 'others']
+    sent_types = ['em', 'sub_of_gold', 'super_of_gold', 'others']
     prediction_ans_type_counter = Counter()
     prediction_sent_type_counter = Counter()
     prediction_para_type_counter = Counter()
@@ -159,11 +159,11 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
             elif raw_answer in ans_prediction:
                 # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 # print('-'*75)
-                ans_type = 'subset'
+                ans_type = 'super_of_gold'
             elif ans_prediction in raw_answer:
                 # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
                 # print('-'*75)
-                ans_type = 'super_set'
+                ans_type = 'sub_of_gold'
             else:
                 # inter_res_len = len(set(ans_prediction).intersection(raw_answer))
                 # # print(inter_res_len)
