@@ -102,6 +102,9 @@ def set_comparison(prediction_list, true_list):
     is_super_set = set(prediction_list).issubset(set(true_list))
     if is_super_set:
         return 'sub_of_gold'
+    is_empty_set = len(set(prediction_list).intersection(set(true_list)))==0
+    if is_empty_set:
+        return 'no_over_lap'
     return 'others'
 
 
@@ -163,19 +166,13 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
                 # print('-'*75)
                 ans_type = 'sub_of_gold'
             else:
-                # inter_res_len = len(set(ans_prediction).intersection(raw_answer))
-                # # print(inter_res_len)
-                # if inter_res_len > max(len(ans_prediction), len(raw_answer)) * 0.5:
-                #     prediction_ans_type_counter['inter0.5'] += 1
-                #     # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                #     # print('-'*75)
-                # else:
-                #     prediction_ans_type_counter['others'] += 1
-                #     print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                #     print('-'*75)
-                ans_type = 'others'
-                # print('{}: {} |{}'.format(qid, raw_answer, ans_prediction))
-                # print('-' * 75)
+                ans_pred_tokens = ans_prediction.split(' ')
+                ans_raw_tokens = raw_answer.split(' ')
+                is_empty_set = len(set(ans_pred_tokens).intersection(set(ans_raw_tokens))) == 0
+                if is_empty_set:
+                    ans_type = 'no_over_lap'
+                else:
+                    ans_type = 'others'
         else:
             if raw_answer == ans_prediction:
                 ans_type = 'em'
