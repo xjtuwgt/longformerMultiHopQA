@@ -188,16 +188,19 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     result_types = ['em', 'sub_of_gold', 'super_of_gold', 'others']
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     conf_ans_sent_matrix = confusion_matrix(pred_ans_type_list, pred_sent_type_list, labels=result_types)
+    print('*' * 75)
     print('Ans type conf matrix:\n{}'.format(conf_matrix))
+    print('*' * 75)
     print('Type conf matrix:\n{}'.format(conf_ans_sent_matrix))
-
+    print('*' * 75)
     print("Ans prediction type: {}".format(prediction_ans_type_counter))
     print("Sent prediction type: {}".format(prediction_sent_type_counter))
     print("Para prediction type: {}".format(prediction_para_type_counter))
-
+    print('*' * 75)
     pred_sent_para_type_counter = Counter()
     for (sent_type, para_type) in zip(pred_sent_type_list, pred_doc_type_list):
         pred_sent_para_type_counter[(sent_type, para_type)] += 1
+    print('*' * 75)
     for key, value in dict(pred_sent_para_type_counter).items():
         print('{} vs {}: {}'.format(key[0], key[1], value))
     # print('Para sent type: {}'.format(pred_sent_para_type_counter))
