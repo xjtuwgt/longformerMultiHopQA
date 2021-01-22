@@ -19,22 +19,6 @@ export PYTORCH_PRETRAINED_BERT_CACHE=$DATA_ROOT/models/pretrained_cache
 
 mkdir -p $DATA_ROOT/models/pretrained_cache
 
-# 0. Build Database from Wikipedia
-download() {
-    [[ -d $DATA_ROOT ]] || mkdir -p $DATA_ROOT/dataset/data_raw; mkdir -p $DATA_ROOT/knowledge
-
-    wget -P $DATA_ROOT/dataset/data_raw/ http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_train_v1.1.json
-    wget -P $DATA_ROOT/dataset/data_raw/ http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_distractor_v1.json
-    wget -P $DATA_ROOT/dataset/data_raw http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_fullwiki_v1.json
-    wget -P $DATA_ROOT/dataset/data_raw/ http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_test_fullwiki_v1.json
-    if [[ ! -f $DATA_ROOT/knowledge/enwiki_ner.db ]]; then
-        wget -P $DATA_ROOT/knowledge/ https://nlp.stanford.edu/projects/hotpotqa/enwiki-20171001-pages-meta-current-withlinks-abstracts.tar.bz2
-        tar -xjvf $DATA_ROOT/knowledge/enwiki-20171001-pages-meta-current-withlinks-abstracts.tar.bz2 -C $DATA_ROOT/knowledge
-        # Required: DrQA and Spacy
-        python scripts/0_build_db.py $DATA_ROOT/knowledge/enwiki-20171001-pages-meta-current-withlinks-abstracts $DATA_ROOT/knowledge/enwiki_ner.db
-    fi
-}
-
 preprocess() {
     INPUTS=("hotpot_dev_distractor_v1.json;dev_distractor")
     for input in ${INPUTS[*]}; do
@@ -58,7 +42,7 @@ preprocess() {
 
 }
 
-for proc in "download" "preprocess"
+for proc in "preprocess"
 do
     if [[ ${PROCS:-"download"} =~ $proc ]]; then
         $proc
