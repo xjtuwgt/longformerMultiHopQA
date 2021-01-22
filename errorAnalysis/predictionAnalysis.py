@@ -140,7 +140,7 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         example_doc_recall_list.append(em_recall)
         # for key, value in example_dict.items():
         #     print('E\t: \t {}'.format(key, value))
-        print(len(example_doc_names), len(para_spans))
+        # print(len(example_doc_names), len(para_spans))
 
     print('Example recall: {}'.format(sum(example_doc_recall_list)/len(example_doc_recall_list)))
     print('Example recall (512 trim): {}'.format(sum(feature_doc_recall_list)/len(feature_doc_recall_list)))
