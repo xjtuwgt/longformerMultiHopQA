@@ -197,6 +197,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
     print('Type conf matrix {}'.format(conf_ans_sent_matrix))
     print("Ans prediction type: {}".format(prediction_ans_type_counter))
     print("Sent prediction type: {}".format(prediction_sent_type_counter))
+    print("Para prediction type: {}".format(prediction_para_type_counter))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
