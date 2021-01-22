@@ -52,6 +52,8 @@ def exmple_infor_collection(example: Example):
     return
 
 def feature_infor_collection(feature: InputFeatures):
+    instance_variables = vars(feature)
+    print(instance_variables)
     # features
     # self.qas_id = qas_id
     #         self.doc_tokens = doc_tokens
@@ -80,9 +82,6 @@ def feature_infor_collection(feature: InputFeatures):
     #
     #         self.start_position = start_position
     #         self.end_position = end_position
-    doc_tokens = feature.doc_tokens
-    sent_spans = feature.sent_spans
-    ent_spans = feature.entity_spans
     return
 
 def set_comparison(prediction_list, true_list):
@@ -106,6 +105,11 @@ def set_comparison(prediction_list, true_list):
     if is_empty_set:
         return 'no_over_lap'
     return 'others'
+
+def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
+    for row in raw_data:
+        qid = row['_id']
+        feature = features[qid]
 
 
 
@@ -265,7 +269,8 @@ if __name__ == '__main__':
     print("Loading features from: {}".format(cached_features_file))
     print("Loading graphs from: {}".format(cached_graphs_file))
 
-    error_analysis(raw_data, example_dict, feature_dict, pred_data, tokenizer, use_ent_ans=False)
+    # error_analysis(raw_data, example_dict, feature_dict, pred_data, tokenizer, use_ent_ans=False)
+    data_analysis(raw_data, example_dict, feature_dict, tokenizer, use_ent_ans=False)
     # metrics = hotpot_eval(pred_file, args.raw_data)
     # for key, val in metrics.items():
     #     print("{} = {}".format(key, val))
