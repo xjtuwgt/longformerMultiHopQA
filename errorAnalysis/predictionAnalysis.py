@@ -200,8 +200,7 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
 
     conf_matrix_para_vs_sent = confusion_matrix(pred_doc_type_list, pred_sent_type_list, labels=result_types)
     print('Para Type vs Sent Type conf matrix:\n{}'.format(conf_matrix_para_vs_sent))
-
-
+    print('*' * 75)
     conf_matrix_para_vs_ans = confusion_matrix(pred_doc_type_list, pred_sent_type_list, labels=result_types)
     print('Para Type vs Sent Type conf matrix:\n{}'.format(conf_matrix_para_vs_ans))
     # pred_sent_para_type_counter = Counter()
