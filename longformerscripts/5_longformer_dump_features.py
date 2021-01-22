@@ -912,7 +912,6 @@ def create_graphs(case, max_para_num, max_sent_num, max_entity_num):
 
 def build_graph(args, examples, features, entity_num):
     examples_dict = {e.qas_id: e for e in examples}
-
     graphs = {}
     for case in tqdm(features):
         graph = create_graphs(case,
