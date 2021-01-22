@@ -193,8 +193,8 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
 
     conf_matrix = confusion_matrix(yes_no_span_true, yes_no_span_predictions, labels=["yes", "no", "span"])
     conf_ans_sent_matrix = confusion_matrix(pred_ans_type_list, pred_sent_type_list, labels=['em', 'sub_set', 'super_set', 'others'])
-    print('Ans type conf matrix {}'.format(conf_matrix))
-    print('Type conf matrix {}'.format(conf_ans_sent_matrix))
+    print('Ans type conf matrix:\n{}'.format(conf_matrix))
+    print('Type conf matrix:\n{}'.format(conf_ans_sent_matrix))
     print("Ans prediction type: {}".format(prediction_ans_type_counter))
     print("Sent prediction type: {}".format(prediction_sent_type_counter))
     print("Para prediction type: {}".format(prediction_para_type_counter))
