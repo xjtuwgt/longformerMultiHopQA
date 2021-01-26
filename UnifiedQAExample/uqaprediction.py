@@ -94,7 +94,7 @@ if __name__ == '__main__':
     parser.add_argument("--model_name_or_path", default='', type=str, required=True,
                         help="Path to pre-trained model")
 
-    parser.add_argument('--unified_qa_model_name_or_path', default=t5_small_model_name,
+    parser.add_argument('--unified_qa_model_name_or_path', default='',
                         type=str, required=True,
                         help="Path to pre-trained model")
 
@@ -106,6 +106,9 @@ if __name__ == '__main__':
                         help="The maximum total input sequence length after WordPiece tokenization. Sequences longer "
                              "than this will be truncated, and sequences shorter than this will be padded.")
     args = parser.parse_args()
+
+    for key, value in vars(args).items():
+        print('{}: {}'.format(key, value))
 
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     orig_tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
