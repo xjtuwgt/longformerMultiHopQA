@@ -139,8 +139,8 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         trim_sent_spans = feature_dict['sent_spans']
 
         ################################################################################################################
-        for key, value in feature_dict.items():
-            print('F: {}\t{}'.format(key, value))
+        # for key, value in feature_dict.items():
+        #     print('F: {}\t{}'.format(key, value))
         ################################################################################################################
         example = examples[qid]
         example_dict = vars(example)
@@ -157,8 +157,8 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
             if answer in ['yes', 'no']:
                 trim_yes_no_count += 1
         ################################################################################################################
-        for key, value in example_dict.items():
-            print('E:{}\t{}'.format(key, value))
+        # for key, value in example_dict.items():
+        #     print('E:{}\t{}'.format(key, value))
         ################################################################################################################
         # print(len(example_doc_names), len(para_spans))
         # if len(example_doc_names) > len(para_spans):
