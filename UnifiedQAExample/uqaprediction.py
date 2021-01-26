@@ -14,7 +14,7 @@ from longformerscripts.longformerIREvaluation import recall_computation
 
 from model_envs import MODEL_CLASSES
 from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filename
-from UnifiedQAExample.UnifiedQAModel import unified_qa_prediction, unifiedqa_model
+from UnifiedQAExample.UnifiedQAModel import unified_qa_prediction, unifiedqa_model_loader
 from utils.gpu_utils import gpu_setting
 
 def model_evaluation(raw_data, features, tokenizer, unified_qa_model, unified_qa_tokenizer):
@@ -114,12 +114,12 @@ if __name__ == '__main__':
     orig_tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
 
     # ##################################################################################################################
-    unified_qa_model, unified_qa_tokenizer = unifiedqa_model(model_name=args.unified_qa_model_name_or_path)
+    unified_qa_model, unified_qa_tokenizer = unifiedqa_model_loader(model_name=args.unified_qa_model_name_or_path)
     # ##################################################################################################################
     raw_data, example_dict, feature_dict, graph_dict = load_data_from_disk(args=args)
     ##################################################################################################################
     device = device_setting(args=args)
-    unified_qa_model = unifiedqa_model.to(device)
+    unified_qa_model = unified_qa_model.to(device)
     model_evaluation(raw_data=raw_data, features=feature_dict, tokenizer=orig_tokenizer, unified_qa_tokenizer=unified_qa_tokenizer, unified_qa_model=unified_qa_model)
 
     # data_analysis(raw_data, example_dict, feature_dict, tokenizer, use_ent_ans=False)

@@ -1,6 +1,6 @@
 from transformers import AutoTokenizer, T5ForConditionalGeneration
 
-def unifiedqa_model(model_name: str):
+def unifiedqa_model_loader(model_name: str):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = T5ForConditionalGeneration.from_pretrained(model_name, from_tf=True)
     return model, tokenizer
@@ -11,3 +11,7 @@ def unified_qa_prediction(model, tokenizer, question: str, context: str, **gener
     res = model.generate(input_ids=input_ids, **generator_args)
     answer = tokenizer.batch_decode(res, skip_special_tokens=True)
     return answer
+
+# if __name__ == '__main__':
+#     model_name = "allenai/unifiedqa-t5-small"
+#     unifiedqa_model =
