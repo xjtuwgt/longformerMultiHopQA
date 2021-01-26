@@ -3,14 +3,9 @@
 # DEFINE data related (please make changes according to your configurations)
 # DATA ROOT folder where you put data files, transformers 3.3.0
 DATA_ROOT=./data/
-LONG_FORMER_ROOT=allenai
-SELECTEED_DOC_NUM=4
-
 
 PROCS=${1:-"download"} # define the processes you want to run, e.g. "download,preprocess,train" or "preprocess" only
-
 # define precached BERT MODEL path
-ROBERTA_LARGE=$DATA_ROOT/models/pretrained/roberta-large
 
 # Add current pwd to PYTHONPATH
 export DIR_TMP="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -35,9 +30,8 @@ preprocess() {
         [[ -d $OUTPUT_PROCESSED ]] || mkdir -p $OUTPUT_PROCESSED
         [[ -d $OUTPUT_FEAT ]] || mkdir -p $OUTPUT_FEAT
 
-        echo "Error Analysis"
-        python errorAnalysis/predictionAnalysis.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --pred_dir $PRED_OUTPUT --output_dir $OUTPUT_FEAT --model_type roberta --model_name_or_path roberta-large
-#        python errorAnalysis/predictionAnalysis.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --pred_dir $PRED_OUTPUT --output_dir $OUTPUT_FEAT --model_type albert --model_name_or_path albert-xxlarge-v2
+        echo "Unified QA"
+        python UnifiedQAExample/uqaprediction.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --pred_dir $PRED_OUTPUT --output_dir $OUTPUT_FEAT --model_type roberta --model_name_or_path roberta-large --gpus 1
     done
 
 }
