@@ -342,7 +342,7 @@ if __name__ == '__main__':
     print("Loading features from: {}".format(cached_features_file))
     print("Loading graphs from: {}".format(cached_graphs_file))
 
-    # error_analysis(raw_data, example_dict, feature_dict, pred_data, tokenizer, use_ent_ans=False)
+    error_analysis(raw_data, example_dict, feature_dict, pred_data, tokenizer, use_ent_ans=False)
     data_analysis(raw_data, example_dict, feature_dict, tokenizer, use_ent_ans=False)
     # metrics = hotpot_eval(pred_file, args.raw_data)
     # for key, val in metrics.items():
