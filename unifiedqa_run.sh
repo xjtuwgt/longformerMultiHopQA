@@ -3,6 +3,7 @@
 # DEFINE data related (please make changes according to your configurations)
 # DATA ROOT folder where you put data files, transformers 3.3.0
 DATA_ROOT=./data/
+UNIFIEDQA_ROOT=allenai
 
 PROCS=${1:-"download"} # define the processes you want to run, e.g. "download,preprocess,train" or "preprocess" only
 # define precached BERT MODEL path
@@ -31,7 +32,7 @@ preprocess() {
         [[ -d $OUTPUT_FEAT ]] || mkdir -p $OUTPUT_FEAT
 
         echo "Unified QA"
-        python UnifiedQAExample/uqaprediction.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --pred_dir $PRED_OUTPUT --output_dir $OUTPUT_FEAT --model_type roberta --model_name_or_path roberta-large --gpus 1
+        python UnifiedQAExample/uqaprediction.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --pred_dir $PRED_OUTPUT --output_dir $OUTPUT_FEAT --model_type roberta --model_name_or_path roberta-large --unified_qa_model_name_or_path $UNIFIEDQA_ROOT/unifiedqa-t5-small --gpus 1
     done
 
 }
