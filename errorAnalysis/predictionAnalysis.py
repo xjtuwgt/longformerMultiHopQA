@@ -175,10 +175,10 @@ def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
         #                 print('Cut para {}:\n{}'.format(c_idx, ctx[1]))
         #     print('*'*100)
 
-        print('$' * 100)
-        if len(example_sent_names) > len(trim_sent_spans):
-            print(qid)
-            break
+        # print('$' * 100)
+        # if len(example_sent_names) > len(trim_sent_spans):
+        #     print(qid)
+        #     break
 
     print('Example doc recall: {}'.format(sum(example_doc_recall_list)/len(example_doc_recall_list)))
     print('Example doc recall (512 trim): {}'.format(sum(feature_doc_recall_list)/len(feature_doc_recall_list)))
