@@ -10,7 +10,7 @@ SELECTEED_DOC_NUM=4
 PROCS=${1:-"download"} # define the processes you want to run, e.g. "download,preprocess,train" or "preprocess" only
 
 # define precached BERT MODEL path
-ROBERTA_LARGE=$DATA_ROOT/models/pretrained/roberta-large
+# ROBERTA_LARGE=$DATA_ROOT/models/pretrained/roberta-large
 
 # Add current pwd to PYTHONPATH
 export DIR_TMP="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
