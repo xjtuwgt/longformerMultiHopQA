@@ -74,10 +74,10 @@ preprocess() {
 #        # switch to Longformer for final leaderboard
 #        python longformerscripts/3_longformer_paragraph_ranking.py --data_dir $OUTPUT_PROCESSED --eval_ckpt $DATA_ROOT/models/finetuned/PS/longformer_pytorchlighting_model.ckpt --raw_data $INPUT_FILE --input_data $OUTPUT_PROCESSED/para_ir_combined.json
 
-        echo "4. MultiHop Paragraph Selection"
-        # Input: $INPUT_FILE, doc_link_ner.json,  ner.json, long_para_ranking.json
-        # Output: long_multihop_para.json
-        python longformerscripts/4_longformer_multihop_ps.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json $OUTPUT_PROCESSED/long_para_ranking.json $OUTPUT_PROCESSED/long_multihop_para.json $SELECTEED_DOC_NUM
+#        echo "4. MultiHop Paragraph Selection"
+#        # Input: $INPUT_FILE, doc_link_ner.json,  ner.json, long_para_ranking.json
+#        # Output: long_multihop_para.json
+#        python longformerscripts/4_longformer_multihop_ps.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json $OUTPUT_PROCESSED/long_para_ranking.json $OUTPUT_PROCESSED/long_multihop_para.json $SELECTEED_DOC_NUM
 
         echo "5. Dump features"
 #        python longformerscripts/5_longformer_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path $LONG_FORMER_ROOT/longformer-large-4096 --do_lower_case --ner_path $OUTPUT_PROCESSED/ner.json --model_type longformer --tokenizer_name longformer-large-4096 --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json
