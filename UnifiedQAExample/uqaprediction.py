@@ -21,7 +21,7 @@ def data_collection(raw_data, features, tokenizer):
     gold_answer_dict = {}
     decoded_query_dict = {}
     decoded_context_trim512_dict = {}
-
+    count = 0
     for row in raw_data:
         qid = row['_id']
         gold_answer = row['answer']
@@ -31,15 +31,18 @@ def data_collection(raw_data, features, tokenizer):
         feature_dict = vars(feature)
         doc_input_ids = feature_dict['doc_input_ids']
         doc_tokens = feature_dict['doc_tokens']
-        print('Document length: token = {}, id = {}'.format(len(doc_tokens), len(doc_input_ids)))
+        # print('Document length: token = {}, id = {}'.format(len(doc_tokens), len(doc_input_ids)))
         decoded_context_text = tokenizer.decode(doc_input_ids, skip_special_tokens=True)
         decoded_context_trim512_dict[qid] = decoded_context_text
         assert len(doc_input_ids) == 512
         query_tokens = feature_dict['query_tokens']
         query_input_ids = feature_dict['query_input_ids']
-        print('Query length: token = {}, id = {}'.format(len(query_tokens), len(query_input_ids)))
+        # print('Query length: token = {}, id = {}'.format(len(query_tokens), len(query_input_ids)))
         decoded_query_text = tokenizer.decode(query_input_ids, skip_special_tokens=True)
         decoded_query_dict[qid] = decoded_query_text
+        count = count + 1
+        if count % 500 == 0:
+            print('Processing {} records'.format(count))
 
     processed_data_dict = {'answer': gold_answer_dict, 'query': decoded_query_dict, 'context': decoded_context_trim512_dict}
     return processed_data_dict
