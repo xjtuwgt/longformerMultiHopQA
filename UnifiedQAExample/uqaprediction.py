@@ -17,6 +17,34 @@ from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filena
 from UnifiedQAExample.UnifiedQAModel import unified_qa_prediction, unifiedqa_model_loader
 from utils.gpu_utils import gpu_setting
 
+def data_collection(raw_data, features, tokenizer):
+    gold_answer_dict = {}
+    decoded_query_dict = {}
+    decoded_context_trim512_dict = {}
+
+    for row in raw_data:
+        qid = row['_id']
+        gold_answer = row['answer']
+        gold_answer_dict[qid] = gold_answer
+        ################################################################################################################
+        feature = features[qid]
+        feature_dict = vars(feature)
+        doc_input_ids = feature_dict['doc_input_ids']
+        doc_tokens = feature_dict['doc_tokens']
+        print('Document length: token = {}, id = {}'.format(len(doc_tokens), len(doc_input_ids)))
+        decoded_context_text = tokenizer.decode(doc_input_ids, skip_special_tokens=True)
+        decoded_context_trim512_dict[qid] = decoded_context_text
+        assert len(doc_input_ids) == 512
+        query_tokens = feature_dict['query_tokens']
+        query_input_ids = feature_dict['query_input_ids']
+        print('Query length: token = {}, id = {}'.format(len(query_tokens), len(query_input_ids)))
+        decoded_query_text = tokenizer.decode(query_input_ids, skip_special_tokens=True)
+        decoded_query_dict[qid] = decoded_query_text
+
+    processed_data_dict = {'answer': gold_answer_dict, 'query': decoded_query_dict, 'context': decoded_context_trim512_dict}
+    return processed_data_dict
+
+
 def model_evaluation(raw_data, features, tokenizer, unified_qa_model, unified_qa_tokenizer):
     predicted_answer_list = []
     gold_answer_list = []
@@ -112,15 +140,21 @@ if __name__ == '__main__':
 
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     orig_tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
-
-    # ##################################################################################################################
-    unified_qa_model, unified_qa_tokenizer = unifiedqa_model_loader(model_name=args.unified_qa_model_name_or_path)
     # ##################################################################################################################
     raw_data, example_dict, feature_dict, graph_dict = load_data_from_disk(args=args)
-    ##################################################################################################################
-    device = device_setting(args=args)
-    unified_qa_model = unified_qa_model.to(device)
-    model_evaluation(raw_data=raw_data, features=feature_dict, tokenizer=orig_tokenizer, unified_qa_tokenizer=unified_qa_tokenizer, unified_qa_model=unified_qa_model)
+    processed_data = data_collection(raw_data=raw_data, features=feature_dict, tokenizer=orig_tokenizer)
+    with open(os.path.join(args.pred_dir, 'pred_data.json'), 'w') as fp:
+        json.dump(processed_data, fp)
+    # ##################################################################################################################
+
+    # # ##################################################################################################################
+    # unified_qa_model, unified_qa_tokenizer = unifiedqa_model_loader(model_name=args.unified_qa_model_name_or_path)
+    # # ##################################################################################################################
+    # raw_data, example_dict, feature_dict, graph_dict = load_data_from_disk(args=args)
+    # ##################################################################################################################
+    # device = device_setting(args=args)
+    # unified_qa_model = unified_qa_model.to(device)
+    # model_evaluation(raw_data=raw_data, features=feature_dict, tokenizer=orig_tokenizer, unified_qa_tokenizer=unified_qa_tokenizer, unified_qa_model=unified_qa_model)
 
     # data_analysis(raw_data, example_dict, feature_dict, tokenizer, use_ent_ans=False)
     # metrics = hotpot_eval(pred_file, args.raw_data)
