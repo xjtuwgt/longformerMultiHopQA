@@ -143,7 +143,7 @@ if __name__ == '__main__':
     # ##################################################################################################################
     raw_data, example_dict, feature_dict, graph_dict = load_data_from_disk(args=args)
     processed_data = data_collection(raw_data=raw_data, features=feature_dict, tokenizer=orig_tokenizer)
-    with open(os.path.join(args.pred_dir, 'pred_data.json'), 'w') as fp:
+    with open(os.path.join(args.pred_dir, 'preprocessed_data.json'), 'w') as fp:
         json.dump(processed_data, fp)
     # ##################################################################################################################
 
