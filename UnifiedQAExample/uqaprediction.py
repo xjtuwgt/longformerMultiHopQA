@@ -16,6 +16,7 @@ from model_envs import MODEL_CLASSES
 from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filename
 from UnifiedQAExample.UnifiedQAModel import unified_qa_prediction, unifiedqa_model_loader
 from utils.gpu_utils import gpu_setting
+from eval.hotpot_evaluate_v1 import update_answer
 
 def data_collection(raw_data, features, tokenizer):
     gold_answer_dict = {}
@@ -49,29 +50,39 @@ def data_collection(raw_data, features, tokenizer):
     processed_data_dict = {'answer': gold_answer_dict, 'query': decoded_query_dict, 'context': decoded_context_trim512_dict}
     return processed_data_dict
 
+def run_model(model, tokenizer, input_string, **generator_args):
+    input_ids = tokenizer.encode(input_string, return_tensors="pt")
+    res = model.generate(input_ids, **generator_args)
+    return tokenizer.batch_decode(res, skip_special_tokens=True)
 
-def model_evaluation(raw_data, features, tokenizer, unified_qa_model, unified_qa_tokenizer):
-    predicted_answer_list = []
-    gold_answer_list = []
+def unified_qa_evaluation(model, tokenizer, raw_data, pre_data):
+    row_count = 0
+    metrics = {'em': 0, 'f1': 0, 'prec': 0, 'recall': 0}
+    predicted_answers = {}
     for row in raw_data:
         qid = row['_id']
         answer = row['answer']
-        gold_answer_list.append(normalize_answer(answer))
-        ################################################################################################################
-        feature = features[qid]
-        feature_dict = vars(feature)
-        doc_input_ids = feature_dict['doc_input_ids']
-        doc_tokens = feature_dict['doc_tokens']
-        print('Document length: token = {}, id = {}'.format(len(doc_tokens), len(doc_input_ids)))
-        decoded_context_text = tokenizer.decode(doc_input_ids, skip_special_tokens=True)
-        assert len(doc_input_ids) == 512
-        query_tokens = feature_dict['query_tokens']
-        query_input_ids = feature_dict['query_input_ids']
-        print('Query length: token = {}, id = {}'.format(len(query_tokens), len(query_input_ids)))
-        decoded_query_text = tokenizer.decode(query_input_ids, skip_special_tokens=True)
-        # if answer not in ['yes', 'no']:
-        #     unified_answer = unified_qa_prediction(model=unified_qa_model, tokenizer=unified_qa_tokenizer, question=decoded_query_text, context=decoded_context_text)
-        #     predicted_answer_list.append(normalize_answer(unified_answer))
+        query = pre_data['query'][qid]
+        context = pre_data['context'][qid]
+        question_len = len(query)
+        question = context[:question_len]
+        # print('{}\n{}'.format(query, question))
+        context_decoded = context[question_len:]
+        # print('{}\n{}'.format(context_decoded, context))
+        # print('*' * 75)
+        # print('{}\n{}'.format(query, context))
+        unified_qa_input = question + '\n' + context_decoded
+        uni_answer = run_model(model, tokenizer, unified_qa_input)
+        print('{}-th answer: {} | {}'.format(row_count + 1, answer, uni_answer[0]))
+        em, prec, rec = update_answer(metrics=metrics, prediction=uni_answer[0], gold=answer)
+        print('{}-th metric: {} | {} | {}'.format(row_count + 1, em, prec, rec))
+        predicted_answers[qid] = uni_answer[0]
+        print('*' * 75)
+        row_count = row_count + 1
+    print(row_count)
+    for key, value in metrics.items():
+        print('{}:{}'.format(key, value*1.0/row_count))
+    return predicted_answers
 
 def load_data_from_disk(args):
     cached_examples_file = os.path.join(args.input_dir,
@@ -111,8 +122,6 @@ def device_setting(args):
     return device
 
 if __name__ == '__main__':
-    t5_small_model_name = "allenai/unifiedqa-t5-small"  # you can specify the model size here
-
     parser = argparse.ArgumentParser()
 
     # Required parameters
@@ -151,17 +160,11 @@ if __name__ == '__main__':
     with open(os.path.join(args.pred_dir, args.model_type, 'preprocessed_data.json'), 'w') as fp:
         json.dump(processed_data, fp)
     # ##################################################################################################################
-
-    # # ##################################################################################################################
-    # unified_qa_model, unified_qa_tokenizer = unifiedqa_model_loader(model_name=args.unified_qa_model_name_or_path)
-    # # ##################################################################################################################
-    # raw_data, example_dict, feature_dict, graph_dict = load_data_from_disk(args=args)
-    # ##################################################################################################################
-    # device = device_setting(args=args)
-    # unified_qa_model = unified_qa_model.to(device)
-    # model_evaluation(raw_data=raw_data, features=feature_dict, tokenizer=orig_tokenizer, unified_qa_tokenizer=unified_qa_tokenizer, unified_qa_model=unified_qa_model)
-
-    # data_analysis(raw_data, example_dict, feature_dict, tokenizer, use_ent_ans=False)
-    # metrics = hotpot_eval(pred_file, args.raw_data)
-    # for key, val in metrics.items():
-    #     print("{} = {}".format(key, val))
+    unified_qa_model, unified_qa_tokenizer = unifiedqa_model_loader(model_name=args.unified_qa_model_name_or_path)
+    device = device_setting(args=args)
+    unified_qa_model = unified_qa_model.to(device)
+    # # ################################################################################################################
+    pred_answer = unified_qa_evaluation(unified_qa_model, unified_qa_tokenizer, raw_data, processed_data)
+    with open(os.path.join(args.output_dir, args.model_name_or_path + '.json'), 'w') as fp:
+        json.dump(pred_answer, fp)
+    # #################################################################################################################
