@@ -73,7 +73,7 @@ def unified_qa_evaluation(model, tokenizer, raw_data, pre_data, device):
         # print('*' * 75)
         # print('{}\n{}'.format(query, context))
         unified_qa_input = question + '\n' + context_decoded
-        uni_answer = run_model(model, tokenizer, unified_qa_input)
+        uni_answer = run_model(model, tokenizer, unified_qa_input, device)
         print('{}-th answer: {} | {}'.format(row_count + 1, answer, uni_answer[0]))
         em, prec, rec = update_answer(metrics=metrics, prediction=uni_answer[0], gold=answer)
         print('{}-th metric: {} | {} | {}'.format(row_count + 1, em, prec, rec))
