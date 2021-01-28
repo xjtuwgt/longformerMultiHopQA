@@ -11,6 +11,8 @@ PROCS=${1:-"download"} # define the processes you want to run, e.g. "download,pr
 
 # define precached BERT MODEL path
 # ROBERTA_LARGE=$DATA_ROOT/models/pretrained/roberta-large
+# pip install -U spacy
+# python -m spacy download en_core_web_lg
 
 # Add current pwd to PYTHONPATH
 export DIR_TMP="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
