@@ -50,12 +50,13 @@ def data_collection(raw_data, features, tokenizer):
     processed_data_dict = {'answer': gold_answer_dict, 'query': decoded_query_dict, 'context': decoded_context_trim512_dict}
     return processed_data_dict
 
-def run_model(model, tokenizer, input_string, **generator_args):
+def run_model(model, tokenizer, input_string, device, **generator_args):
     input_ids = tokenizer.encode(input_string, return_tensors="pt")
+    input_ids = input_ids.to(device)
     res = model.generate(input_ids, **generator_args)
     return tokenizer.batch_decode(res, skip_special_tokens=True)
 
-def unified_qa_evaluation(model, tokenizer, raw_data, pre_data):
+def unified_qa_evaluation(model, tokenizer, raw_data, pre_data, device):
     row_count = 0
     metrics = {'em': 0, 'f1': 0, 'prec': 0, 'recall': 0}
     predicted_answers = {}
@@ -164,7 +165,7 @@ if __name__ == '__main__':
     device = device_setting(args=args)
     unified_qa_model = unified_qa_model.to(device)
     # # ################################################################################################################
-    pred_answer = unified_qa_evaluation(unified_qa_model, unified_qa_tokenizer, raw_data, processed_data)
+    pred_answer = unified_qa_evaluation(unified_qa_model, unified_qa_tokenizer, raw_data, processed_data, device)
     with open(os.path.join(args.output_dir, args.model_name_or_path + '.json'), 'w') as fp:
         json.dump(pred_answer, fp)
     # #################################################################################################################
