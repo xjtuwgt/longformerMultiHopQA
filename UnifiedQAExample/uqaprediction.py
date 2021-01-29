@@ -41,8 +41,8 @@ def data_collection(raw_data, features, tokenizer):
         # print('Query length: token = {}, id = {}'.format(len(query_tokens), len(query_input_ids)))
         decoded_query_text = tokenizer.decode(query_input_ids, skip_special_tokens=True)
         decoded_query_dict[qid] = decoded_query_text
-        print('{}\n{}'.format(decoded_query_text, decoded_context_text))
-        print('*' * 75)
+        # print('{}\n{}'.format(decoded_query_text, decoded_context_text))
+        # print('*' * 75)
         count = count + 1
         if count % 500 == 0:
             print('Processing {} records'.format(count))
@@ -80,6 +80,9 @@ def unified_qa_evaluation(model, tokenizer, raw_data, pre_data, device):
         predicted_answers[qid] = uni_answer[0]
         print('*' * 75)
         row_count = row_count + 1
+        if row_count % 1000 == 0:
+            for key, value in metrics.items():
+                print('{}:{}'.format(key, value * 1.0 / row_count))
     print(row_count)
     for key, value in metrics.items():
         print('{}:{}'.format(key, value*1.0/row_count))
