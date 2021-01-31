@@ -53,8 +53,8 @@ def data_collection(raw_data, features, tokenizer):
 def run_model(model, tokenizer, input_string, device, **generator_args):
     input_ids = tokenizer.encode(input_string, return_tensors="pt")
     input_ids = input_ids.to(device)
-    if input_ids.shape[1] > 300:
-        input_ids = input_ids[...,:300]
+    if input_ids.shape[1] > 380:
+        input_ids = input_ids[...,:380]
     print(input_ids.shape)
     res = model.generate(input_ids, **generator_args)
     return tokenizer.batch_decode(res, skip_special_tokens=True)
