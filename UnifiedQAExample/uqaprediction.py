@@ -54,6 +54,8 @@ def run_model(model, tokenizer, input_string, device, **generator_args):
     input_ids = tokenizer.encode(input_string, return_tensors="pt")
     input_ids = input_ids.to(device)
     print(input_ids.shape)
+    if input_ids.shape[1] > 400:
+        input_ids = input_ids[...,:400]
     res = model.generate(input_ids, **generator_args)
     return tokenizer.batch_decode(res, skip_special_tokens=True)
 
