@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 class ATLoss(nn.Module):
     """
     Document-Level Relation Extraction with Adaptive Thresholding and Localized Context Pooling
@@ -21,7 +20,7 @@ class ATLoss(nn.Module):
         """
         :param logits: batch_size * number of labels
         :param labels: batch_size * number of labels (0, 1) matrix, the first column corresponding to the threshold labels
-        :return:
+        :return: loss 1 (positive loss), loss 2 (negative loss)
         """
         th_label = torch.zeros_like(labels, dtype=torch.float).to(labels)
         th_label[:, 0] = 1.0
