@@ -2,16 +2,19 @@ import argparse
 import numpy as np
 import logging
 import sys
+import os
 
+import torch
 from os.path import join
 from tqdm import tqdm, trange
 from tensorboardX import SummaryWriter
 
 from csr_mhqa.argument_parser import default_train_parser, complete_default_train_parser, json_to_argv
-from csr_mhqa.data_processing import Example, InputFeatures, DataHelper
-from csr_mhqa.utils import *
+from jd_mhqa.jd_data_processing import Example, InputFeatures, DataHelper
+from csr_mhqa.utils import load_encoder_model, get_optimizer, MODEL_CLASSES, compute_loss
+from jd_mhqa.jdutils import jd_eval_model
 
-from models.HGN import *
+from models.HGN import HierarchicalGraphNetwork
 from hgntransformers import get_linear_schedule_with_warmup
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -90,20 +93,20 @@ model.to(args.device)
 _, _, tokenizer_class = MODEL_CLASSES[args.model_type]
 tokenizer = tokenizer_class.from_pretrained(args.encoder_name_or_path,
                                             do_lower_case=args.do_lower_case)
-
 #########################################################################
 # Evalaute if resumed from other checkpoint
 ##########################################################################
 if encoder_path is not None and model_path is not None:
     output_pred_file = os.path.join(args.exp_name, 'prev_checkpoint.pred.json')
     output_eval_file = os.path.join(args.exp_name, 'prev_checkpoint.eval.txt')
-    prev_metrics, prev_threshold = eval_model(args, encoder, model,
-                                              dev_dataloader, dev_example_dict, dev_feature_dict,
-                                              output_pred_file, output_eval_file, args.dev_gold_file)
+    # prev_metrics, prev_threshold = eval_model(args, encoder, model,
+    #                                           dev_dataloader, dev_example_dict, dev_feature_dict,
+    #                                           output_pred_file, output_eval_file, args.dev_gold_file)
+    prev_metrics, prev_threshold = jd_eval_model(args, encoder, model, dev_dataloader, dev_example_dict, dev_feature_dict,
+                                                 output_pred_file, output_eval_file, args.dev_gold_file)
     logger.info("Best threshold for prev checkpoint: {}".format(prev_threshold))
     for key, val in prev_metrics.items():
         logger.info("{} = {}".format(key, val))
-
 #########################################################################
 # Get Optimizer
 ##########################################################################
@@ -216,7 +219,7 @@ for epoch in train_iterator:
     if args.local_rank == -1 or torch.distributed.get_rank() == 0:
         output_pred_file = os.path.join(args.exp_name, f'pred.epoch_{epoch+1}.json')
         output_eval_file = os.path.join(args.exp_name, f'eval.epoch_{epoch+1}.txt')
-        metrics, threshold = eval_model(args, encoder, model,
+        metrics, threshold = jd_eval_model(args, encoder, model,
                                         dev_dataloader, dev_example_dict, dev_feature_dict,
                                         output_pred_file, output_eval_file, args.dev_gold_file)
 
