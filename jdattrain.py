@@ -35,8 +35,8 @@ else:
     argv = sys.argv[1:]
 args = parser.parse_args(argv)
 #########################################################################
-for key, value in vars(args).items():
-    print('Hype-parameter\t{} = {}'.format(key, value))
+# for key, value in vars(args).items():
+# #     print('Hype-parameter\t{} = {}'.format(key, value))
 #########################################################################
 args = complete_default_train_parser(args)
 
@@ -57,6 +57,9 @@ train_dataloader = helper.train_loader
 dev_example_dict = helper.dev_example_dict
 dev_feature_dict = helper.dev_feature_dict
 dev_dataloader = helper.dev_loader
+#########################################################################
+logger.info('Loading train data and dev data completed')
+#########################################################################
 
 #########################################################################
 # Initialize Model
