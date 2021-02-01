@@ -97,13 +97,15 @@ def default_train_parser():
 
     # model
     parser.add_argument("--model_type",
-                        default='bert',
+                        # default='bert',
+                        default='roberta',
                         type=str,
                         help="Model type selected in the list: " + ", ".join(MODEL_CLASSES.keys()))
     parser.add_argument("--max_seq_length", default=512, type=int)
     parser.add_argument("--max_query_length", default=50, type=int)
     parser.add_argument("--encoder_name_or_path",
-                        default='bert-base-uncased',
+                        # default='bert-base-uncased',
+                        default='roberta-large',
                         type=str,
                         help="Path to pre-trained model or shortcut name selected in the list: " + ", ".join(ALL_MODELS))
     parser.add_argument("--do_lower_case",
