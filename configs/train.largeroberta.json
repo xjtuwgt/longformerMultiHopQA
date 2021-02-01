@@ -10,7 +10,7 @@
     "gnn_drop": 0.3,
     "bi_attn_drop": 0.3,
     "trans_drop": 0.2,
-    "fp16": "False",
-    "data_parallel": "True",
+    "fp16": "True",
+    "data_parallel": "False",
     "local_rank": 0
 }
