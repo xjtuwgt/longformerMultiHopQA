@@ -20,11 +20,11 @@ class ATLoss(nn.Module):
         """
         :param logits: batch_size * number of labels
         :param labels: batch_size * number of labels (0, 1) matrix, the first column corresponding to the threshold labels
-        :return: loss 1 (positive loss), loss 2 (negative loss)
+        :return: loss_1 (positive loss), loss_2 (negative loss)
         """
         th_label = torch.zeros_like(labels, dtype=torch.float).to(labels)
-        th_label[:, 0] = 1.0
-        labels[:, 0] = 0.0
+        th_label[:, 0] = 1.0 ## threshold based true label information
+        labels[:, 0] = 0.0   ## true positive labels
 
         p_mask = labels + th_label
         n_mask = 1 - labels
