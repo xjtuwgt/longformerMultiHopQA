@@ -112,7 +112,8 @@ def default_train_parser():
                         action='store_true',
                         help="Set this flag if you are using an uncased model.")
     parser.add_argument("--per_gpu_train_batch_size",
-                        default=8,
+                        # default=8,
+                        default=2,
                         type=int,
                         help="Batch size per GPU/CPU for training.")
     parser.add_argument("--eval_batch_size", default=16, type=int)
