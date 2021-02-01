@@ -59,6 +59,7 @@ dev_feature_dict = helper.dev_feature_dict
 dev_dataloader = helper.dev_loader
 #########################################################################
 logger.info('Loading train data and dev data completed')
+logger.info('+' * 75)
 #########################################################################
 
 #########################################################################
