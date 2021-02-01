@@ -20,7 +20,7 @@ class ATLoss(nn.Module):
         # TH label
         """
         :param logits: batch_size * number of labels
-        :param labels: batch_size * number of labels (0, 1) matrix
+        :param labels: batch_size * number of labels (0, 1) matrix, the first column corresponding to the threshold labels
         :return:
         """
         th_label = torch.zeros_like(labels, dtype=torch.float).to(labels)
