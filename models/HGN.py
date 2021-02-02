@@ -77,8 +77,8 @@ class HierarchicalGraphNetwork(nn.Module):
             sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch, input_state, query_vec)
 
             print('input_state {} new input_state {} query vec {}'.format(input_state.shape, new_input_state.shape, query_vec.shape))
-            print(input_state)
-            print(new_input_state)
+            print('input {}'.format(input_state))
+            print('new input {}'.format(new_input_state))
 
 
             para_logits.append(para_logit)
