@@ -34,7 +34,7 @@ def parse_args(args=None):
                         help="evaluation checkpoint")
     parser.add_argument("--model_type", default='Longformer', type=str, help="Longformer retrieval model")
     parser.add_argument('--gpus', default=1, type=int)
-    parser.add_argument('--test_batch_size', default=16, type=int)
+    parser.add_argument('--test_batch_size', default=8, type=int)
     parser.add_argument('--max_doc_num', default=10, type=int)
     parser.add_argument('--test_log_steps', default=10, type=int)
     parser.add_argument('--cpu_num', default=24, type=int)

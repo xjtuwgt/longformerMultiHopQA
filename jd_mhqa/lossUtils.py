@@ -149,7 +149,7 @@ class ATPLoss(nn.Module):
             n_mask = n_mask.masked_fill(mask==0, 0)
         loss2 = (neg_log[:,:,0] * n_mask).sum(1)
         if self.reduction == 'mean':
-            neg_labels_count = n_mask.sum(1)
+            neg_labels_count = n_mask.sum(1) + 1e-7
             loss2 = loss2/neg_labels_count
         loss = loss1 + loss2
         loss = loss.mean()
