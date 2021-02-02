@@ -94,6 +94,8 @@ def graph_retrieval_test_procedure(model, test_data_loader, args, device):
             if (batch_idx + 1) % args.test_log_steps == 0:
                 print('Evaluating the model... {}/{} in {:.4f} seconds'.format(batch_idx + 1, total_steps, time()-start_time))
             out_puts.append(output)
+            del batch
+
     example_ids = []
     doc_scores = []
     pred_docs = []
