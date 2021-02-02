@@ -14,7 +14,7 @@ from jd_mhqa.jd_data_processing import Example, InputFeatures, DataHelper
 from csr_mhqa.utils import load_encoder_model, get_optimizer, MODEL_CLASSES, compute_loss
 from jd_mhqa.jdutils import jd_eval_model
 
-from models.HGN import HierarchicalGraphNetwork
+from jdmodels.jdHGN import HierarchicalGraphNetwork
 from hgntransformers import get_linear_schedule_with_warmup
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
@@ -39,14 +39,12 @@ args = parser.parse_args(argv)
 # #     print('Hype-parameter\t{} = {}'.format(key, value))
 #########################################################################
 args = complete_default_train_parser(args)
-
 logger.info('-' * 100)
 logger.info('Input Argument Information')
 logger.info('-' * 100)
 args_dict = vars(args)
 for a in args_dict:
     logger.info('%-28s  %s' % (a, args_dict[a]))
-
 #########################################################################
 # Read Data
 ##########################################################################
@@ -103,9 +101,6 @@ tokenizer = tokenizer_class.from_pretrained(args.encoder_name_or_path,
 if encoder_path is not None and model_path is not None:
     output_pred_file = os.path.join(args.exp_name, 'prev_checkpoint.pred.json')
     output_eval_file = os.path.join(args.exp_name, 'prev_checkpoint.eval.txt')
-    # prev_metrics, prev_threshold = eval_model(args, encoder, model,
-    #                                           dev_dataloader, dev_example_dict, dev_feature_dict,
-    #                                           output_pred_file, output_eval_file, args.dev_gold_file)
     prev_metrics, prev_threshold = jd_eval_model(args, encoder, model, dev_dataloader, dev_example_dict, dev_feature_dict,
                                                  output_pred_file, output_eval_file, args.dev_gold_file)
     logger.info("Best threshold for prev checkpoint: {}".format(prev_threshold))
@@ -171,9 +166,9 @@ for epoch in train_iterator:
                   'token_type_ids': batch['segment_idxs'] if args.model_type in ['bert', 'xlnet'] else None}  # XLM don't use segment_ids
 
         batch['context_encoding'] = encoder(**inputs)[0]
-        # print(batch['context_idxs'].shape)
-        # print(batch['context_mask'].shape)
-        # print(batch['context_encoding'].shape)
+        print(batch['context_idxs'].shape)
+        print(batch['context_mask'].shape)
+        print(batch['context_encoding'].shape)
         batch['context_mask'] = batch['context_mask'].float().to(args.device)
         start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
 
