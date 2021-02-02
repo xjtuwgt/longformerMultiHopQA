@@ -7,6 +7,7 @@ References: Multi-Similarity Loss with General Pair Weighting for Deep Metric Le
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
 
 class ATLoss(nn.Module):
     """
@@ -98,15 +99,17 @@ class ATMLoss(nn.Module):
         loss = loss.mean()
         return loss
 
-    def get_label(self, logits, num_labels=-1):
+    def get_label(self, logits, num_labels=-1, mask=None):
+        if mask is not None:
+            logits = logits.masked_fill(mask==0, -1e30)
         th_logit = logits[:, 0].unsqueeze(1)
         output = torch.zeros_like(logits).to(logits)
-        mask = (logits > th_logit)
+        logit_mask = (logits > th_logit)
         if num_labels > 0:
             top_v, _ = torch.topk(logits, num_labels, dim=1)
             top_v = top_v[:, -1]
-            mask = (logits >= top_v.unsqueeze(1)) & mask
-        output[mask] = 1.0
+            logit_mask = (logits >= top_v.unsqueeze(1)) & logit_mask
+        output[logit_mask] = 1.0
         output[:, 0] = (output.sum(1) == 0.).to(logits)
         return output
 
@@ -114,10 +117,57 @@ class ATPLoss(nn.Module):
     """
     Adaptive threshold pairwised loss
     """
-    def __init__(self):
+    def __init__(self, reduction: str = 'mean'):
         super().__init__()
+        self.reduction = reduction
 
+    def forward(self, logits, labels, mask = None):
+        """
+        Pairwised loss
+        :param logits:
+        :param labels:
+        :param mask:
+        :return:
+        """
+        batch_size, label_num = logits.shape
+        if mask is not None:
+            logits = logits.masked_fill(mask == 0, -1e30)
+        th_logits = logits[:,0].unsqueeze(dim=1).repeat(label_num)
+        labels[:, 0] = 0.0
+        ################################################
+        pos_logits = torch.stack([logits, th_logits], dim=-1)
+        pos_log = -F.log_softmax(pos_logits, dim=-1)
+        loss1 = (pos_log[:,:,0] * labels).sum(1)
+        if self.reduction == 'mean':
+            labels_count = labels.sum(1)
+            loss1 = loss1 / labels_count
 
+        neg_logits = torch.stack([th_logits, logits], dim=-1)
+        neg_log = -F.log_softmax(neg_logits, dim=-1)
+        n_mask = 1 - labels
+        if mask is not None:
+            n_mask = n_mask.masked_fill(mask==0, 0)
+        loss2 = (neg_log[:,:,0] * n_mask).sum(1)
+        if self.reduction == 'mean':
+            neg_labels_count = n_mask.sum(1)
+            loss2 = loss2/neg_labels_count
+        loss = loss1 + loss2
+        loss = loss.mean()
+        return loss
+
+    def get_label(self, logits, num_labels=-1, mask=None):
+        if mask is not None:
+            logits = logits.masked_fill(mask==0, -1e30)
+        th_logit = logits[:, 0].unsqueeze(1)
+        output = torch.zeros_like(logits).to(logits)
+        logit_mask = (logits > th_logit)
+        if num_labels > 0:
+            top_v, _ = torch.topk(logits, num_labels, dim=1)
+            top_v = top_v[:, -1]
+            logit_mask = (logits >= top_v.unsqueeze(1)) & logit_mask
+        output[logit_mask] = 1.0
+        output[:, 0] = (output.sum(1) == 0.).to(logits)
+        return output
 
 
 class ATPFLoss(nn.Module):
@@ -125,7 +175,61 @@ class ATPFLoss(nn.Module):
     Adaptive threshold pair-wised focal loss
     """
 
-class ATWPLoss(nn.Module):
-    """
-        Adaptive threshold weighted pair-wised  loss
-    """
+    def __init__(self, reduction: str = 'mean', alpha=1.0,  gamma=2.0):
+        super().__init__()
+        self.reduction = reduction
+        self.gamma = gamma
+        self.alpha = alpha
+        self.smooth = 1e-7
+
+    def forward(self, logits, labels, mask=None):
+        """
+        Pairwised loss
+        :param logits:
+        :param labels:
+        :param mask:
+        :return:
+        """
+        batch_size, label_num = logits.shape
+        if mask is not None:
+            logits = logits.masked_fill(mask == 0, -1e30)
+        th_logits = logits[:, 0].unsqueeze(dim=1).repeat(label_num)
+        labels[:, 0] = 0.0
+        ################################################
+        pos_logits = torch.stack([logits, th_logits], dim=-1)
+        loss1 = self.focal_loss(pos_logits, labels)
+
+        neg_logits = torch.stack([th_logits, logits], dim=-1)
+        n_mask = 1 - labels
+        if mask is not None:
+            n_mask = n_mask.masked_fill(mask == 0, 0)
+        loss2 = self.focal_loss(neg_logits, n_mask)
+        loss = loss1 + loss2
+        loss = loss.mean()
+        return loss
+
+    def get_label(self, logits, num_labels=-1, mask=None):
+        if mask is not None:
+            logits = logits.masked_fill(mask == 0, -1e30)
+        th_logit = logits[:, 0].unsqueeze(1)
+        output = torch.zeros_like(logits).to(logits)
+        logit_mask = (logits > th_logit)
+        if num_labels > 0:
+            top_v, _ = torch.topk(logits, num_labels, dim=1)
+            top_v = top_v[:, -1]
+            logit_mask = (logits >= top_v.unsqueeze(1)) & logit_mask
+        output[logit_mask] = 1.0
+        output[:, 0] = (output.sum(1) == 0.).to(logits)
+        return output
+
+    def focal_loss(self, logits, mask):
+        logpt = F.log_softmax(logits, dim=-1)
+        logpt = logpt[:, :, 0] if len(logits.shape) == 3 else logpt[:, 0]
+        pt = Variable(torch.exp(logpt).to(logits.device))
+        pt = torch.clamp(pt, self.smooth, 1.0 - self.smooth)
+        loss = -self.alpha * torch.pow(torch.sub(1.0, pt), self.gamma) * logpt * mask
+        loss = loss.sum(1)
+        if self.reduction == 'mean':
+            mask_counts = mask.sum(1)
+            loss = loss / mask_counts
+        return loss

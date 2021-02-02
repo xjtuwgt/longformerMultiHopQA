@@ -286,6 +286,7 @@ class GraphBlock(nn.Module):
         para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
         sent_logit = gat_logit[:, 1+max_para_num:, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
 
+
         query_vec = graph_state[:, 0, :].squeeze(1)
 
         ent_logit = self.entity_mlp(ent_state).view(N, -1)
@@ -344,8 +345,6 @@ class GatedAttention(nn.Module):
             output = gate_sg * gate_th
         else:
             raise ValueError("Not support gate method: {}".format(self.gate_method))
-
-
         return output, memory
 
 
