@@ -53,15 +53,15 @@ preprocess() {
         [[ -d $OUTPUT_PROCESSED ]] || mkdir -p $OUTPUT_PROCESSED
         [[ -d $OUTPUT_FEAT ]] || mkdir -p $OUTPUT_FEAT
 
-        echo "1. Extract Wiki Link & NER from DB"
-        # Input: INPUT_FILE, enwiki_ner.db
-        # Output: doc_link_ner.json
-        python scripts/1_extract_db.py $INPUT_FILE $DATA_ROOT/knowledge/enwiki_ner.db $OUTPUT_PROCESSED/doc_link_ner.json
-
-        echo "2. Extract NER for Question and Context"
-        # Input: doc_link_ner.json
-        # Output: ner.json
-        python scripts/2_extract_ner.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json
+#        echo "1. Extract Wiki Link & NER from DB"
+#        # Input: INPUT_FILE, enwiki_ner.db
+#        # Output: doc_link_ner.json
+#        python scripts/1_extract_db.py $INPUT_FILE $DATA_ROOT/knowledge/enwiki_ner.db $OUTPUT_PROCESSED/doc_link_ner.json
+#
+#        echo "2. Extract NER for Question and Context"
+#        # Input: doc_link_ner.json
+#        # Output: ner.json
+#        python scripts/2_extract_ner.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json
 
         echo "3. Paragraph ranking (1)"
         # Output: para_ranking.json
