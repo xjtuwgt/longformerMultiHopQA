@@ -1,4 +1,5 @@
-from models.layers import mean_pooling, BiAttention, LSTMWrapper, GraphBlock, GatedAttention, PredictionLayer
+from models.layers import mean_pooling, BiAttention, LSTMWrapper, GatedAttention, PredictionLayer
+from jdmodels.jdlayers import GraphBlock
 from torch import nn
 
 
@@ -58,9 +59,14 @@ class HierarchicalGraphNetwork(nn.Module):
         para_logits, sent_logits = [], []
         para_predictions, sent_predictions, ent_predictions = [], [], []
 
+        graph_state_dict = {}
         for l in range(self.config.num_gnn_layers):
-            new_input_state, graph_state, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
-            sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch, input_state, query_vec)
+            if l == 0:
+                new_input_state, graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
+                sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, input_state=input_state, query_vec=query_vec)
+            else:
+                new_input_state, graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
+                sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
             para_logits.append(para_logit)
             sent_logits.append(sent_logit)
             para_predictions.append(para_prediction)
