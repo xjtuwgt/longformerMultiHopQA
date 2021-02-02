@@ -1,6 +1,5 @@
 from models.layers import mean_pooling, BiAttention, LSTMWrapper, GraphBlock, GatedAttention, PredictionLayer
 from torch import nn
-from csr_mhqa.utils import count_parameters
 
 
 class HierarchicalGraphNetwork(nn.Module):
@@ -48,20 +47,24 @@ class HierarchicalGraphNetwork(nn.Module):
         trunc_query_state = (context_encoding * query_mapping.unsqueeze(2))[:, :self.max_query_length, :].contiguous()
         # bert encoding query vec
         query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
+
         attn_output, trunc_query_state = self.bi_attention(context_encoding,
                                                            trunc_query_state,
                                                            trunc_query_mapping)
 
         input_state = self.bi_attn_linear(attn_output) # N x L x d
         input_state = self.sent_lstm(input_state, batch['context_lens'])
+
         if self.config.q_update:
             query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
+
         para_logits, sent_logits = [], []
         para_predictions, sent_predictions, ent_predictions = [], [], []
 
         for l in range(self.config.num_gnn_layers):
             new_input_state, graph_state, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
             sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch, input_state, query_vec)
+
             para_logits.append(para_logit)
             sent_logits.append(sent_logit)
             para_predictions.append(para_prediction)
