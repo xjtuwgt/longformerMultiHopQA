@@ -81,6 +81,7 @@ class HierarchicalGraphNetwork(nn.Module):
             print('input {}'.format(input_state))
             print('new input {}'.format(new_input_state))
             print('new query vec {}'.format(query_vec))
+            print('graph state {}'.format(graph_state.shape))
 
 
 

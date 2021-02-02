@@ -283,8 +283,8 @@ class GraphBlock(nn.Module):
         ent_state = graph_state[:, 1+max_para_num+max_sent_num:, :]
 
         gat_logit = self.sent_mlp(graph_state[:, :1+max_para_num+max_sent_num, :]) # N x max_sent x 1
-        para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous()
-        sent_logit = gat_logit[:, 1+max_para_num:, :].contiguous()
+        para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
+        sent_logit = gat_logit[:, 1+max_para_num:, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
 
         query_vec = graph_state[:, 0, :].squeeze(1)
 
