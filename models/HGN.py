@@ -73,12 +73,15 @@ class HierarchicalGraphNetwork(nn.Module):
         para_predictions, sent_predictions, ent_predictions = [], [], []
 
         for l in range(self.config.num_gnn_layers):
+            print('query vec {}'.format(query_vec))
             new_input_state, graph_state, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
             sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch, input_state, query_vec)
 
             print('input_state {} new input_state {} query vec {}'.format(input_state.shape, new_input_state.shape, query_vec.shape))
             print('input {}'.format(input_state))
             print('new input {}'.format(new_input_state))
+            print('new query vec {}'.format(query_vec))
+
 
 
             para_logits.append(para_logit)
