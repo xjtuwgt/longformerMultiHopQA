@@ -42,49 +42,26 @@ class HierarchicalGraphNetwork(nn.Module):
     def forward(self, batch, return_yp):
         query_mapping = batch['query_mapping']
         context_encoding = batch['context_encoding']
-        print(query_mapping.shape)
-        print(query_mapping)
 
         # extract query encoding
         trunc_query_mapping = query_mapping[:, :self.max_query_length].contiguous()
-        print(trunc_query_mapping.shape)
         trunc_query_state = (context_encoding * query_mapping.unsqueeze(2))[:, :self.max_query_length, :].contiguous()
-        print(trunc_query_state.shape)
         # bert encoding query vec
         query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
-        print(query_vec.shape)
-
         attn_output, trunc_query_state = self.bi_attention(context_encoding,
                                                            trunc_query_state,
                                                            trunc_query_mapping)
-        print('attn_output {}'.format(attn_output.shape))
-        print('trunc_query_state {}'.format(trunc_query_state.shape))
 
         input_state = self.bi_attn_linear(attn_output) # N x L x d
-        print('attn_output {}'.format(attn_output.shape))
-        print('input_state {}'.format(input_state.shape))
         input_state = self.sent_lstm(input_state, batch['context_lens'])
-        print('input_state {}'.format(input_state.shape))
         if self.config.q_update:
             query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
-
-        print('query vec {}'.format(query_vec.shape))
         para_logits, sent_logits = [], []
         para_predictions, sent_predictions, ent_predictions = [], [], []
 
         for l in range(self.config.num_gnn_layers):
-            print('query vec {}'.format(query_vec))
             new_input_state, graph_state, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
             sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch, input_state, query_vec)
-
-            print('input_state {} new input_state {} query vec {}'.format(input_state.shape, new_input_state.shape, query_vec.shape))
-            print('input {}'.format(input_state))
-            print('new input {}'.format(new_input_state))
-            print('new query vec {}'.format(query_vec))
-            print('graph state {}'.format(graph_state.shape))
-
-
-
             para_logits.append(para_logit)
             sent_logits.append(sent_logit)
             para_predictions.append(para_prediction)
