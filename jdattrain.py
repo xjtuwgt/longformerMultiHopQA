@@ -263,6 +263,7 @@ for epoch in train_iterator:
                         'threshold': threshold},
                        join(args.exp_name, f'cached_config.bin')
             )
+            logger.info('Current best joint_f1 = {}'.format(best_joint_f1))
         torch.save({k: v.cpu() for k, v in encoder.state_dict().items()},
                     join(args.exp_name, f'encoder_{epoch+1}.pkl'))
         torch.save({k: v.cpu() for k, v in model.state_dict().items()},
