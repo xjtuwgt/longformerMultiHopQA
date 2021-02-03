@@ -38,8 +38,8 @@ class GraphBlock(nn.Module):
         self.input_dim = input_dim
         self.gat = AttentionLayer(in_dim=self.input_dim,  hid_dim=self.hidden_dim, n_head=config.num_gnn_heads,
                                   q_attn=q_attn, config=self.config)
-        self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
-        self.entity_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
+        # self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
+        # self.entity_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
 
     def forward(self, batch, query_vec, graph_state_dict):
         para_state = graph_state_dict['para_state']
@@ -63,28 +63,29 @@ class GraphBlock(nn.Module):
         sent_state = graph_state[:, 1+max_para_num:1+max_para_num+max_sent_num, :]
         ##########################
 
-        gat_logit = self.sent_mlp(graph_state[:, :1+max_para_num+max_sent_num, :]) # N x max_sent x 1
-        para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
-        sent_logit = gat_logit[:, 1+max_para_num:, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
-
-        query_vec = graph_state[:, 0, :].squeeze(1)
-
-        ent_logit = self.entity_mlp(ent_state).view(N, -1)
-        ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
-
-        para_logits_aux = Variable(para_logit.data.new(para_logit.size(0), para_logit.size(1), 1).zero_())
-        para_prediction = torch.cat([para_logits_aux, para_logit], dim=-1).contiguous()
-
-        sent_logits_aux = Variable(sent_logit.data.new(sent_logit.size(0), sent_logit.size(1), 1).zero_())
-        sent_prediction = torch.cat([sent_logits_aux, sent_logit], dim=-1).contiguous()
+        # gat_logit = self.sent_mlp(graph_state[:, :1+max_para_num+max_sent_num, :]) # N x max_sent x 1
+        # para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
+        # sent_logit = gat_logit[:, 1+max_para_num:, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
+        #
+        # query_vec = graph_state[:, 0, :].squeeze(1)
+        #
+        # ent_logit = self.entity_mlp(ent_state).view(N, -1)
+        # ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
+        #
+        # para_logits_aux = Variable(para_logit.data.new(para_logit.size(0), para_logit.size(1), 1).zero_())
+        # para_prediction = torch.cat([para_logits_aux, para_logit], dim=-1).contiguous()
+        #
+        # sent_logits_aux = Variable(sent_logit.data.new(sent_logit.size(0), sent_logit.size(1), 1).zero_())
+        # sent_prediction = torch.cat([sent_logits_aux, sent_logit], dim=-1).contiguous()
 
         ##############################################
         graph_state_dict['para_state'] = para_state
         graph_state_dict['sent_state'] = sent_state
         graph_state_dict['ent_state'] = ent_state
         ##############################################
-        return graph_state, graph_state_dict, node_mask, sent_state, query_vec, para_logit, para_prediction, \
-            sent_logit, sent_prediction, ent_logit
+        return graph_state, graph_state_dict, node_mask, query_vec
+        # return graph_state, graph_state_dict, node_mask, sent_state, query_vec, para_logit, para_prediction, \
+        #     sent_logit, sent_prediction, ent_logit
 
 
 class GATSelfAttention(nn.Module):
@@ -180,6 +181,43 @@ class AttentionLayer(nn.Module):
         h = F.relu(h)
         return h
 
+class ParaSentEntPredictionLayer(nn.Module):
+    def __init__(self, config, hidden_dim):
+        super(ParaSentEntPredictionLayer, self).__init__()
+        self.hidden_dim = hidden_dim
+        self.para_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
+        self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
+        self.entity_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
+
+    def forward(self, batch, graph_state_dict, query_vec):
+
+        para_state = graph_state_dict['para_state']
+        sent_state = graph_state_dict['sent_state']
+        ent_state = graph_state_dict['ent_state']
+
+        N, max_para_num, _ = para_state.size()
+        _, max_sent_num, _ = sent_state.size()
+        _, max_ent_num, _ = ent_state.size()
+
+        N, max_para_num, _ = para_state.size()
+        _, max_sent_num, _ = sent_state.size()
+        _, max_ent_num, _ = ent_state.size()
+
+        query_sent_state = torch.cat([query_vec.unsqueeze(1), sent_state], dim=1)
+        query_para_state = torch.cat([query_vec.unsqueeze(1), para_state], dim=1)
+
+        ent_logit = self.entity_mlp(ent_state).view(N, -1)
+        ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
+
+        sent_logit = self.sent_mlp(sent_state)
+        para_logit = self.doc_mlp(para_state)
+
+        para_logits_aux = Variable(para_logit.data.new(para_logit.size(0), para_logit.size(1), 1).zero_())
+        para_prediction = torch.cat([para_logits_aux, para_logit], dim=-1).contiguous()
+
+        sent_logits_aux = Variable(sent_logit.data.new(sent_logit.size(0), sent_logit.size(1), 1).zero_())
+        sent_prediction = torch.cat([sent_logits_aux, sent_logit], dim=-1).contiguous()
+        return para_logit, para_prediction, sent_logit, sent_prediction, ent_logit
 
 class PredictionLayer(nn.Module):
     """

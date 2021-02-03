@@ -1,5 +1,5 @@
 from models.layers import mean_pooling, BiAttention, LSTMWrapper, GatedAttention
-from jdmodels.jdlayers import GraphBlock, encoder_graph_node_feature, PredictionLayer
+from jdmodels.jdlayers import GraphBlock, encoder_graph_node_feature, PredictionLayer, ParaSentEntPredictionLayer
 from torch import nn
 
 
@@ -23,12 +23,13 @@ class HierarchicalGraphNetwork(nn.Module):
                                      n_layer=1,
                                      dropout=config.lstm_drop) ### output: 2 * self.hidden_dim
 
-        self.graph_blocks = nn.ModuleList()
+
         q_dim = self.hidden_dim if config.q_update else config.input_dim
         self.q_map = nn.Linear(in_features=q_dim, out_features=self.hidden_dim * 2)
         if self.q_map:
             nn.init.xavier_uniform_(self.q_map.weight, gain=1.414)
 
+        self.graph_blocks = nn.ModuleList()
         self.graph_blocks.append(GraphBlock(self.config.q_attn, config, input_dim=self.hidden_dim * 2, hidden_dim=self.hidden_dim))
         for _ in range(self.config.num_gnn_layers-1):
             self.graph_blocks.append(GraphBlock(self.config.q_attn, config, input_dim=self.hidden_dim, hidden_dim=self.hidden_dim))
@@ -38,6 +39,7 @@ class HierarchicalGraphNetwork(nn.Module):
                                             hid_dim=self.config.ctx_attn_hidden_dim,
                                             dropout=config.bi_attn_drop,
                                             gate_method=self.config.ctx_attn)
+        self.para_sent_ent_predict_layer = ParaSentEntPredictionLayer(self.config, hidden_dim=self.hidden_dim)
         self.predict_layer = PredictionLayer(self.config)
 
     def forward(self, batch, return_yp):
@@ -60,27 +62,40 @@ class HierarchicalGraphNetwork(nn.Module):
 
         query_vec = self.q_map(query_vec)
 
-        para_logits, sent_logits = [], []
-        para_predictions, sent_predictions, ent_predictions = [], [], []
+        # para_logits, sent_logits = [], []
+        # para_predictions, sent_predictions, ent_predictions = [], [], []
         ################################################################################################################
         graph_state_dict = encoder_graph_node_feature(batch=batch, input_state=input_state, hidden_dim=self.hidden_dim)
         graph_state, graph_mask = None, None
         ################################################################################################################
         for l in range(self.config.num_gnn_layers):
-            graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
-            sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
-            para_logits.append(para_logit)
-            sent_logits.append(sent_logit)
-            para_predictions.append(para_prediction)
-            sent_predictions.append(sent_prediction)
-            ent_predictions.append(ent_logit)
-
+            graph_state, graph_state_dict, graph_mask, query_vec = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
+            # graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
+            # sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
+            # para_logits.append(para_logit)
+            # sent_logits.append(sent_logit)
+            # para_predictions.append(para_prediction)
+            # sent_predictions.append(sent_prediction)
+            # ent_predictions.append(ent_logit)
         input_state, _ = self.ctx_attention(input_state, graph_state, graph_mask.squeeze(-1))
-        predictions = self.predict_layer(batch, input_state, sent_logits[-1], packing_mask=query_mapping, return_yp=return_yp)
+        para_logit, para_prediction, sent_logit, sent_prediction, ent_logit = self.para_sent_ent_predict_layer.forward(batch=batch,
+                                                                                                                       graph_state_dict=graph_state_dict,
+                                                                                                                       query_vec=query_vec)
+        # predictions = self.predict_layer(batch, input_state, sent_logits[-1], packing_mask=query_mapping, return_yp=return_yp)
+        predictions = self.predict_layer(batch, input_state, sent_logit, packing_mask=query_mapping,
+                                         return_yp=return_yp)
+
+
+        # if return_yp:
+        #     start, end, q_type, yp1, yp2 = predictions
+        #     return start, end, q_type, para_predictions[-1], sent_predictions[-1], ent_predictions[-1], yp1, yp2
+        # else:
+        #     start, end, q_type = predictions
+        #     return start, end, q_type, para_predictions[-1], sent_predictions[-1], ent_predictions[-1]
 
         if return_yp:
             start, end, q_type, yp1, yp2 = predictions
-            return start, end, q_type, para_predictions[-1], sent_predictions[-1], ent_predictions[-1], yp1, yp2
+            return start, end, q_type, para_prediction, sent_prediction, ent_logit, yp1, yp2
         else:
             start, end, q_type = predictions
-            return start, end, q_type, para_predictions[-1], sent_predictions[-1], ent_predictions[-1]
+            return start, end, q_type, para_prediction, sent_prediction, ent_logit
