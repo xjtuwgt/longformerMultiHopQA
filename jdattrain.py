@@ -13,7 +13,7 @@ from csr_mhqa.argument_parser import default_train_parser, complete_default_trai
 from jd_mhqa.jd_data_processing import Example, InputFeatures, DataHelper
 from csr_mhqa.utils import load_encoder_model, get_optimizer, MODEL_CLASSES
 from jd_mhqa.jdutils import compute_loss
-from jd_mhqa.jdutils import jd_eval_model
+from jd_mhqa.jdutils import jd_at_eval_model
 from time import time
 
 from jdmodels.jdHGN import HierarchicalGraphNetwork
@@ -126,13 +126,13 @@ if encoder_path is not None and model_path is not None:
     output_eval_file = os.path.join(args.exp_name, 'prev_checkpoint.eval.txt')
     # prev_metrics, prev_threshold = jd_eval_model(args, encoder, model, dev_dataloader, dev_example_dict, dev_feature_dict,
     #                                              output_pred_file, output_eval_file, args.dev_gold_file)
-    prev_metrics, prev_threshold, doc_recall_metric, total_inconsist_number = jd_eval_model(args, encoder, model,
-                                                                                  dev_dataloader, dev_example_dict,
+    prev_metrics, doc_recall_metric, total_inconsist_number = jd_at_eval_model(args, encoder, model,
+                                                                                  dev_dataloader,
+                                                                                  dev_example_dict,
                                                                                   dev_feature_dict,
                                                                                   output_pred_file,
                                                                                   output_eval_file,
                                                                                   args.dev_gold_file)
-    logger.info("Best threshold for prev checkpoint: {}".format(prev_threshold))
     for key, val in prev_metrics.items():
         logger.info("{} = {}".format(key, val))
     logger.info('Model evaluation completed in {}'.format(time() - start_time))
@@ -247,8 +247,9 @@ for epoch in train_iterator:
     if args.local_rank == -1 or torch.distributed.get_rank() == 0:
         output_pred_file = os.path.join(args.exp_name, f'pred.epoch_{epoch+1}.json')
         output_eval_file = os.path.join(args.exp_name, f'eval.epoch_{epoch+1}.txt')
-        metrics, threshold, doc_recall_metric, total_inconsist_number = jd_eval_model(args, encoder, model,
-                                                                                      dev_dataloader, dev_example_dict,
+        metrics, doc_recall_metric, total_inconsist_number = jd_at_eval_model(args, encoder, model,
+                                                                                      dev_dataloader,
+                                                                                      dev_example_dict,
                                                                                       dev_feature_dict,
                                                                                       output_pred_file,
                                                                                       output_eval_file,
@@ -260,8 +261,7 @@ for epoch in train_iterator:
                         'lr': scheduler.get_lr()[0],
                         'encoder': 'encoder.pkl',
                         'model': 'model.pkl',
-                        'best_joint_f1': best_joint_f1,
-                        'threshold': threshold},
+                        'best_joint_f1': best_joint_f1},
                        join(args.exp_name, f'cached_config.bin')
             )
             logger.info('Current best joint_f1 = {}'.format(best_joint_f1))
