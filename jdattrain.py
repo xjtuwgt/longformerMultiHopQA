@@ -13,6 +13,7 @@ from csr_mhqa.argument_parser import default_train_parser, complete_default_trai
 from jd_mhqa.jd_data_processing import Example, InputFeatures, DataHelper
 from csr_mhqa.utils import load_encoder_model, get_optimizer, MODEL_CLASSES, compute_loss
 from jd_mhqa.jdutils import jd_eval_model
+from time import time
 
 from jdmodels.jdHGN import HierarchicalGraphNetwork
 from hgntransformers import get_linear_schedule_with_warmup
@@ -51,13 +52,14 @@ for a in args_dict:
 helper = DataHelper(gz=True, config=args)
 
 # Set datasets
+start_time = time()
 train_dataloader = helper.train_loader
 dev_example_dict = helper.dev_example_dict
 dev_feature_dict = helper.dev_feature_dict
 dev_dataloader = helper.dev_loader
 #########################################################################
-logger.info('Loading train data and dev data completed')
-logger.info('+' * 75)
+logger.info('Loading train data and dev data completed in {:.4f}'.format(time() - start_time))
+logger.info('-' * 100)
 #########################################################################
 
 #########################################################################
@@ -170,10 +172,10 @@ for epoch in train_iterator:
         print(batch['context_mask'].shape)
         print(batch['context_encoding'].shape)
         batch['context_mask'] = batch['context_mask'].float().to(args.device)
-        start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
+        # start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
 
-        loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
-        del batch
+        # loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
+        # del batch
 
     #     if args.n_gpu > 1:
     #         for loss in loss_list:
