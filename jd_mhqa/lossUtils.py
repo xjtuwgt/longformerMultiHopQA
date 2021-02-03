@@ -140,6 +140,8 @@ class ATPLoss(nn.Module):
         ################################################
         pos_logits = torch.stack([logits, th_logits], dim=-1)
         pos_log = -F.log_softmax(pos_logits, dim=-1)
+        print('pos log', pos_log)
+        print('lables ', labels)
         loss1 = (pos_log[:,:,0] * labels).sum(1)
         print('loss1', loss1)
         if self.reduction == 'mean':
