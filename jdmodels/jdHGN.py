@@ -1,5 +1,5 @@
 from models.layers import mean_pooling, BiAttention, LSTMWrapper, GatedAttention, PredictionLayer
-from jdmodels.jdlayers import GraphBlock
+from jdmodels.jdlayers import GraphBlock, encoder_graph_node_feature
 from torch import nn
 
 
@@ -26,8 +26,10 @@ class HierarchicalGraphNetwork(nn.Module):
                                      dropout=config.lstm_drop)
 
         self.graph_blocks = nn.ModuleList()
-        for _ in range(self.config.num_gnn_layers):
-            self.graph_blocks.append(GraphBlock(self.config.q_attn, config))
+        q_input_dim = self.hidden_dim if config.q_update else config.input_dim
+        self.graph_blocks.append(GraphBlock(self.config.self.config.q_attn, config, q_input_dim))
+        for _ in range(self.config.num_gnn_layers-1):
+            self.graph_blocks.append(GraphBlock(self.config.q_attn, config, self.hidden_dim))
 
         self.ctx_attention = GatedAttention(input_dim=config.hidden_dim*2,
                                             memory_dim=config.hidden_dim if config.q_update else config.hidden_dim*2,
@@ -59,14 +61,12 @@ class HierarchicalGraphNetwork(nn.Module):
         para_logits, sent_logits = [], []
         para_predictions, sent_predictions, ent_predictions = [], [], []
 
-        graph_state_dict = {}
+        ################################################################################################################
+        graph_state_dict = encoder_graph_node_feature(batch=batch, input_state=input_state, hidden_dim=self.hidden_dim)
+        ################################################################################################################
         for l in range(self.config.num_gnn_layers):
-            if l == 0:
-                new_input_state, graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
-                sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, input_state=input_state, query_vec=query_vec)
-            else:
-                new_input_state, graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
-                sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
+            graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
+            sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
             para_logits.append(para_logit)
             sent_logits.append(sent_logit)
             para_predictions.append(para_prediction)
