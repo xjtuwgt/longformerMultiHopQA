@@ -256,12 +256,16 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     query_sent_pred = sent
     query_sent_gold = torch.cat([torch.zeros(batch_size, 1).to(sent_gold), sent_gold], dim=-1)
     query_sent_mask = torch.cat([torch.ones(batch_size, 1).to(sent_mask), sent_mask], dim=-1)
+    print(sent_mask)
+    print(sent_gold)
 
     loss_sup = args.sent_lambda * sup_criterion.forward(logits=query_sent_pred, labels=query_sent_gold, mask=query_sent_mask)
 
 
     para_mask = batch['para_mask']
     para_gold = batch['is_gold_para']
+    print(para_mask)
+    print(para_gold)
 
     query_para_pred = para
     query_para_gold = torch.cat([torch.zeros(batch_size, 1).to(para_gold), para_gold], dim=-1)
