@@ -1,7 +1,9 @@
 import torch
 from torch import nn
 from torch.autograd import Variable
-from models.layers import AttentionLayer, OutputLayer
+from models.layers import OutputLayer
+from csr_mhqa.utils import get_weights, get_act
+import torch.nn.functional as F
 
 def encoder_graph_node_feature(batch, input_state, hidden_dim):
     sent_start_mapping = batch['sent_start_mapping']
@@ -106,11 +108,11 @@ class GraphBlock(nn.Module):
             self.gat_linear = nn.Linear(q_input_dim, self.hidden_dim*2)
 
         if self.config.q_update:
-            self.gat = AttentionLayer(self.hidden_dim, self.hidden_dim, config.num_gnn_heads, q_attn=q_attn, config=self.config)
+            self.gat = AttentionLayer(self.hidden_dim, self.hidden_dim, q_dim=self.hidden_dim, n_head= config.num_gnn_heads, q_attn=q_attn, config=self.config)
             self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
             self.entity_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
         else:
-            self.gat = AttentionLayer(self.hidden_dim*2, self.hidden_dim*2, config.num_gnn_heads, q_attn=q_attn, config=self.config)
+            self.gat = AttentionLayer(self.hidden_dim*2, self.hidden_dim*2, q_dim=q_input_dim, n_head=config.num_gnn_heads, q_attn=q_attn, config=self.config)
             self.sent_mlp = OutputLayer(self.hidden_dim*2, config, num_answer=1)
             self.entity_mlp = OutputLayer(self.hidden_dim*2, config, num_answer=1)
 
@@ -128,7 +130,6 @@ class GraphBlock(nn.Module):
             graph_state = torch.cat([query_vec.unsqueeze(1), graph_state], dim=1)
         else:
             graph_state = self.gat_linear(query_vec)
-            print('here', query_vec.shape)
             graph_state = torch.cat([graph_state.unsqueeze(1), para_state, sent_state, ent_state], dim=1)
         node_mask = torch.cat([torch.ones(N, 1).to(self.config.device), batch['para_mask'], batch['sent_mask'], batch['ent_mask']], dim=-1).unsqueeze(-1)
 
@@ -137,7 +138,6 @@ class GraphBlock(nn.Module):
 
         graph_state = self.gat(graph_state, graph_adj, node_mask=node_mask, query_vec=query_vec) # N x (1+max_para+max_sent) x d
         ent_state = graph_state[:, 1+max_para_num+max_sent_num:, :]
-        print('graph state ', graph_state.shape)
 
         gat_logit = self.sent_mlp(graph_state[:, :1+max_para_num+max_sent_num, :]) # N x max_sent x 1
         para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
@@ -161,3 +161,100 @@ class GraphBlock(nn.Module):
         ##############################################
         return graph_state, graph_state_dict, node_mask, sent_state, query_vec, para_logit, para_prediction, \
             sent_logit, sent_prediction, ent_logit
+
+
+class GATSelfAttention(nn.Module):
+    def __init__(self, in_dim, out_dim, q_dim, config, q_attn=False, head_id=0):
+        """ One head GAT """
+        super(GATSelfAttention, self).__init__()
+        self.config = config
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+        self.dropout = self.config.gnn_drop
+        self.q_attn = q_attn
+        self.query_dim = in_dim
+        self.n_type = self.config.num_edge_type
+
+        self.head_id = head_id
+        self.step = 0
+        ########
+        self.q_dim = q_dim
+        ########
+
+        self.W_type = nn.ParameterList()
+        self.a_type = nn.ParameterList()
+        self.qattn_W1 = nn.ParameterList()
+        self.qattn_W2 = nn.ParameterList()
+        for i in range(self.n_type):
+            self.W_type.append(get_weights((in_dim, out_dim)))
+            self.a_type.append(get_weights((out_dim * 2, 1)))
+
+            if self.q_attn:
+                # q_dim = self.config.hidden_dim if self.config.q_update else self.config.input_dim
+                self.qattn_W1.append(get_weights((self.q_dim, out_dim * 2)))
+                self.qattn_W2.append(get_weights((out_dim * 2, out_dim * 2)))
+
+        self.act = get_act('lrelu:0.2')
+
+    def forward(self, input_state, adj, node_mask=None, query_vec=None):
+        zero_vec = torch.zeros_like(adj)
+        scores = torch.zeros_like(adj)
+
+        for i in range(self.n_type):
+            h = torch.matmul(input_state, self.W_type[i])
+            h = F.dropout(h, self.dropout, self.training)
+            N, E, d = h.shape
+
+            a_input = torch.cat([h.repeat(1, 1, E).view(N, E * E, -1), h.repeat(1, E, 1)], dim=-1)
+            a_input = a_input.view(-1, E, E, 2*d)
+
+            if self.q_attn:
+                q_gate = F.relu(torch.matmul(query_vec, self.qattn_W1[i]))
+                q_gate = torch.sigmoid(torch.matmul(q_gate, self.qattn_W2[i]))
+                a_input = a_input * q_gate[:, None, None, :]
+                score = self.act(torch.matmul(a_input, self.a_type[i]).squeeze(3))
+            else:
+                score = self.act(torch.matmul(a_input, self.a_type[i]).squeeze(3))
+
+            scores += torch.where(adj == i+1, score, zero_vec.to(score.dtype))
+
+        zero_vec = -1e30 * torch.ones_like(scores)
+        scores = torch.where(adj > 0, scores, zero_vec.to(scores.dtype))
+
+        # Ahead Alloc
+        if node_mask is not None:
+            h = h * node_mask
+
+        coefs = F.softmax(scores, dim=2)  # N * E * E
+        h = coefs.unsqueeze(3) * h.unsqueeze(2)  # N * E * E * d
+        h = torch.sum(h, dim=1)
+        return h
+
+
+class AttentionLayer(nn.Module):
+    def __init__(self, in_dim, hid_dim, q_dim, n_head, q_attn, config):
+        super(AttentionLayer, self).__init__()
+        assert hid_dim % n_head == 0
+        self.dropout = config.gnn_drop
+
+        self.attn_funcs = nn.ModuleList()
+        for i in range(n_head):
+            self.attn_funcs.append(
+                GATSelfAttention(in_dim=in_dim, out_dim=hid_dim // n_head, q_dim=q_dim, config=config, q_attn=q_attn, head_id=i))
+
+        if in_dim != hid_dim:
+            self.align_dim = nn.Linear(in_dim, hid_dim)
+            nn.init.xavier_uniform_(self.align_dim.weight, gain=1.414)
+        else:
+            self.align_dim = lambda x: x
+
+    def forward(self, input, adj, node_mask=None, query_vec=None):
+        hidden_list = []
+        for attn in self.attn_funcs:
+            h = attn(input, adj, node_mask=node_mask, query_vec=query_vec)
+            hidden_list.append(h)
+
+        h = torch.cat(hidden_list, dim=-1)
+        h = F.dropout(h, self.dropout, training=self.training)
+        h = F.relu(h)
+        return h
