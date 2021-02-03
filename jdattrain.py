@@ -93,7 +93,15 @@ if model_path is not None:
 
 encoder.to(args.device)
 model.to(args.device)
-logger.info('Loading model completed in {} seconds'.format(time() - start_time))
+logger.info('Loading model and encoder completed in {} seconds'.format(time() - start_time))
+logger.info('-' * 100)
+for name, param in encoder.named_parameters():
+    logging.info('Parameter {}: {}, require_grad = {}'.format(name, str(param.size()), str(param.requires_grad)))
+logger.info('-' * 100)
+logging.info('Model Parameter Configuration:')
+for name, param in model.named_parameters():
+    logging.info('Parameter {}: {}, require_grad = {}'.format(name, str(param.size()), str(param.requires_grad)))
+logging.info('*' * 75)
 logger.info('-' * 100)
 _, _, tokenizer_class = MODEL_CLASSES[args.model_type]
 tokenizer = tokenizer_class.from_pretrained(args.encoder_name_or_path,
@@ -172,9 +180,9 @@ for epoch in train_iterator:
                   'token_type_ids': batch['segment_idxs'] if args.model_type in ['bert', 'xlnet'] else None}  # XLM don't use segment_ids
         batch['context_encoding'] = encoder(**inputs)[0]
         batch['context_mask'] = batch['context_mask'].float().to(args.device)
-        # start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
+        start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
 
-        # loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
+        loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
         del batch
 
     #     if args.n_gpu > 1:
