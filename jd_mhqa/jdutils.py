@@ -249,7 +249,7 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     loss_type = args.type_lambda * ans_criterion(q_type, batch['q_type'])
     loss_ent = args.ent_lambda * ans_criterion(ent, batch['is_gold_ent'].long())
     ####################################################################################################################
-    sup_criterion = ATPLoss(reduction='sum')
+    sup_criterion = ATPLoss(reduction='mean')
     sent_mask = batch['sent_mask']
     batch_size = sent_mask.shape[0]
     sent_gold = batch['is_support']
