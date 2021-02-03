@@ -237,18 +237,16 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     is_gold_ent: whether the entity is answer: -100, mask, other: ent index
     """
     # loss_labels = {'y1', 'y2', 'q_type', 'is_support', 'is_gold_ent', 'is_gold_para'}
-    loss_labels = {'is_gold_ent'}
-    for key, value in batch.items():
-        if key in loss_labels:
-            print('{}:{}'.format(key, value))
-            print('prediction {}'.format(ent.shape))
-            print('+' * 100)
+    # loss_labels = {'is_gold_ent'}
+    # for key, value in batch.items():
+    #     if key in loss_labels:
+    #         print('{}:{}'.format(key, value))
+    #         print('prediction {}'.format(ent.shape))
+    #         print('+' * 100)
     criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=IGNORE_INDEX)
     binary_criterion = nn.BCEWithLogitsLoss(reduction='mean')
     loss_span = args.ans_lambda * (criterion(start, batch['y1']) + criterion(end, batch['y2']))
     loss_type = args.type_lambda * criterion(q_type, batch['q_type'])
-
-
 
     sent_pred = sent.view(-1, 2)
     sent_gold = batch['is_support'].long().view(-1)

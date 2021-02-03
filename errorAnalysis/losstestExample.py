@@ -23,3 +23,9 @@ print(loss)
 # loss = atpfloss.forward(logits=x, labels=y)
 # print(loss)
 
+criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=-100)
+x = torch.randn((2, 40))
+y = torch.Tensor([2, -100]).long()
+ls = criterion(x, y)
+print(ls)
+
