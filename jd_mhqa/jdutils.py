@@ -234,14 +234,14 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     q_type: question type
     is_support: whether the sentence is a support sentences: 1, yes, 0, no, -100, mask
     is_gold_para: whether the para is the support document: 1, yes, 0, no, -100, mask
-    is_gold_ent: whether the entity is answer: 1, yes, 0, no, -100, mask
+    is_gold_ent: whether the entity is answer: -100, mask, other: ent index
     """
     # loss_labels = {'y1', 'y2', 'q_type', 'is_support', 'is_gold_ent', 'is_gold_para'}
     loss_labels = {'is_gold_ent'}
     for key, value in batch.items():
         if key in loss_labels:
             print('{}:{}'.format(key, value))
-            print('prediction {}'.format(ent))
+            print('prediction {}'.format(ent.shape))
             print('+' * 100)
     criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=IGNORE_INDEX)
     binary_criterion = nn.BCEWithLogitsLoss(reduction='mean')
