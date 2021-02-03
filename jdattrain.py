@@ -186,63 +186,63 @@ for epoch in train_iterator:
     train_dataloader.refresh()
     dev_dataloader.refresh()
 
-    for step, batch in enumerate(epoch_iterator):
-        encoder.train()
-        model.train()
-
-        inputs = {'input_ids':      batch['context_idxs'],
-                  'attention_mask': batch['context_mask'],
-                  'token_type_ids': batch['segment_idxs'] if args.model_type in ['bert', 'xlnet'] else None}  # XLM don't use segment_ids
-        batch['context_encoding'] = encoder(**inputs)[0]
-        batch['context_mask'] = batch['context_mask'].float().to(args.device)
-        start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
-
-        loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
-        del batch
-
-        if args.n_gpu > 1:
-            for loss in loss_list:
-                loss = loss.mean() # mean() to average on multi-gpu parallel training
-        if args.gradient_accumulation_steps > 1:
-            for loss in loss_list:
-                loss = loss / args.gradient_accumulation_steps
-        if args.fp16:
-            with amp.scale_loss(loss_list[0], optimizer) as scaled_loss:
-                scaled_loss.backward()
-            torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), args.max_grad_norm)
-        else:
-            loss_list[0].backward()
-            torch.nn.utils.clip_grad_norm_(encoder.parameters(), args.max_grad_norm)
-            torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
-
-        for idx in range(len(loss_name)):
-            if not isinstance(loss_list[idx], int):
-                tr_loss[idx] += loss_list[idx].data.item()
-            else:
-                tr_loss[idx] += loss_list[idx]
-
-        if (step + 1) % args.gradient_accumulation_steps == 0:
-            optimizer.step()
-            scheduler.step()  # Update learning rate schedule
-            encoder.zero_grad()
-            model.zero_grad()
-            global_step += 1
-
-            if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
-                avg_loss = [ (_tr_loss - _logging_loss) / (args.logging_steps*args.gradient_accumulation_steps)
-                             for (_tr_loss, _logging_loss) in zip(tr_loss, logging_loss)]
-
-                loss_str = "step[{0:6}] " + " ".join(['%s[{%d:.5f}]' % (loss_name[i], i+1) for i in range(len(avg_loss))])
-                logger.info(loss_str.format(global_step, *avg_loss))
-
-                # tensorboard
-                tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
-                for i in range(len(loss_name)):
-                    tb_writer.add_scalar(loss_name[i], (tr_loss[i]- logging_loss[i])/(args.logging_steps * args.gradient_accumulation_steps), global_step)
-                logging_loss = tr_loss.copy()
-        if args.max_steps > 0 and global_step > args.max_steps:
-            epoch_iterator.close()
-            break
+    # for step, batch in enumerate(epoch_iterator):
+    #     encoder.train()
+    #     model.train()
+    #
+    #     inputs = {'input_ids':      batch['context_idxs'],
+    #               'attention_mask': batch['context_mask'],
+    #               'token_type_ids': batch['segment_idxs'] if args.model_type in ['bert', 'xlnet'] else None}  # XLM don't use segment_ids
+    #     batch['context_encoding'] = encoder(**inputs)[0]
+    #     batch['context_mask'] = batch['context_mask'].float().to(args.device)
+    #     start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
+    #
+    #     loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
+    #     del batch
+    #
+    #     if args.n_gpu > 1:
+    #         for loss in loss_list:
+    #             loss = loss.mean() # mean() to average on multi-gpu parallel training
+    #     if args.gradient_accumulation_steps > 1:
+    #         for loss in loss_list:
+    #             loss = loss / args.gradient_accumulation_steps
+    #     if args.fp16:
+    #         with amp.scale_loss(loss_list[0], optimizer) as scaled_loss:
+    #             scaled_loss.backward()
+    #         torch.nn.utils.clip_grad_norm_(amp.master_params(optimizer), args.max_grad_norm)
+    #     else:
+    #         loss_list[0].backward()
+    #         torch.nn.utils.clip_grad_norm_(encoder.parameters(), args.max_grad_norm)
+    #         torch.nn.utils.clip_grad_norm_(model.parameters(), args.max_grad_norm)
+    #
+    #     for idx in range(len(loss_name)):
+    #         if not isinstance(loss_list[idx], int):
+    #             tr_loss[idx] += loss_list[idx].data.item()
+    #         else:
+    #             tr_loss[idx] += loss_list[idx]
+    #
+    #     if (step + 1) % args.gradient_accumulation_steps == 0:
+    #         optimizer.step()
+    #         scheduler.step()  # Update learning rate schedule
+    #         encoder.zero_grad()
+    #         model.zero_grad()
+    #         global_step += 1
+    #
+    #         if args.local_rank in [-1, 0] and args.logging_steps > 0 and global_step % args.logging_steps == 0:
+    #             avg_loss = [ (_tr_loss - _logging_loss) / (args.logging_steps*args.gradient_accumulation_steps)
+    #                          for (_tr_loss, _logging_loss) in zip(tr_loss, logging_loss)]
+    #
+    #             loss_str = "step[{0:6}] " + " ".join(['%s[{%d:.5f}]' % (loss_name[i], i+1) for i in range(len(avg_loss))])
+    #             logger.info(loss_str.format(global_step, *avg_loss))
+    #
+    #             # tensorboard
+    #             tb_writer.add_scalar('lr', scheduler.get_lr()[0], global_step)
+    #             for i in range(len(loss_name)):
+    #                 tb_writer.add_scalar(loss_name[i], (tr_loss[i]- logging_loss[i])/(args.logging_steps * args.gradient_accumulation_steps), global_step)
+    #             logging_loss = tr_loss.copy()
+    #     if args.max_steps > 0 and global_step > args.max_steps:
+    #         epoch_iterator.close()
+    #         break
     if args.local_rank == -1 or torch.distributed.get_rank() == 0:
         output_pred_file = os.path.join(args.exp_name, f'pred.epoch_{epoch+1}.json')
         output_eval_file = os.path.join(args.exp_name, f'eval.epoch_{epoch+1}.txt')
