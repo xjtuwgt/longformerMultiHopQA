@@ -228,10 +228,15 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
 
 ########################################################################################################################
 def compute_loss(args, batch, start, end, para, sent, ent, q_type):
+    for key, value in batch.items():
+        print('{}:{}'.format(key, value))
+        print('+' * 100)
     criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=IGNORE_INDEX)
     binary_criterion = nn.BCEWithLogitsLoss(reduction='mean')
     loss_span = args.ans_lambda * (criterion(start, batch['y1']) + criterion(end, batch['y2']))
     loss_type = args.type_lambda * criterion(q_type, batch['q_type'])
+
+
 
     sent_pred = sent.view(-1, 2)
     sent_gold = batch['is_support'].long().view(-1)
