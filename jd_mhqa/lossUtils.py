@@ -139,6 +139,7 @@ class ATPLoss(nn.Module):
         pos_logits = torch.stack([logits, th_logits], dim=-1)
         pos_log = -F.log_softmax(pos_logits, dim=-1)
         loss1 = (pos_log[:,:,0] * labels).sum(1)
+        print('loss1', loss1)
         if self.reduction == 'mean':
             labels_count = labels.sum(1)
             loss1 = loss1 / labels_count
@@ -150,6 +151,7 @@ class ATPLoss(nn.Module):
         if mask is not None:
             n_mask = n_mask.masked_fill(mask==0, 0)
         loss2 = (neg_log[:,:,0] * n_mask).sum(1)
+        print('loss2', loss2)
         if self.reduction == 'mean':
             neg_labels_count = n_mask.sum(1) + 1e-7
             loss2 = loss2/neg_labels_count
