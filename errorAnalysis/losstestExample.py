@@ -2,8 +2,8 @@ from jd_mhqa.lossUtils import *
 import torch
 
 torch.manual_seed(11)
-x = torch.rand((2,5))
-y = torch.randint(0, 2, (2,5))
+x = torch.rand((3,5))
+y = torch.randint(0, 2, (3,5))
 y[:,0] = 0
 print(x)
 print(y)
@@ -14,6 +14,10 @@ print(loss)
 atmloss = ATMLoss()
 loss = atmloss.forward(logits=x, labels=y)
 print(loss)
+print(x)
+
+y = adaptive_threshold_prediction(logits=x)
+print(y)
 #
 # atploss = ATPLoss()
 # loss = atploss.forward(logits=x, labels=y)

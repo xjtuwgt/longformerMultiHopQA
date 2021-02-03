@@ -9,6 +9,27 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+def adaptive_threshold_prediction(logits, number_labels=-1, mask = None, type = 'and'):
+    if mask is not None:
+        logits = logits.masked_fill(mask==0, -1e30)
+    th_logits = logits[:, 0].unsqueeze(1)
+    output = torch.zeros_like(logits).to(logits)
+    out_mask = logits > th_logits
+    if number_labels > 0:
+        logits[:, 0] = -1e30
+        top_v, _ = torch.topk(logits, k=number_labels, dim=1)
+        top_v = top_v[:, -1].unsqueeze(1)
+        top_k_mask = logits > top_v
+        if type == 'and':
+            out_mask = out_mask & top_k_mask
+        elif type == 'or':
+            out_mask = out_mask | top_k_mask
+        else:
+            raise ValueError('mask type {} is not supported'.format(type))
+    output[out_mask] = 1.0
+    output[:, 0] = output.sum(dim=1)
+    return output
+
 class ATLoss(nn.Module):
     """
     Document-Level Relation Extraction with Adaptive Thresholding and Localized Context Pooling
