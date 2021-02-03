@@ -41,7 +41,7 @@ class ATLoss(nn.Module):
         ##################################################################
         # Rank TH to negative classes
         logit2 = logits.masked_fill(n_mask == 0, -1e30)
-        print('logit2 {}'.format(logit2))
+        # print('logit2 {}'.format(logit2))
         loss2 = -(F.log_softmax(logit2, dim=-1) * th_label).sum(1)
 
         # Sum two parts
@@ -149,7 +149,6 @@ class ATPLoss(nn.Module):
         n_mask[:, 0] = 0
         if mask is not None:
             n_mask = n_mask.masked_fill(mask==0, 0)
-        print(n_mask)
         loss2 = (neg_log[:,:,0] * n_mask).sum(1)
         if self.reduction == 'mean':
             neg_labels_count = n_mask.sum(1) + 1e-7
