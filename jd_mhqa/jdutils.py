@@ -11,6 +11,8 @@ from eval.hotpot_evaluate_v1 import normalize_answer, eval as hotpot_eval
 from eval.hotpot_doc_evaluate import doc_recall_eval
 import json
 import shutil
+from torch import nn
+from csr_mhqa.data_processing import IGNORE_INDEX
 from csr_mhqa.utils import convert_to_tokens
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
@@ -224,3 +226,20 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
 
     return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number
 
+########################################################################################################################
+def compute_loss(args, batch, start, end, para, sent, ent, q_type):
+    criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=IGNORE_INDEX)
+    binary_criterion = nn.BCEWithLogitsLoss(reduction='mean')
+    loss_span = args.ans_lambda * (criterion(start, batch['y1']) + criterion(end, batch['y2']))
+    loss_type = args.type_lambda * criterion(q_type, batch['q_type'])
+
+    sent_pred = sent.view(-1, 2)
+    sent_gold = batch['is_support'].long().view(-1)
+    loss_sup = args.sent_lambda * criterion(sent_pred, sent_gold.long())
+
+    loss_ent = args.ent_lambda * criterion(ent, batch['is_gold_ent'].long())
+    loss_para = args.para_lambda * criterion(para.view(-1, 2), batch['is_gold_para'].long().view(-1))
+
+    loss = loss_span + loss_type + loss_sup + loss_ent + loss_para
+
+    return loss, loss_span, loss_type, loss_sup, loss_ent, loss_para
