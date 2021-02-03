@@ -60,7 +60,7 @@ class GraphBlock(nn.Module):
         ent_state = graph_state[:, 1+max_para_num+max_sent_num:, :]
         ##########################
         para_state = graph_state[:, 1:1+max_para_num, :]
-        sent_state = graph_state[:, 1+max_para_num:, :]
+        sent_state = graph_state[:, 1+max_para_num:1+max_para_num+max_sent_num, :]
         ##########################
 
         gat_logit = self.sent_mlp(graph_state[:, :1+max_para_num+max_sent_num, :]) # N x max_sent x 1
