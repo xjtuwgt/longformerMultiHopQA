@@ -119,7 +119,7 @@ def default_train_parser():
     parser.add_argument("--eval_batch_size", default=16, type=int)
 
     # encoder
-    parser.add_argument("--frozen_layer_number", default=12, type=int)
+    parser.add_argument("--frozen_layer_number", default=18, type=int)
 
     # eval
     parser.add_argument("--encoder_ckpt", default=None, type=str)
