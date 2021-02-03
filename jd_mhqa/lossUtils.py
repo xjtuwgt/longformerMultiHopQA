@@ -36,12 +36,11 @@ class ATLoss(nn.Module):
         loss1 = -(F.log_softmax(logit1, dim=-1) * labels).sum(1)
         ##################################################################
         if self.reduction == 'mean':
-            labels_count = labels.sum(1)
+            labels_count = labels.sum(1) + 1e-7
             loss1 = loss1/labels_count
         ##################################################################
         # Rank TH to negative classes
         logit2 = logits.masked_fill(n_mask == 0, -1e30)
-        # print('logit2 {}'.format(logit2))
         loss2 = -(F.log_softmax(logit2, dim=-1) * th_label).sum(1)
 
         # Sum two parts
@@ -143,9 +142,8 @@ class ATPLoss(nn.Module):
         # print('pos log', pos_log)
         # print('lables ', labels)
         loss1 = (pos_log[:,:,0] * labels).sum(1)
-        # print('loss1', loss1)
         if self.reduction == 'mean':
-            labels_count = labels.sum(1)
+            labels_count = labels.sum(1) + 1e-7
             loss1 = loss1 / labels_count
 
         neg_logits = torch.stack([th_logits, logits], dim=-1)
