@@ -94,6 +94,7 @@ if model_path is not None:
 encoder.to(args.device)
 model.to(args.device)
 logger.info('Loading model completed in {} seconds'.format(time() - start_time))
+logger.info('-' * 100)
 _, _, tokenizer_class = MODEL_CLASSES[args.model_type]
 tokenizer = tokenizer_class.from_pretrained(args.encoder_name_or_path,
                                             do_lower_case=args.do_lower_case)
@@ -174,7 +175,7 @@ for epoch in train_iterator:
         # start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
 
         # loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
-        # del batch
+        del batch
 
     #     if args.n_gpu > 1:
     #         for loss in loss_list:
