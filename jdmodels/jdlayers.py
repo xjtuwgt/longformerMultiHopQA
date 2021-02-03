@@ -50,6 +50,7 @@ class GraphBlock(nn.Module):
         _, max_sent_num, _ = sent_state.size()
         _, max_ent_num, _ = ent_state.size()
 
+        print(para_state.shape, sent_state.shape, ent_state.shape, query_vec.unsqueeze(1).shape)
         graph_state = torch.cat([query_vec.unsqueeze(1), para_state, sent_state, ent_state], dim=1)
         node_mask = torch.cat([torch.ones(N, 1).to(self.config.device), batch['para_mask'], batch['sent_mask'], batch['ent_mask']], dim=-1).unsqueeze(-1)
         graph_adj = batch['graphs']
