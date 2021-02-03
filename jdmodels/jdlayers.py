@@ -4,6 +4,7 @@ from torch.autograd import Variable
 from models.layers import OutputLayer
 from csr_mhqa.utils import get_weights, get_act
 import torch.nn.functional as F
+import numpy as np
 
 def encoder_graph_node_feature(batch, input_state, hidden_dim):
     sent_start_mapping = batch['sent_start_mapping']
@@ -30,24 +31,15 @@ def encoder_graph_node_feature(batch, input_state, hidden_dim):
 
 
 class GraphBlock(nn.Module):
-    def __init__(self, q_attn, config, q_input_dim):
+    def __init__(self, q_attn, config, input_dim, hidden_dim):
         super(GraphBlock, self).__init__()
         self.config = config
-        self.hidden_dim = config.hidden_dim
-
-        if self.config.q_update:
-            self.gat_linear = nn.Linear(self.hidden_dim*2, self.hidden_dim)
-        else:
-            self.gat_linear = nn.Linear(q_input_dim, self.hidden_dim*2)
-
-        if self.config.q_update:
-            self.gat = AttentionLayer(self.hidden_dim, self.hidden_dim, q_dim=self.hidden_dim, n_head= config.num_gnn_heads, q_attn=q_attn, config=self.config)
-            self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
-            self.entity_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
-        else:
-            self.gat = AttentionLayer(self.hidden_dim*2, self.hidden_dim*2, q_dim=q_input_dim, n_head=config.num_gnn_heads, q_attn=q_attn, config=self.config)
-            self.sent_mlp = OutputLayer(self.hidden_dim*2, config, num_answer=1)
-            self.entity_mlp = OutputLayer(self.hidden_dim*2, config, num_answer=1)
+        self.hidden_dim = hidden_dim
+        self.input_dim = input_dim
+        self.gat = AttentionLayer(in_dim=self.input_dim,  hid_dim=self.hidden_dim, n_head=config.num_gnn_heads,
+                                  q_attn=q_attn, config=self.config)
+        self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
+        self.entity_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
 
     def forward(self, batch, query_vec, graph_state_dict):
         para_state = graph_state_dict['para_state']
@@ -58,15 +50,8 @@ class GraphBlock(nn.Module):
         _, max_sent_num, _ = sent_state.size()
         _, max_ent_num, _ = ent_state.size()
 
-        if self.config.q_update:
-            print(para_state.shape, sent_state.shape, ent_state.shape)
-            graph_state = self.gat_linear(torch.cat([para_state, sent_state, ent_state], dim=1)) # N * (max_para + max_sent + max_ent) * d
-            graph_state = torch.cat([query_vec.unsqueeze(1), graph_state], dim=1)
-        else:
-            graph_state = self.gat_linear(query_vec)
-            graph_state = torch.cat([graph_state.unsqueeze(1), para_state, sent_state, ent_state], dim=1)
+        graph_state = torch.cat([query_vec.unsqueeze(1), para_state, sent_state, ent_state], dim=1)
         node_mask = torch.cat([torch.ones(N, 1).to(self.config.device), batch['para_mask'], batch['sent_mask'], batch['ent_mask']], dim=-1).unsqueeze(-1)
-
         graph_adj = batch['graphs']
         assert graph_adj.size(1) == node_mask.size(1)
 
@@ -102,7 +87,7 @@ class GraphBlock(nn.Module):
 
 
 class GATSelfAttention(nn.Module):
-    def __init__(self, in_dim, out_dim, q_dim, config, q_attn=False, head_id=0):
+    def __init__(self, in_dim, out_dim, config, q_attn=False, head_id=0):
         """ One head GAT """
         super(GATSelfAttention, self).__init__()
         self.config = config
@@ -115,9 +100,6 @@ class GATSelfAttention(nn.Module):
 
         self.head_id = head_id
         self.step = 0
-        ########
-        self.q_dim = q_dim
-        ########
 
         self.W_type = nn.ParameterList()
         self.a_type = nn.ParameterList()
@@ -126,10 +108,8 @@ class GATSelfAttention(nn.Module):
         for i in range(self.n_type):
             self.W_type.append(get_weights((in_dim, out_dim)))
             self.a_type.append(get_weights((out_dim * 2, 1)))
-
             if self.q_attn:
-                # q_dim = self.config.hidden_dim if self.config.q_update else self.config.input_dim
-                self.qattn_W1.append(get_weights((self.q_dim, out_dim * 2)))
+                self.qattn_W1.append(get_weights((in_dim, out_dim * 2)))
                 self.qattn_W2.append(get_weights((out_dim * 2, out_dim * 2)))
 
         self.act = get_act('lrelu:0.2')
@@ -170,7 +150,7 @@ class GATSelfAttention(nn.Module):
 
 
 class AttentionLayer(nn.Module):
-    def __init__(self, in_dim, hid_dim, q_dim, n_head, q_attn, config):
+    def __init__(self, in_dim, hid_dim, n_head, q_attn, config):
         super(AttentionLayer, self).__init__()
         assert hid_dim % n_head == 0
         self.dropout = config.gnn_drop
@@ -178,7 +158,7 @@ class AttentionLayer(nn.Module):
         self.attn_funcs = nn.ModuleList()
         for i in range(n_head):
             self.attn_funcs.append(
-                GATSelfAttention(in_dim=in_dim, out_dim=hid_dim // n_head, q_dim=q_dim, config=config, q_attn=q_attn, head_id=i))
+                GATSelfAttention(in_dim=in_dim, out_dim=hid_dim // n_head, config=config, q_attn=q_attn, head_id=i))
 
         if in_dim != hid_dim:
             self.align_dim = nn.Linear(in_dim, hid_dim)
@@ -196,3 +176,57 @@ class AttentionLayer(nn.Module):
         h = F.dropout(h, self.dropout, training=self.training)
         h = F.relu(h)
         return h
+
+
+class PredictionLayer(nn.Module):
+    """
+    Identical to baseline prediction layer
+    """
+    def __init__(self, config):
+        super(PredictionLayer, self).__init__()
+        self.config = config
+        input_dim = config.ctx_attn_hidden_dim
+        h_dim = config.hidden_dim
+
+        self.hidden = h_dim
+
+        self.start_linear = OutputLayer(input_dim, config, num_answer=1)
+        self.end_linear = OutputLayer(input_dim, config, num_answer=1)
+        self.type_linear = OutputLayer(input_dim, config, num_answer=4)
+
+        self.cache_S = 0
+        self.cache_mask = None
+
+    def get_output_mask(self, outer):
+        S = outer.size(1)
+        if S <= self.cache_S:
+            return Variable(self.cache_mask[:S, :S], requires_grad=False)
+        self.cache_S = S
+        np_mask = np.tril(np.triu(np.ones((S, S)), 0), 15)
+        self.cache_mask = outer.data.new(S, S).copy_(torch.from_numpy(np_mask))
+        return Variable(self.cache_mask, requires_grad=False)
+
+    def forward(self, batch, context_input, sent_logits, packing_mask=None, return_yp=False):
+        context_mask = batch['context_mask']
+        context_lens = batch['context_lens']
+        sent_mapping = batch['sent_mapping']
+
+        sp_forward = torch.bmm(sent_mapping, sent_logits).contiguous()  # N x max_seq_len x 1
+
+        start_prediction = self.start_linear(context_input).squeeze(2) - 1e30 * (1 - context_mask)  # N x L
+        end_prediction = self.end_linear(context_input).squeeze(2) - 1e30 * (1 - context_mask)  # N x L
+        type_prediction = self.type_linear(context_input[:, 0, :])
+
+        if not return_yp:
+            return start_prediction, end_prediction, type_prediction
+
+        outer = start_prediction[:, :, None] + end_prediction[:, None]
+        outer_mask = self.get_output_mask(outer)
+        outer = outer - 1e30 * (1 - outer_mask[None].expand_as(outer))
+        if packing_mask is not None:
+            outer = outer - 1e30 * packing_mask[:, :, None]
+        # yp1: start
+        # yp2: end
+        yp1 = outer.max(dim=2)[0].max(dim=1)[1]
+        yp2 = outer.max(dim=1)[0].max(dim=1)[1]
+        return start_prediction, end_prediction, type_prediction, yp1, yp2
