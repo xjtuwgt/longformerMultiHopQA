@@ -81,7 +81,7 @@ class ATMLoss(nn.Module):
         n_mask = 1 - labels ## the first column is 1
         ##################################################################
         if mask is not None:
-            logits = logits.masked_fill(mask == 0, -1e30)
+            logits = logits.masked_fill(mask == 0, 0)
         ##################################################################
         # Rank positive classes to TH
         logit1 = logits - (1 - p_mask) * 1e30
@@ -130,9 +130,11 @@ class ATPLoss(nn.Module):
         :param mask:
         :return:
         """
+        print('orig logits ', logits)
         batch_size, label_num = logits.shape
         if mask is not None:
             logits = logits.masked_fill(mask == 0, -1e30)
+        print('logits ', logits)
         th_logits = logits[:,0].unsqueeze(dim=1).repeat(1, label_num)
         labels[:, 0] = 0.0
         ################################################
