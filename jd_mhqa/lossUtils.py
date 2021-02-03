@@ -130,20 +130,20 @@ class ATPLoss(nn.Module):
         :param mask:
         :return:
         """
-        print('orig logits ', logits)
+        # print('orig logits ', logits)
         batch_size, label_num = logits.shape
         if mask is not None:
             logits = logits.masked_fill(mask == 0, -1e30)
-        print('logits ', logits)
+        # print('logits ', logits)
         th_logits = logits[:,0].unsqueeze(dim=1).repeat(1, label_num)
         labels[:, 0] = 0.0
         ################################################
         pos_logits = torch.stack([logits, th_logits], dim=-1)
         pos_log = -F.log_softmax(pos_logits, dim=-1)
-        print('pos log', pos_log)
-        print('lables ', labels)
+        # print('pos log', pos_log)
+        # print('lables ', labels)
         loss1 = (pos_log[:,:,0] * labels).sum(1)
-        print('loss1', loss1)
+        # print('loss1', loss1)
         if self.reduction == 'mean':
             labels_count = labels.sum(1)
             loss1 = loss1 / labels_count
