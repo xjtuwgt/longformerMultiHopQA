@@ -105,8 +105,6 @@ class GraphBlock(nn.Module):
         else:
             self.gat_linear = nn.Linear(q_input_dim, self.hidden_dim*2)
 
-        print(self.gat_linear)
-
         if self.config.q_update:
             self.gat = AttentionLayer(self.hidden_dim, self.hidden_dim, config.num_gnn_heads, q_attn=q_attn, config=self.config)
             self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
@@ -116,7 +114,7 @@ class GraphBlock(nn.Module):
             self.sent_mlp = OutputLayer(self.hidden_dim*2, config, num_answer=1)
             self.entity_mlp = OutputLayer(self.hidden_dim*2, config, num_answer=1)
 
-    def forward(self, batch, query_vec, graph_state_dict=None):
+    def forward(self, batch, query_vec, graph_state_dict):
         para_state = graph_state_dict['para_state']
         sent_state = graph_state_dict['sent_state']
         ent_state = graph_state_dict['ent_state']
@@ -130,6 +128,7 @@ class GraphBlock(nn.Module):
             graph_state = torch.cat([query_vec.unsqueeze(1), graph_state], dim=1)
         else:
             graph_state = self.gat_linear(query_vec)
+            print('here', query_vec.shape)
             graph_state = torch.cat([graph_state.unsqueeze(1), para_state, sent_state, ent_state], dim=1)
         node_mask = torch.cat([torch.ones(N, 1).to(self.config.device), batch['para_mask'], batch['sent_mask'], batch['ent_mask']], dim=-1).unsqueeze(-1)
 
@@ -138,6 +137,7 @@ class GraphBlock(nn.Module):
 
         graph_state = self.gat(graph_state, graph_adj, node_mask=node_mask, query_vec=query_vec) # N x (1+max_para+max_sent) x d
         ent_state = graph_state[:, 1+max_para_num+max_sent_num:, :]
+        print('graph state ', graph_state.shape)
 
         gat_logit = self.sent_mlp(graph_state[:, :1+max_para_num+max_sent_num, :]) # N x max_sent x 1
         para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
