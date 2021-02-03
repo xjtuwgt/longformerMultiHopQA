@@ -3,6 +3,7 @@ import logging
 import sys
 
 from os.path import join
+import torch
 
 from csr_mhqa.argument_parser import default_train_parser, complete_default_train_parser, json_to_argv
 # from csr_mhqa.data_processing import Example, InputFeatures, DataHelper

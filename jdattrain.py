@@ -123,8 +123,14 @@ if encoder_path is not None and model_path is not None:
     start_time = time()
     output_pred_file = os.path.join(args.exp_name, 'prev_checkpoint.pred.json')
     output_eval_file = os.path.join(args.exp_name, 'prev_checkpoint.eval.txt')
-    prev_metrics, prev_threshold = jd_eval_model(args, encoder, model, dev_dataloader, dev_example_dict, dev_feature_dict,
-                                                 output_pred_file, output_eval_file, args.dev_gold_file)
+    # prev_metrics, prev_threshold = jd_eval_model(args, encoder, model, dev_dataloader, dev_example_dict, dev_feature_dict,
+    #                                              output_pred_file, output_eval_file, args.dev_gold_file)
+    prev_metrics, prev_threshold, doc_recall_metric, total_inconsist_number = jd_eval_model(args, encoder, model,
+                                                                                  dev_dataloader, dev_example_dict,
+                                                                                  dev_feature_dict,
+                                                                                  output_pred_file,
+                                                                                  output_eval_file,
+                                                                                  args.dev_gold_file)
     logger.info("Best threshold for prev checkpoint: {}".format(prev_threshold))
     for key, val in prev_metrics.items():
         logger.info("{} = {}".format(key, val))
@@ -240,9 +246,12 @@ for epoch in train_iterator:
     if args.local_rank == -1 or torch.distributed.get_rank() == 0:
         output_pred_file = os.path.join(args.exp_name, f'pred.epoch_{epoch+1}.json')
         output_eval_file = os.path.join(args.exp_name, f'eval.epoch_{epoch+1}.txt')
-        metrics, threshold = jd_eval_model(args, encoder, model,
-                                        dev_dataloader, dev_example_dict, dev_feature_dict,
-                                        output_pred_file, output_eval_file, args.dev_gold_file)
+        metrics, threshold, doc_recall_metric, total_inconsist_number = jd_eval_model(args, encoder, model,
+                                                                                      dev_dataloader, dev_example_dict,
+                                                                                      dev_feature_dict,
+                                                                                      output_pred_file,
+                                                                                      output_eval_file,
+                                                                                      args.dev_gold_file)
 
         if metrics['joint_f1'] >= best_joint_f1:
             best_joint_f1 = metrics['joint_f1']
