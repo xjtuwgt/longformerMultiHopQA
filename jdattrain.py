@@ -91,6 +91,15 @@ if encoder_path is not None:
 if model_path is not None:
     model.load_state_dict(torch.load(model_path))
 
+#############################
+if args.frozen_layer_number > 0:
+    modules = [encoder.embeddings, *encoder.encoder.layer[:args.frozen_layer_number]]
+    for module in modules:
+        for param in module.parameters():
+            param.requires_grad = False
+    logging.info('Frozen the first {} layers'.format(args.frozen_layer_number))
+#############################
+
 encoder.to(args.device)
 model.to(args.device)
 logger.info('Loading model and encoder completed in {} seconds'.format(time() - start_time))
