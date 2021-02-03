@@ -249,17 +249,32 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     loss_type = args.type_lambda * ans_criterion(q_type, batch['q_type'])
     loss_ent = args.ent_lambda * ans_criterion(ent, batch['is_gold_ent'].long())
     ####################################################################################################################
-    sup_criterion = ATPLoss()
+    sup_criterion = ATPLoss(reduction='mean')
+    sent_mask = batch['sent_mask']
+    batch_size = sent_mask.shape[0]
     sent_gold = batch['is_support']
-    query_sent_gold = torch.cat([])
+    query_sent_pred = sent
+    query_sent_gold = torch.cat([torch.zeros(batch_size, 1).to(sent_gold), sent_gold], dim=-1)
+    query_sent_mask = torch.cat([torch.ones(batch_size, 1).to(sent_mask), sent_mask], dim=-1)
 
-    print('sent {}'.format(sent))
-    print('para {}'.format(para))
+    loss_sup = args.sent_lambda * sup_criterion.forward(logits=query_sent_pred, labels=query_sent_gold, mask=query_sent_mask)
 
-    sent_pred = sent.view(-1, 2)
-    sent_gold = batch['is_support'].long().view(-1)
-    loss_sup = args.sent_lambda * ans_criterion(sent_pred, sent_gold.long())
-    loss_para = args.para_lambda * ans_criterion(para.view(-1, 2), batch['is_gold_para'].long().view(-1))
+
+    para_mask = batch['para_mask']
+    para_gold = batch['is_gold_para']
+
+    query_para_pred = para
+    query_para_gold = torch.cat([torch.zeros(batch_size, 1).to(para_gold), para_gold], dim=-1)
+    query_para_mask = torch.cat([torch.ones(batch_size, 1).to(para_mask), para_mask], dim=-1)
+    loss_para = args.para_lambda * sup_criterion.forward(logits=query_para_pred, labels=query_para_gold, mask=query_para_mask)
+
+    # print('sent {}'.format(sent))
+    # print('para {}'.format(para))
+    #
+    # sent_pred = sent.view(-1, 2)
+    # sent_gold = batch['is_support'].long().view(-1)
+    # loss_sup = args.sent_lambda * ans_criterion(sent_pred, sent_gold.long())
+    # loss_para = args.para_lambda * ans_criterion(para.view(-1, 2), batch['is_gold_para'].long().view(-1))
 
     loss = loss_span + loss_type + loss_sup + loss_ent + loss_para
 
