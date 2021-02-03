@@ -209,7 +209,7 @@ class ParaSentEntPredictionLayer(nn.Module):
         ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
 
         sent_logit = self.sent_mlp(sent_state)
-        para_logit = self.doc_mlp(para_state)
+        para_logit = self.para_mlp(para_state)
 
         para_logits_aux = Variable(para_logit.data.new(para_logit.size(0), para_logit.size(1), 1).zero_())
         para_prediction = torch.cat([para_logits_aux, para_logit], dim=-1).contiguous()
