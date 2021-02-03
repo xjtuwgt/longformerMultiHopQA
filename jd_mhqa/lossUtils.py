@@ -226,7 +226,8 @@ class ATPFLoss(nn.Module):
 
     def focal_loss(self, logits, mask):
         logpt = F.log_softmax(logits, dim=-1)
-        logpt = logpt[:, :, 0] if len(logits.shape) == 3 else logpt[:, 0]
+        assert len(logits.shape) == 3
+        logpt = logpt[:, :, 0]
         pt = Variable(torch.exp(logpt).to(logits.device))
         pt = torch.clamp(pt, self.smooth, 1.0 - self.smooth)
         loss = -self.alpha * torch.pow(torch.sub(1.0, pt), self.gamma) * logpt * mask
