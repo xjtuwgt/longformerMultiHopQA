@@ -208,15 +208,15 @@ class ParaSentEntPredictionLayer(nn.Module):
         ent_logit = self.entity_mlp(ent_state).view(N, -1)
         ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
 
-        sent_logit = self.sent_mlp(sent_state)
-        para_logit = self.para_mlp(para_state)
+        sent_logit = self.sent_mlp(query_sent_state)
+        para_logit = self.para_mlp(query_para_state)
 
-        para_logits_aux = Variable(para_logit.data.new(para_logit.size(0), para_logit.size(1), 1).zero_())
-        para_prediction = torch.cat([para_logits_aux, para_logit], dim=-1).contiguous()
-
-        sent_logits_aux = Variable(sent_logit.data.new(sent_logit.size(0), sent_logit.size(1), 1).zero_())
-        sent_prediction = torch.cat([sent_logits_aux, sent_logit], dim=-1).contiguous()
-        return para_logit, para_prediction, sent_logit, sent_prediction, ent_logit
+        # para_logits_aux = Variable(para_logit.data.new(para_logit.size(0), para_logit.size(1), 1).zero_())
+        # para_prediction = torch.cat([para_logits_aux, para_logit], dim=-1).contiguous()
+        #
+        # sent_logits_aux = Variable(sent_logit.data.new(sent_logit.size(0), sent_logit.size(1), 1).zero_())
+        # sent_prediction = torch.cat([sent_logits_aux, sent_logit], dim=-1).contiguous()
+        return para_logit, sent_logit, ent_logit
 
 class PredictionLayer(nn.Module):
     """

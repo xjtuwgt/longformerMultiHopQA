@@ -78,14 +78,10 @@ class HierarchicalGraphNetwork(nn.Module):
             # sent_predictions.append(sent_prediction)
             # ent_predictions.append(ent_logit)
         input_state, _ = self.ctx_attention(input_state, graph_state, graph_mask.squeeze(-1))
-        para_logit, para_prediction, sent_logit, sent_prediction, ent_logit = self.para_sent_ent_predict_layer.forward(batch=batch,
-                                                                                                                       graph_state_dict=graph_state_dict,
-                                                                                                                       query_vec=query_vec)
+        para_logit, sent_logit, ent_logit = self.para_sent_ent_predict_layer.forward(batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
         # predictions = self.predict_layer(batch, input_state, sent_logits[-1], packing_mask=query_mapping, return_yp=return_yp)
         predictions = self.predict_layer(batch, input_state, sent_logit, packing_mask=query_mapping,
                                          return_yp=return_yp)
-
-
         # if return_yp:
         #     start, end, q_type, yp1, yp2 = predictions
         #     return start, end, q_type, para_predictions[-1], sent_predictions[-1], ent_predictions[-1], yp1, yp2
@@ -95,7 +91,7 @@ class HierarchicalGraphNetwork(nn.Module):
 
         if return_yp:
             start, end, q_type, yp1, yp2 = predictions
-            return start, end, q_type, para_prediction, sent_prediction, ent_logit, yp1, yp2
+            return start, end, q_type, para_logit, sent_logit, ent_logit, yp1, yp2
         else:
             start, end, q_type = predictions
-            return start, end, q_type, para_prediction, sent_prediction, ent_logit
+            return start, end, q_type, para_logit, sent_logit, ent_logit
