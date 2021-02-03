@@ -80,10 +80,10 @@ class ATMLoss(nn.Module):
         n_mask = 1 - labels ## the first column is 1
         ##################################################################
         if mask is not None:
-            logits = logits.masked_fill(mask == 0, 0)
+            logits = logits.masked_fill(mask == 0, -1e30)
         ##################################################################
         # Rank positive classes to TH
-        logit1 = logits - (1 - p_mask) * 1e30
+        logit1 = logits.masked_fill(p_mask == 0, -1e30)
         loss1 = -(F.log_softmax(logit1, dim=-1) * labels).sum(1)
         ##################################################################
         if self.reduction == 'mean':
@@ -91,7 +91,7 @@ class ATMLoss(nn.Module):
             loss1 = loss1 / labels_count
         ##################################################################
         # Rank TH to negative classes
-        logit2 = logits - (1 - n_mask) * 1e30
+        logit2 = logits.masked_fill(n_mask == 0, -1e30)
         loss2 = -(F.log_softmax(logit2, dim=-1) * th_label).sum(1)
 
         # Sum two parts
@@ -129,18 +129,14 @@ class ATPLoss(nn.Module):
         :param mask:
         :return:
         """
-        # print('orig logits ', logits)
         batch_size, label_num = logits.shape
         if mask is not None:
             logits = logits.masked_fill(mask == 0, -1e30)
-        # print('logits ', logits)
         th_logits = logits[:,0].unsqueeze(dim=1).repeat(1, label_num)
         labels[:, 0] = 0.0
         ################################################
         pos_logits = torch.stack([logits, th_logits], dim=-1)
         pos_log = -F.log_softmax(pos_logits, dim=-1)
-        # print('pos log', pos_log)
-        # print('lables ', labels)
         loss1 = (pos_log[:,:,0] * labels).sum(1)
         if self.reduction == 'mean':
             labels_count = labels.sum(1) + 1e-7
@@ -153,7 +149,6 @@ class ATPLoss(nn.Module):
         if mask is not None:
             n_mask = n_mask.masked_fill(mask==0, 0)
         loss2 = (neg_log[:,:,0] * n_mask).sum(1)
-        # print('loss2', loss2)
         if self.reduction == 'mean':
             neg_labels_count = n_mask.sum(1) + 1e-7
             loss2 = loss2/neg_labels_count
