@@ -15,6 +15,7 @@ from torch import nn
 from csr_mhqa.data_processing import IGNORE_INDEX
 from csr_mhqa.utils import convert_to_tokens
 from jd_mhqa.lossUtils import ATPLoss, ATPFLoss
+from jd_mhqa.lossUtils import adaptive_threshold_prediction
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
@@ -273,7 +274,7 @@ def jd_at_eval_model(args, encoder, model, dataloader, example_dict, feature_dic
     answer_type_prob_dict = {}
     dataloader.refresh()
     ##++++++++++++++++++++++++++++++++++
-    total_sp_dict = {}
+    total_sent_sp_dict = {}
     ##++++++++++++++++++++++++++++++++++
     total_para_sp_dict = {}
     ##++++++++++++++++++++++++++++++++++
@@ -299,10 +300,52 @@ def jd_at_eval_model(args, encoder, model, dataloader, example_dict, feature_dic
         answer_dict.update(answer_dict_)
 
         ##++++++++++++++++++++++++++++++++++++++++
-        predict_para_support_np = paras.data.cpu().numpy()
+        predict_para_support_logits = paras
+        para_pred_out = adaptive_threshold_prediction(logits=predict_para_support_logits, number_labels=2, mask=batch['para_mask'], type='topk')
+        para_pred_out_np = para_pred_out.data.cpu().numpy()
         ##++++++++++++++++++++++++++++++++++++++++
-        predict_support_np = sent.data.cpu().numpy()
+        predict_sent_support_logits = sent
+        sent_pred_out = adaptive_threshold_prediction(logits=predict_sent_support_logits, number_labels=2, mask=batch['para_sent'], type='or')
+        sent_pred_out_np = sent_pred_out.data.cpu().numpy()
         ##++++++++++++++++++++++++++++++++++++++++
-    # json.dump(best_metrics, open(eval_file, 'w'))
-    #
-    # return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number
+        for i in range(sent_pred_out_np.shape[0]):
+            cur_id = batch['ids'][i]
+            para_pred_out_np_ith = para_pred_out_np[i]
+            sent_pred_out_np_ith = sent_pred_out_np[i]
+            cur_para_sp_pred = supp_para_at_prediction(predict_para_support_np_ith=para_pred_out_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
+            cur_sent_sp_pred = supp_sent_at_prediction(predict_sent_support_np_ith=sent_pred_out_np_ith, example_dict=example_dict, batch_ids_ith=cur_id)
+            total_para_sp_dict[cur_id] = cur_para_sp_pred
+            total_sent_sp_dict[cur_id] = cur_sent_sp_pred
+
+    prediction = {'answer': answer_dict,
+                  'sp': total_sent_sp_dict,
+                  'type': answer_type_dict,
+                  'type_prob': answer_type_prob_dict}
+    tmp_file = os.path.join(os.path.dirname(prediction_file), 'tmp.json')
+    with open(tmp_file, 'w') as f:
+        json.dump(prediction, f)
+    eval_metrics = hotpot_eval(tmp_file, dev_gold_file)
+    doc_recall_metric = doc_recall_eval(doc_prediction=total_para_sp_dict, gold_file=dev_gold_file)
+    total_inconsistent_number = supp_doc_sent_consistent_checker(predict_para_dict=total_para_sp_dict,
+                                                                 predicted_supp_sent_dict=total_sent_sp_dict,
+                                                                 gold_file=dev_gold_file)
+    ##++++++++++++++++++++++++++++++++++++++++
+    json.dump(eval_metrics, open(eval_file, 'w'))
+    return eval_metrics, doc_recall_metric, total_inconsistent_number
+
+def supp_para_at_prediction(predict_para_support_np_ith, example_dict, batch_ids_ith):
+    para_index_ith = (np.where(predict_para_support_np_ith == 1)[0] - 1).tolist()
+    cand_para_names = example_dict[batch_ids_ith].para_names
+    assert len(cand_para_names) >=2
+    cur_para_pred = [cand_para_names[para_index_ith[0]], cand_para_names[para_index_ith[1]]]
+    return cur_para_pred
+
+def supp_sent_at_prediction(predict_sent_support_np_ith, example_dict, batch_ids_ith):
+    sent_index_ith = (np.where(predict_sent_support_np_ith == 1)[0] - 1).tolist()
+    cur_id = batch_ids_ith
+    cur_sent_pred = []
+    for j in sent_index_ith:
+        if j >= len(example_dict[cur_id].sent_names):
+            break
+        cur_sent_pred.append(example_dict[cur_id][j])
+    return cur_sent_pred

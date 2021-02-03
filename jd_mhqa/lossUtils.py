@@ -24,6 +24,8 @@ def adaptive_threshold_prediction(logits, number_labels=-1, mask = None, type = 
             out_mask = out_mask & top_k_mask
         elif type == 'or':
             out_mask = out_mask | top_k_mask
+        elif type == 'topk':
+            out_mask = top_k_mask
         else:
             raise ValueError('mask type {} is not supported'.format(type))
     output[out_mask] = 1.0

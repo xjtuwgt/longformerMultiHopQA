@@ -16,7 +16,7 @@ loss = atmloss.forward(logits=x, labels=y)
 print(loss)
 print(x)
 
-y = adaptive_threshold_prediction(logits=x, number_labels=-1, type='or')
+y = adaptive_threshold_prediction(logits=x, number_labels=2, type='topk')
 print(y)
 #
 # atploss = ATPLoss()
