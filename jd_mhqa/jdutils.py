@@ -301,11 +301,16 @@ def jd_at_eval_model(args, encoder, model, dataloader, example_dict, feature_dic
 
         ##++++++++++++++++++++++++++++++++++++++++
         predict_para_support_logits = paras
-        para_pred_out = adaptive_threshold_prediction(logits=predict_para_support_logits, number_labels=2, mask=batch['para_mask'], type='topk')
+        para_mask = batch['para_mask']
+        batch_size = para_mask.shape[0]
+        query_para_mask = torch.cat([torch.ones(batch_size, 1).to(para_mask), para_mask], dim=-1)
+        para_pred_out = adaptive_threshold_prediction(logits=predict_para_support_logits, number_labels=2, mask=query_para_mask, type='topk')
         para_pred_out_np = para_pred_out.data.cpu().numpy()
         ##++++++++++++++++++++++++++++++++++++++++
         predict_sent_support_logits = sent
-        sent_pred_out = adaptive_threshold_prediction(logits=predict_sent_support_logits, number_labels=2, mask=batch['para_sent'], type='or')
+        sent_mask = batch['sent_mask']
+        query_sent_mask = torch.cat([torch.ones(batch_size, 1).to(sent_mask), sent_mask], dim=-1)
+        sent_pred_out = adaptive_threshold_prediction(logits=predict_sent_support_logits, number_labels=2, mask=query_sent_mask, type='or')
         sent_pred_out_np = sent_pred_out.data.cpu().numpy()
         ##++++++++++++++++++++++++++++++++++++++++
         for i in range(sent_pred_out_np.shape[0]):
