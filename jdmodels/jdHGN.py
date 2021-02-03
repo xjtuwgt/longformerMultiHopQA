@@ -49,7 +49,6 @@ class HierarchicalGraphNetwork(nn.Module):
         trunc_query_state = (context_encoding * query_mapping.unsqueeze(2))[:, :self.max_query_length, :].contiguous()
         # bert encoding query vec
         query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
-        print(query_vec.shape)
         attn_output, trunc_query_state = self.bi_attention(context_encoding,
                                                            trunc_query_state,
                                                            trunc_query_mapping)
@@ -59,7 +58,6 @@ class HierarchicalGraphNetwork(nn.Module):
         if self.config.q_update:
             query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
 
-        print(query_vec.shape)
         query_vec = self.q_map(query_vec)
 
         para_logits, sent_logits = [], []

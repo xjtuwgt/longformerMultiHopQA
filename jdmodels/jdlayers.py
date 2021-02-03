@@ -50,7 +50,7 @@ class GraphBlock(nn.Module):
         _, max_sent_num, _ = sent_state.size()
         _, max_ent_num, _ = ent_state.size()
 
-        print(para_state.shape, sent_state.shape, ent_state.shape, query_vec.unsqueeze(1).shape)
+        # print(para_state.shape, sent_state.shape, ent_state.shape, query_vec.unsqueeze(1).shape)
         graph_state = torch.cat([query_vec.unsqueeze(1), para_state, sent_state, ent_state], dim=1)
         node_mask = torch.cat([torch.ones(N, 1).to(self.config.device), batch['para_mask'], batch['sent_mask'], batch['ent_mask']], dim=-1).unsqueeze(-1)
         graph_adj = batch['graphs']
@@ -127,7 +127,7 @@ class GATSelfAttention(nn.Module):
             a_input = torch.cat([h.repeat(1, 1, E).view(N, E * E, -1), h.repeat(1, E, 1)], dim=-1)
             a_input = a_input.view(-1, E, E, 2*d)
 
-            print(a_input.shape)
+            # print(a_input.shape)
 
             if self.q_attn:
                 q_gate = F.relu(torch.matmul(query_vec, self.qattn_W1[i]))
@@ -136,7 +136,7 @@ class GATSelfAttention(nn.Module):
                 score = self.act(torch.matmul(a_input, self.a_type[i]).squeeze(3))
             else:
                 score = self.act(torch.matmul(a_input, self.a_type[i]).squeeze(3))
-            print(i, input_state.shape, scores.shape, adj.shape, score.shape)
+            # print(i, input_state.shape, scores.shape, adj.shape, score.shape)
             scores += torch.where(adj == i+1, score, zero_vec.to(score.dtype))
 
         zero_vec = -1e30 * torch.ones_like(scores)
