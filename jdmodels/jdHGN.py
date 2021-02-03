@@ -45,7 +45,6 @@ class HierarchicalGraphNetwork(nn.Module):
     def forward(self, batch, return_yp):
         query_mapping = batch['query_mapping']
         context_encoding = batch['context_encoding']
-
         # extract query encoding
         trunc_query_mapping = query_mapping[:, :self.max_query_length].contiguous()
         trunc_query_state = (context_encoding * query_mapping.unsqueeze(2))[:, :self.max_query_length, :].contiguous()
@@ -54,41 +53,26 @@ class HierarchicalGraphNetwork(nn.Module):
         attn_output, trunc_query_state = self.bi_attention(context_encoding,
                                                            trunc_query_state,
                                                            trunc_query_mapping)
-
         input_state = self.bi_attn_linear(attn_output) # N x L x d
         input_state = self.sent_lstm(input_state, batch['context_lens'])
         if self.config.q_update:
             query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
 
         query_vec = self.q_map(query_vec)
-
-        # para_logits, sent_logits = [], []
-        # para_predictions, sent_predictions, ent_predictions = [], [], []
         ################################################################################################################
         graph_state_dict = encoder_graph_node_feature(batch=batch, input_state=input_state, hidden_dim=self.hidden_dim)
         graph_state, graph_mask = None, None
         ################################################################################################################
         for l in range(self.config.num_gnn_layers):
-            graph_state, graph_state_dict, graph_mask, query_vec = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
-            # graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
-            # sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
-            # para_logits.append(para_logit)
-            # sent_logits.append(sent_logit)
-            # para_predictions.append(para_prediction)
-            # sent_predictions.append(sent_prediction)
-            # ent_predictions.append(ent_logit)
+            graph_state, graph_state_dict, graph_mask, query_vec = self.graph_blocks[l](batch=batch,
+                                                                                        graph_state_dict=graph_state_dict,
+                                                                                        query_vec=query_vec)
         input_state, _ = self.ctx_attention(input_state, graph_state, graph_mask.squeeze(-1))
-        para_logit, sent_logit, ent_logit = self.para_sent_ent_predict_layer.forward(batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
-        # predictions = self.predict_layer(batch, input_state, sent_logits[-1], packing_mask=query_mapping, return_yp=return_yp)
+        para_logit, sent_logit, ent_logit = self.para_sent_ent_predict_layer.forward(batch=batch,
+                                                                                     graph_state_dict=graph_state_dict,
+                                                                                     query_vec=query_vec)
         predictions = self.predict_layer(batch, input_state, sent_logit, packing_mask=query_mapping,
                                          return_yp=return_yp)
-        # if return_yp:
-        #     start, end, q_type, yp1, yp2 = predictions
-        #     return start, end, q_type, para_predictions[-1], sent_predictions[-1], ent_predictions[-1], yp1, yp2
-        # else:
-        #     start, end, q_type = predictions
-        #     return start, end, q_type, para_predictions[-1], sent_predictions[-1], ent_predictions[-1]
-
         if return_yp:
             start, end, q_type, yp1, yp2 = predictions
             return start, end, q_type, para_logit, sent_logit, ent_logit, yp1, yp2

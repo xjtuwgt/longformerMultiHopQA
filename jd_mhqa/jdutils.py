@@ -14,6 +14,7 @@ import shutil
 from torch import nn
 from csr_mhqa.data_processing import IGNORE_INDEX
 from csr_mhqa.utils import convert_to_tokens
+from jd_mhqa.lossUtils import ATPLoss
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
@@ -248,9 +249,13 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     loss_type = args.type_lambda * ans_criterion(q_type, batch['q_type'])
     loss_ent = args.ent_lambda * ans_criterion(ent, batch['is_gold_ent'].long())
     ####################################################################################################################
+    sup_criterion = ATPLoss()
+    sent_gold = batch['is_support']
+    query_sent_gold = torch.cat([])
 
     print('sent {}'.format(sent))
     print('para {}'.format(para))
+
     sent_pred = sent.view(-1, 2)
     sent_gold = batch['is_support'].long().view(-1)
     loss_sup = args.sent_lambda * ans_criterion(sent_pred, sent_gold.long())
