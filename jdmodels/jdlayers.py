@@ -126,6 +126,8 @@ class GATSelfAttention(nn.Module):
             a_input = torch.cat([h.repeat(1, 1, E).view(N, E * E, -1), h.repeat(1, E, 1)], dim=-1)
             a_input = a_input.view(-1, E, E, 2*d)
 
+            print(a_input.shape)
+
             if self.q_attn:
                 q_gate = F.relu(torch.matmul(query_vec, self.qattn_W1[i]))
                 q_gate = torch.sigmoid(torch.matmul(q_gate, self.qattn_W2[i]))
@@ -133,7 +135,7 @@ class GATSelfAttention(nn.Module):
                 score = self.act(torch.matmul(a_input, self.a_type[i]).squeeze(3))
             else:
                 score = self.act(torch.matmul(a_input, self.a_type[i]).squeeze(3))
-            print(scores.shape, adj.shape, score.shape)
+            print(i, input_state.shape, scores.shape, adj.shape, score.shape)
             scores += torch.where(adj == i+1, score, zero_vec.to(score.dtype))
 
         zero_vec = -1e30 * torch.ones_like(scores)
