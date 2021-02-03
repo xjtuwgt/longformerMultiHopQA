@@ -36,9 +36,6 @@ else:
     argv = sys.argv[1:]
 args = parser.parse_args(argv)
 #########################################################################
-# for key, value in vars(args).items():
-# #     print('Hype-parameter\t{} = {}'.format(key, value))
-#########################################################################
 args = complete_default_train_parser(args)
 logger.info('-' * 100)
 logger.info('Input Argument Information')
@@ -53,17 +50,20 @@ helper = DataHelper(gz=True, config=args)
 
 # Set datasets
 start_time = time()
+logger.info('Start loading train data and dev data')
 train_dataloader = helper.train_loader
 dev_example_dict = helper.dev_example_dict
 dev_feature_dict = helper.dev_feature_dict
 dev_dataloader = helper.dev_loader
 #########################################################################
-logger.info('Loading train data and dev data completed in {:.4f}'.format(time() - start_time))
+logger.info('Loading train data and dev data completed in {:.4f} seconds'.format(time() - start_time))
 logger.info('-' * 100)
 #########################################################################
 
 #########################################################################
 # Initialize Model
+logger.info('Start encoder and model initialization...')
+start_time = time()
 ##########################################################################
 cached_config_file = join(args.exp_name, 'cached_config.bin')
 if os.path.exists(cached_config_file):
@@ -93,7 +93,7 @@ if model_path is not None:
 
 encoder.to(args.device)
 model.to(args.device)
-
+logger.info('Loading model completed in {} seconds'.format(time() - start_time))
 _, _, tokenizer_class = MODEL_CLASSES[args.model_type]
 tokenizer = tokenizer_class.from_pretrained(args.encoder_name_or_path,
                                             do_lower_case=args.do_lower_case)
@@ -101,6 +101,8 @@ tokenizer = tokenizer_class.from_pretrained(args.encoder_name_or_path,
 # Evalaute if resumed from other checkpoint
 ##########################################################################
 if encoder_path is not None and model_path is not None:
+    logger.info('Start model evaluation...')
+    start_time = time()
     output_pred_file = os.path.join(args.exp_name, 'prev_checkpoint.pred.json')
     output_eval_file = os.path.join(args.exp_name, 'prev_checkpoint.eval.txt')
     prev_metrics, prev_threshold = jd_eval_model(args, encoder, model, dev_dataloader, dev_example_dict, dev_feature_dict,
@@ -108,6 +110,7 @@ if encoder_path is not None and model_path is not None:
     logger.info("Best threshold for prev checkpoint: {}".format(prev_threshold))
     for key, val in prev_metrics.items():
         logger.info("{} = {}".format(key, val))
+    logger.info('Model evaluation completed in {}'.format(time() - start_time))
 #########################################################################
 # Get Optimizer
 ##########################################################################
@@ -166,11 +169,7 @@ for epoch in train_iterator:
         inputs = {'input_ids':      batch['context_idxs'],
                   'attention_mask': batch['context_mask'],
                   'token_type_ids': batch['segment_idxs'] if args.model_type in ['bert', 'xlnet'] else None}  # XLM don't use segment_ids
-
         batch['context_encoding'] = encoder(**inputs)[0]
-        print(batch['context_idxs'].shape)
-        print(batch['context_mask'].shape)
-        print(batch['context_encoding'].shape)
         batch['context_mask'] = batch['context_mask'].float().to(args.device)
         # start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
 
