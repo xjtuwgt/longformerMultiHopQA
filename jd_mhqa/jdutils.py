@@ -14,7 +14,7 @@ import shutil
 from torch import nn
 from csr_mhqa.data_processing import IGNORE_INDEX
 from csr_mhqa.utils import convert_to_tokens
-from jd_mhqa.lossUtils import ATPLoss
+from jd_mhqa.lossUtils import ATPLoss, ATPFLoss
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
@@ -108,7 +108,6 @@ def supp_sent_prediction_with_para_constraint(predict_para_support_np_ith, predi
     ############################################
     return cur_sp_pred, cur_sp_para_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, prediction_file, eval_file, dev_gold_file):
     encoder.eval()
     model.eval()
@@ -237,19 +236,13 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     is_gold_para: whether the para is the support document: 1, yes, 0, no, -100, mask
     is_gold_ent: whether the entity is answer: -100, mask, other: ent index
     """
-    # loss_labels = {'y1', 'y2', 'q_type', 'is_support', 'is_gold_ent', 'is_gold_para'}
-    # loss_labels = {'is_gold_ent'}
-    # for key, value in batch.items():
-    #     if key in loss_labels:
-    #         print('{}:{}'.format(key, value))
-    #         print('prediction {}'.format(ent.shape))
-    #         print('+' * 100)
     ans_criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=IGNORE_INDEX)
     loss_span = args.ans_lambda * (ans_criterion(start, batch['y1']) + ans_criterion(end, batch['y2']))
     loss_type = args.type_lambda * ans_criterion(q_type, batch['q_type'])
     loss_ent = args.ent_lambda * ans_criterion(ent, batch['is_gold_ent'].long())
     ####################################################################################################################
-    sup_criterion = ATPLoss(reduction='mean')
+    # sup_criterion = ATPLoss(reduction='mean')
+    sup_criterion = ATPFLoss(reduction='mean')
     sent_mask = batch['sent_mask']
     batch_size = sent_mask.shape[0]
     sent_gold = batch['is_support']
@@ -257,22 +250,59 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     query_sent_gold = torch.cat([torch.zeros(batch_size, 1).to(sent_gold), sent_gold], dim=-1)
     query_sent_mask = torch.cat([torch.ones(batch_size, 1).to(sent_mask), sent_mask], dim=-1)
     query_sent_gold = query_sent_gold.masked_fill(query_sent_mask==0, 0)
-    # print('sent ', query_sent_gold)
-    # print('sent ', query_sent_mask)
     loss_sup = args.sent_lambda * sup_criterion.forward(logits=query_sent_pred, labels=query_sent_gold, mask=query_sent_mask)
-
+    ####################################################################################################################
     para_mask = batch['para_mask']
     para_gold = batch['is_gold_para']
-
     query_para_pred = para
     query_para_gold = torch.cat([torch.zeros(batch_size, 1).to(para_gold), para_gold], dim=-1)
     query_para_mask = torch.cat([torch.ones(batch_size, 1).to(para_mask), para_mask], dim=-1)
     query_para_gold = query_para_gold.masked_fill(query_para_mask==0, 0)
     loss_para = args.para_lambda * sup_criterion.forward(logits=query_para_pred, labels=query_para_gold, mask=query_para_mask)
-
-    # print('para ', query_para_gold)
-    # print('para ', query_para_mask)
     ####################################################################################################################
     loss = loss_span + loss_type + loss_sup + loss_ent + loss_para
-
+    ####################################################################################################################
     return loss, loss_span, loss_type, loss_sup, loss_ent, loss_para
+
+def jd_at_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, prediction_file, eval_file, dev_gold_file):
+    encoder.eval()
+    model.eval()
+
+    answer_dict = {}
+    answer_type_dict = {}
+    answer_type_prob_dict = {}
+    dataloader.refresh()
+    ##++++++++++++++++++++++++++++++++++
+    total_sp_dict = {}
+    ##++++++++++++++++++++++++++++++++++
+    total_para_sp_dict = {}
+    ##++++++++++++++++++++++++++++++++++
+    for batch in tqdm(dataloader):
+        with torch.no_grad():
+            inputs = {'input_ids':      batch['context_idxs'],
+                      'attention_mask': batch['context_mask'],
+                      'token_type_ids': batch['segment_idxs'] if args.model_type in ['bert', 'xlnet'] else None}  # XLM don't use segment_ids
+            outputs = encoder(**inputs)
+
+            batch['context_encoding'] = outputs[0]
+            batch['context_mask'] = batch['context_mask'].float().to(args.device)
+            start, end, q_type, paras, sent, ent, yp1, yp2 = model(batch, return_yp=True)
+
+        type_prob = F.softmax(q_type, dim=1).data.cpu().numpy()
+        answer_dict_, answer_type_dict_, answer_type_prob_dict_ = convert_to_tokens(example_dict, feature_dict, batch['ids'],
+                                                                                    yp1.data.cpu().numpy().tolist(),
+                                                                                    yp2.data.cpu().numpy().tolist(),
+                                                                                    type_prob)
+
+        answer_type_dict.update(answer_type_dict_)
+        answer_type_prob_dict.update(answer_type_prob_dict_)
+        answer_dict.update(answer_dict_)
+
+        ##++++++++++++++++++++++++++++++++++++++++
+        predict_para_support_np = paras.data.cpu().numpy()
+        ##++++++++++++++++++++++++++++++++++++++++
+        predict_support_np = sent.data.cpu().numpy()
+        ##++++++++++++++++++++++++++++++++++++++++
+    # json.dump(best_metrics, open(eval_file, 'w'))
+    #
+    # return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number

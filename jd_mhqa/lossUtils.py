@@ -232,6 +232,6 @@ class ATPFLoss(nn.Module):
         loss = -self.alpha * torch.pow(torch.sub(1.0, pt), self.gamma) * logpt * mask
         loss = loss.sum(1)
         if self.reduction == 'mean':
-            mask_counts = mask.sum(1)
+            mask_counts = mask.sum(1) + self.smooth
             loss = loss / mask_counts
         return loss
