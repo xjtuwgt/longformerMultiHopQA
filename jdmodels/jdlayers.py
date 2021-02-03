@@ -59,7 +59,7 @@ class GraphBlock(nn.Module):
         _, max_ent_num, _ = ent_state.size()
 
         if self.config.q_update:
-            # print(para_state.shape, sent_state.shape, ent_state.shape)
+            print(para_state.shape, sent_state.shape, ent_state.shape)
             graph_state = self.gat_linear(torch.cat([para_state, sent_state, ent_state], dim=1)) # N * (max_para + max_sent + max_ent) * d
             graph_state = torch.cat([query_vec.unsqueeze(1), graph_state], dim=1)
         else:
