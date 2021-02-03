@@ -24,7 +24,8 @@ class HierarchicalGraphNetwork(nn.Module):
                                      dropout=config.lstm_drop) ### output: 2 * self.hidden_dim
 
         self.graph_blocks = nn.ModuleList()
-        self.q_map = nn.Linear(in_features=config.input_dim, out_features=self.hidden_dim * 2)
+        q_dim = self.hidden_dim if config.q_update else config.input_dim
+        self.q_map = nn.Linear(in_features=q_dim, out_features=self.hidden_dim * 2)
         if self.q_map:
             nn.init.xavier_uniform_(self.q_map.weight, gain=1.414)
 
