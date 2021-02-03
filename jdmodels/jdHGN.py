@@ -28,7 +28,7 @@ class HierarchicalGraphNetwork(nn.Module):
         if self.q_map:
             nn.init.xavier_uniform_(self.q_map.weight, gain=1.414)
 
-        self.graph_blocks.append(GraphBlock(self.config.q_attn, config, input_dim= self.hidden_dim * 2, hidden_dim=self.hidden_dim))
+        self.graph_blocks.append(GraphBlock(self.config.q_attn, config, input_dim=self.hidden_dim * 2, hidden_dim=self.hidden_dim))
         for _ in range(self.config.num_gnn_layers-1):
             self.graph_blocks.append(GraphBlock(self.config.q_attn, config, input_dim=self.hidden_dim, hidden_dim=self.hidden_dim))
 
@@ -48,6 +48,7 @@ class HierarchicalGraphNetwork(nn.Module):
         trunc_query_state = (context_encoding * query_mapping.unsqueeze(2))[:, :self.max_query_length, :].contiguous()
         # bert encoding query vec
         query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
+        print(query_vec.shape)
         attn_output, trunc_query_state = self.bi_attention(context_encoding,
                                                            trunc_query_state,
                                                            trunc_query_mapping)
@@ -57,6 +58,7 @@ class HierarchicalGraphNetwork(nn.Module):
         if self.config.q_update:
             query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
 
+        print(query_vec.shape)
         query_vec = self.q_map(query_vec)
 
         para_logits, sent_logits = [], []
