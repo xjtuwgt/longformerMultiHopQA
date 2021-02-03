@@ -25,8 +25,13 @@ print(loss)
 
 criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=-100)
 x = torch.randn((2, 40))
-y = torch.Tensor([2, -100]).long()
-ls = criterion(x, y)
-print(ls)
+y = torch.Tensor([[1, -100],[1, -100]]).long()
+z = torch.zeros_like(y, dtype=torch.float).to(y)
+z = z.masked_fill(y >=0, 1)
+print(z)
+# ls = criterion(x, y)
+# print(ls)
+
+
 
 

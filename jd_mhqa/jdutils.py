@@ -243,17 +243,18 @@ def compute_loss(args, batch, start, end, para, sent, ent, q_type):
     #         print('{}:{}'.format(key, value))
     #         print('prediction {}'.format(ent.shape))
     #         print('+' * 100)
-    criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=IGNORE_INDEX)
-    binary_criterion = nn.BCEWithLogitsLoss(reduction='mean')
-    loss_span = args.ans_lambda * (criterion(start, batch['y1']) + criterion(end, batch['y2']))
-    loss_type = args.type_lambda * criterion(q_type, batch['q_type'])
+    ans_criterion = nn.CrossEntropyLoss(reduction='mean', ignore_index=IGNORE_INDEX)
+    loss_span = args.ans_lambda * (ans_criterion(start, batch['y1']) + ans_criterion(end, batch['y2']))
+    loss_type = args.type_lambda * ans_criterion(q_type, batch['q_type'])
+    loss_ent = args.ent_lambda * ans_criterion(ent, batch['is_gold_ent'].long())
+    ####################################################################################################################
 
+    print('sent {}'.format(sent))
+    print('para {}'.format(para))
     sent_pred = sent.view(-1, 2)
     sent_gold = batch['is_support'].long().view(-1)
-    loss_sup = args.sent_lambda * criterion(sent_pred, sent_gold.long())
-
-    loss_ent = args.ent_lambda * criterion(ent, batch['is_gold_ent'].long())
-    loss_para = args.para_lambda * criterion(para.view(-1, 2), batch['is_gold_para'].long().view(-1))
+    loss_sup = args.sent_lambda * ans_criterion(sent_pred, sent_gold.long())
+    loss_para = args.para_lambda * ans_criterion(para.view(-1, 2), batch['is_gold_para'].long().view(-1))
 
     loss = loss_span + loss_type + loss_sup + loss_ent + loss_para
 
