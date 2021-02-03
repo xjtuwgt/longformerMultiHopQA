@@ -19,7 +19,7 @@ def adaptive_threshold_prediction(logits, number_labels=-1, mask = None, type = 
         logits[:, 0] = -1e30
         top_v, _ = torch.topk(logits, k=number_labels, dim=1)
         top_v = top_v[:, -1].unsqueeze(1)
-        top_k_mask = logits > top_v
+        top_k_mask = logits >= top_v
         if type == 'and':
             out_mask = out_mask & top_k_mask
         elif type == 'or':
