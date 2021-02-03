@@ -65,7 +65,7 @@ class HierarchicalGraphNetwork(nn.Module):
         graph_state_dict = encoder_graph_node_feature(batch=batch, input_state=input_state, hidden_dim=self.hidden_dim)
         ################################################################################################################
         for l in range(self.config.num_gnn_layers):
-            print(query_vec.shape, l)
+            # print(query_vec.shape, l)
             graph_state, graph_state_dict, graph_mask, sent_state, query_vec, para_logit, para_prediction, \
             sent_logit, sent_prediction, ent_logit = self.graph_blocks[l](batch=batch, graph_state_dict=graph_state_dict, query_vec=query_vec)
             para_logits.append(para_logit)
