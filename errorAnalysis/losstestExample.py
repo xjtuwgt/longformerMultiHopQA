@@ -29,3 +29,4 @@ y = torch.Tensor([2, -100]).long()
 ls = criterion(x, y)
 print(ls)
 
+
