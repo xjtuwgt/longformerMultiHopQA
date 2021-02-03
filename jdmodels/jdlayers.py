@@ -105,6 +105,8 @@ class GraphBlock(nn.Module):
         else:
             self.gat_linear = nn.Linear(q_input_dim, self.hidden_dim*2)
 
+        print(self.gat_linear)
+
         if self.config.q_update:
             self.gat = AttentionLayer(self.hidden_dim, self.hidden_dim, config.num_gnn_heads, q_attn=q_attn, config=self.config)
             self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
