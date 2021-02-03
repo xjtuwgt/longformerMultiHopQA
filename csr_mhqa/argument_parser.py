@@ -164,7 +164,7 @@ def default_train_parser():
                         help="Log every X updates steps.")
 
     # hyper-parameter
-    parser.add_argument('--q_update', type=boolean_string, default='False', help='Whether update query')
+    parser.add_argument('--q_update', type=boolean_string, default='True', help='Whether update query')
     parser.add_argument("--trans_drop", type=float, default=0.2)
     parser.add_argument("--trans_heads", type=int, default=3)
 
