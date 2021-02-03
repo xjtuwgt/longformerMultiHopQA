@@ -26,10 +26,10 @@ class HierarchicalGraphNetwork(nn.Module):
                                      dropout=config.lstm_drop)
 
         self.graph_blocks = nn.ModuleList()
-        q_input_dim = self.hidden_dim if config.q_update else config.input_dim
+        q_input_dim = 2 * self.hidden_dim if config.q_update else config.input_dim
         self.graph_blocks.append(GraphBlock(self.config.q_attn, config, q_input_dim))
         for _ in range(self.config.num_gnn_layers-1):
-            self.graph_blocks.append(GraphBlock(self.config.q_attn, config, self.hidden_dim))
+            self.graph_blocks.append(GraphBlock(self.config.q_attn, config, 2 * self.hidden_dim))
 
         self.ctx_attention = GatedAttention(input_dim=config.hidden_dim*2,
                                             memory_dim=config.hidden_dim if config.q_update else config.hidden_dim*2,
