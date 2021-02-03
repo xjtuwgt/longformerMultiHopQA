@@ -67,8 +67,7 @@ class GraphBlock(nn.Module):
         # para_logit = gat_logit[:, 1:1+max_para_num, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
         # sent_logit = gat_logit[:, 1+max_para_num:, :].contiguous() ## para logit computation and sentence logit prediction share the same mlp
         #
-        # query_vec = graph_state[:, 0, :].squeeze(1)
-        #
+        query_vec = graph_state[:, 0, :].squeeze(1)
         # ent_logit = self.entity_mlp(ent_state).view(N, -1)
         # ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
         #
