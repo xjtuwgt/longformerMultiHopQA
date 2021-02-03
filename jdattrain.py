@@ -11,7 +11,8 @@ from tensorboardX import SummaryWriter
 
 from csr_mhqa.argument_parser import default_train_parser, complete_default_train_parser, json_to_argv
 from jd_mhqa.jd_data_processing import Example, InputFeatures, DataHelper
-from csr_mhqa.utils import load_encoder_model, get_optimizer, MODEL_CLASSES, compute_loss
+from csr_mhqa.utils import load_encoder_model, get_optimizer, MODEL_CLASSES
+from jd_mhqa.jdutils import compute_loss
 from jd_mhqa.jdutils import jd_eval_model
 from time import time
 
