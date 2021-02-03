@@ -228,7 +228,16 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
 
 ########################################################################################################################
 def compute_loss(args, batch, start, end, para, sent, ent, q_type):
-    loss_labels = {'y1', 'y2', 'q_type', 'is_support', 'is_gold_ent', 'is_gold_para'}
+    """
+    y1: start position
+    y2: end position
+    q_type: question type
+    is_support: whether the sentence is a support sentences: 1, yes, 0, no, -100, mask
+    is_gold_ent: whether the entity is answer: 1, yes, 0, no, -100, mask
+    is_gold_para: whether the para is
+    """
+    # loss_labels = {'y1', 'y2', 'q_type', 'is_support', 'is_gold_ent', 'is_gold_para'}
+    loss_labels = {'is_gold_ent'}
     for key, value in batch.items():
         if key in loss_labels:
             print('{}:{}'.format(key, value))
