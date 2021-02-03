@@ -187,8 +187,8 @@ class ParaSentEntPredictionLayer(nn.Module):
         ent_logit = self.entity_mlp(ent_state).view(N, -1)
         ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
 
-        sent_logit = self.sent_mlp(query_sent_state)
-        para_logit = self.para_mlp(query_para_state)
+        sent_logit = self.sent_mlp(query_sent_state).squeeze(dim=-1)
+        para_logit = self.para_mlp(query_para_state).squeeze(dim=-1)
         return para_logit, sent_logit, ent_logit
 
 class PredictionLayer(nn.Module):
