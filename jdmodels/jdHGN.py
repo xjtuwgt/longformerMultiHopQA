@@ -57,6 +57,8 @@ class HierarchicalGraphNetwork(nn.Module):
         if self.config.q_update:
             query_vec = mean_pooling(trunc_query_state, trunc_query_mapping)
 
+        query_vec = self.q_map(query_vec)
+
         para_logits, sent_logits = [], []
         para_predictions, sent_predictions, ent_predictions = [], [], []
         ################################################################################################################
