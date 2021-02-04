@@ -196,6 +196,7 @@ for epoch in train_iterator:
         start, end, q_type, paras, sents, ents, _, _ = model(batch, return_yp=True)
 
         loss_list = compute_loss(args, batch, start, end, paras, sents, ents, q_type)
+        print('step {} loss {} device {}'.format(step, loss_list, args.device))
         del batch
 
         if args.n_gpu > 1:
