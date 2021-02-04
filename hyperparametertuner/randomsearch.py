@@ -70,10 +70,10 @@ def generate_random_search_bash(task_num, seed=42):
     search_space = HypeParameterSpace()
     for i in range(task_num):
         rand_hype_dict = single_task_trial(search_space, seed+i)
-        print(rand_hype_dict)
-        with open(os.path.join(bash_save_path, 'train.' + rand_hype_dict['model_type']
-                                               + '.' + str(rand_hype_dict['seed']) + '.json'), 'w') as fp:
+        config_json_file_name = 'train.' + rand_hype_dict['model_type'] + '.' + str(rand_hype_dict['seed']) + '.json'
+        with open(os.path.join(bash_save_path, config_json_file_name), 'w') as fp:
             json.dump(rand_hype_dict, fp)
+        print('{}\n{}'.format(rand_hype_dict, config_json_file_name))
     print('{} jobs have been generated'.format(task_num))
 
 if __name__ == '__main__':
