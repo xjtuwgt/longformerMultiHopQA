@@ -62,18 +62,33 @@ def HypeParameterSpace():
     return search_space
 
 def generate_random_search_bash(task_num, seed=42):
-    bash_save_path = '../configs/athgn/'
+    relative_path = '../'
+    json_file_path = 'configs/athgn/'
+    job_path = 'athgn_jobs/'
+    #================================================
+    bash_save_path = relative_path + json_file_path
+    jobs_path = relative_path + job_path
+    if os.path.exists(jobs_path):
+        remove_all_files(jobs_path)
     if os.path.exists(bash_save_path):
         remove_all_files(bash_save_path)
     if bash_save_path and not os.path.exists(bash_save_path):
         os.makedirs(bash_save_path)
+    if jobs_path and not os.path.exists(jobs_path):
+        os.makedirs(jobs_path)
+    ##################################################
     search_space = HypeParameterSpace()
     for i in range(task_num):
         rand_hype_dict = single_task_trial(search_space, seed+i)
         config_json_file_name = 'train.' + rand_hype_dict['model_type'] + '.' + str(rand_hype_dict['seed']) + '.json'
+
         with open(os.path.join(bash_save_path, config_json_file_name), 'w') as fp:
             json.dump(rand_hype_dict, fp)
         print('{}\n{}'.format(rand_hype_dict, config_json_file_name))
+        with open(jobs_path + 'athgn_' + config_json_file_name +'.sh', 'w') as rsh_i:
+            command_i = "CUDA_VISIBLE_DEVICES=0,1,2,3 python -m torch.distributed.launch --nproc_per_node=4 jdattrain.py --config_file " + \
+                        json_file_path + config_json_file_name
+            rsh_i.write(command_i)
     print('{} jobs have been generated'.format(task_num))
 
 if __name__ == '__main__':
