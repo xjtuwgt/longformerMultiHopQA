@@ -1,5 +1,5 @@
 {
-    "exp_name": "roberta_large_lr1e-5bs4",
+    "exp_name": "roberta_large_test",
     "model_type": "roberta",
     "encoder_name_or_path": "roberta-large",
     "num_train_epochs": 10,
