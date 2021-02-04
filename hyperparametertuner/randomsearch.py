@@ -74,7 +74,6 @@ def generate_random_search_bash(task_num, seed=42):
         with open(os.path.join(bash_save_path, 'train.' + rand_hype_dict['model_type']
                                                + '.' + str(rand_hype_dict['seed']) + '.json'), 'w') as fp:
             json.dump(rand_hype_dict, fp)
-
     print('{} jobs have been generated'.format(task_num))
 
 if __name__ == '__main__':
