@@ -47,7 +47,7 @@ def HypeParameterSpace():
     per_gpu_train_batch_size = {'name': 'per_gpu_train_batch_size', 'type': 'choice', 'values': [2, 4]}
     gradient_accumulation_steps = {'name': 'gradient_accumulation_steps', 'type': 'choice', 'values': [2, 4, 8]}
     sent_lambda = {'name': 'sent_lambda', 'type': 'choice', 'values': [1, 5, 10]}
-    frozen_layer_num = {'name': 'frozen_layer_number', 'type': 'choice', 'values': [12, 18]} #1, 2
+    frozen_layer_num = {'name': 'frozen_layer_number', 'type': 'choice', 'values': [18]}
     gnn_drop = {'name': 'gnn_drop', 'type': 'choice', 'values': [0.2, 0.25, 0.3]}
     bi_attn_drop = {'name': 'bi_attn_drop', 'type': 'choice', 'values': [0.2, 0.25, 0.3]}
     trans_drop = {'name': 'trans_drop', 'type': 'choice', 'values': [0.2, 0.25, 0.3]}
