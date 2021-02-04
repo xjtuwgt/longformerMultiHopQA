@@ -100,7 +100,6 @@ if args.frozen_layer_number > 0:
             param.requires_grad = False
     logging.info('Frozen the first {} layers'.format(args.frozen_layer_number))
 #############################
-
 encoder.to(args.device)
 model.to(args.device)
 logger.info('Loading model and encoder completed in {} seconds'.format(time() - start_time))
@@ -124,8 +123,6 @@ if encoder_path is not None and model_path is not None:
     start_time = time()
     output_pred_file = os.path.join(args.exp_name, 'prev_checkpoint.pred.json')
     output_eval_file = os.path.join(args.exp_name, 'prev_checkpoint.eval.txt')
-    # prev_metrics, prev_threshold = jd_eval_model(args, encoder, model, dev_dataloader, dev_example_dict, dev_feature_dict,
-    #                                              output_pred_file, output_eval_file, args.dev_gold_file)
     prev_metrics, doc_recall_metric, total_inconsist_number = jd_at_eval_model(args, encoder, model,
                                                                                   dev_dataloader,
                                                                                   dev_example_dict,
