@@ -302,6 +302,8 @@ if __name__ == '__main__':
     parser.add_argument("--model_type", default="roberta", type=str)
     parser.add_argument("--model_name_or_path", default=None, type=str, required=True,
                         help="Path to pre-trained model")
+    parser.add_argument("--at_model_name_or_path", default=None, type=str, required=True,
+                        help="Path to pre-trained model")
 
     parser.add_argument("--max_entity_num", default=60, type=int)
     parser.add_argument("--max_sent_num", default=40, type=int)
@@ -313,8 +315,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
-    # tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
-    tokenizer = tokenizer_class.from_pretrained(args.model_type)
+    tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
 
     cached_examples_file = os.path.join(args.input_dir,
                                         get_cached_filename('examples', args))
@@ -333,8 +334,8 @@ if __name__ == '__main__':
     with open(args.raw_data, 'r', encoding='utf-8') as reader:
         raw_data = json.load(reader)
 
-    # pred_results_file = os.path.join(args.pred_dir, args.model_type, 'pred.json')
-    pred_results_file = os.path.join(args.pred_dir, args.model_name_or_path, 'tmp.json')
+    pred_results_file = os.path.join(args.pred_dir, args.model_type, 'pred.json')
+    # pred_results_file = os.path.join(args.pred_dir, args.model_name_or_path, 'tmp.json')
     with open(pred_results_file, 'r', encoding='utf-8') as reader:
         pred_data = json.load(reader)
 
