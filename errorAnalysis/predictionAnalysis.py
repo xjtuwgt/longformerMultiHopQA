@@ -313,7 +313,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
-    tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
+    # tokenizer = tokenizer_class.from_pretrained(args.model_name_or_path)
+    tokenizer = tokenizer_class.from_pretrained(args.model_type)
 
     cached_examples_file = os.path.join(args.input_dir,
                                         get_cached_filename('examples', args))
