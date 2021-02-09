@@ -46,13 +46,13 @@ def HypeParameterSpace():
     learning_rate = {'name': 'learning_rate', 'type': 'choice', 'values': [1e-5, 2e-5, 4e-5]}
     per_gpu_train_batch_size = {'name': 'per_gpu_train_batch_size', 'type': 'choice', 'values': [2]}
     gradient_accumulation_steps = {'name': 'gradient_accumulation_steps', 'type': 'choice', 'values': [8, 16]}
-    sent_lambda = {'name': 'sent_lambda', 'type': 'choice', 'values': [10]}
+    sent_lambda = {'name': 'sent_lambda', 'type': 'choice', 'values': [10, 15]}
     frozen_layer_num = {'name': 'frozen_layer_number', 'type': 'choice', 'values': [0]}
     gnn_drop = {'name': 'gnn_drop', 'type': 'choice', 'values': [0.2, 0.3]}
     bi_attn_drop = {'name': 'bi_attn_drop', 'type': 'choice', 'values': [0.2, 0.3]}
     trans_drop = {'name': 'trans_drop', 'type': 'choice', 'values': [0.2, 0.3]}
     lstm_drop = {'name': 'lstm_drop', 'type': 'choice', 'values': [0.2, 0.3]}
-    num_train_epochs = {'name': 'num_train_epochs', 'type': 'choice', 'values': [5]}
+    num_train_epochs = {'name': 'num_train_epochs', 'type': 'choice', 'values': [10]}
     model_type = {'name': 'model_type', 'type': 'choice', 'values': ['roberta']}
     encoder_name_or_path = {'name': 'encoder_name_or_path', 'type': 'choice', 'values': ['roberta-large']}
     #++++++++++++++++++++++++++++++++++
