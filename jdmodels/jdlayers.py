@@ -224,7 +224,7 @@ class PredictionLayer(nn.Module):
         sent_mapping = batch['sent_mapping']
         start_prediction = self.start_linear(context_input).squeeze(2) - 1e30 * (1 - context_mask)  # N x L
         end_prediction = self.end_linear(context_input).squeeze(2) - 1e30 * (1 - context_mask)  # N x L
-        type_prediction = self.type_linear(context_input[:, 0, :])
+        type_prediction = self.type_linear(context_input[:, 0, :])##cls based prediction
 
         if not return_yp:
             return start_prediction, end_prediction, type_prediction
