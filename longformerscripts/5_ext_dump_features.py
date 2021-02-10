@@ -61,11 +61,7 @@ def read_hotpot_examples(para_file,
             # token match a-b, then split further
             words.append(token.text)
             word_start_idx.append(token.idx)
-        ###++++++++++++++++++++++++++++++++++++++++++++++++++++
-        if model_type in ['roberta']:
-            words.append(sep_token)
-            word_start_idx.append(len(sent))
-        ###++++++++++++++++++++++++++++++++++++++++++++++++++++
+
         word_offset = 0
         for c in range(len(sent)):
             if word_offset >= len(word_start_idx) - 1 or c < word_start_idx[word_offset + 1]:
@@ -73,6 +69,12 @@ def read_hotpot_examples(para_file,
             else:
                 char_to_word_offset.append(word_offset + offset + 1)
                 word_offset += 1
+        ###+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        if model_type in ['roberta']: ##add a seperate token at the end of each sentence
+            words.append(sep_token)
+            char_to_word_offset.append(word_offset + offset + 1)
+            word_start_idx.append(len(sent))
+        ###+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return words, char_to_word_offset, word_start_idx
 
     max_sent_cnt, max_entity_cnt = 0, 0
@@ -131,22 +133,22 @@ def read_hotpot_examples(para_file,
 
         sel_paras = para_data[key]
         ner_context = dict(ner_data[key]['context'])
-        ####+++++++++++
-        para_names = []
-        ####+++++++++++
+        ####++++++++++++++++++++
+        para_names = [] ## for paragraph evaluation and checking
+        ####++++++++++++++++++++
 
         for title in itertools.chain.from_iterable(sel_paras):
             stripped_title = re.sub(r' \(.*?\)$', '', title)
             stripped_title_norm = normalize_answer(stripped_title)
-            ####+++++++++++
+            ####+++++++++++++++++++++++++
             para_names.append(title)
-            ####+++++++++++
+            ####+++++++++++++++++++++++++
 
             sents = context[title]
             sents_ner = ner_context[title]
-            assert len(sents) == len(sents_ner)
+            assert len(sents) == len(sents_ner) ## the ners are extracted for each sentence
 
-            title_to_id[title] = title_id
+            title_to_id[title] = title_id ## all the selected documents in sequence
 
             para_start_position = len(doc_tokens)
             prev_sent_id = None
@@ -154,17 +156,17 @@ def read_hotpot_examples(para_file,
             ctx_answer_set = set()
             for local_sent_id, (sent, sent_ner) in enumerate(zip(sents, sents_ner)):
                 # Determine the global sent id for supporting facts
-                local_sent_name = (title, local_sent_id)
-                sent_to_id[local_sent_name] = sent_id
-                sent_names.append(local_sent_name)
+                local_sent_name = (title, local_sent_id)## pair of title and sent_id
+                sent_to_id[local_sent_name] = sent_id   ## local to global sent_id
+                sent_names.append(local_sent_name)      ## sent_names is a list of (title, sent_id) pair
 
-                # P -> S
+                # P -> S, connection between paragraph all its sentences (hierarchical structure)
                 p_s_edges.append((title_id, sent_id))
                 if prev_sent_id is not None:
-                    # S -> S
+                    # S -> S, the sentence in same para-graph are connected in sequence)
                     s_s_edges.append((prev_sent_id, sent_id))
 
-                sent += " "
+                sent += " " ## adding space at the end of each sentence
                 ctx_text += sent
                 sent_start_word_id = len(doc_tokens)
                 sent_start_char_id = len(ctx_char_to_word_offset)
