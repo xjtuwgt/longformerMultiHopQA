@@ -65,7 +65,6 @@ class GraphBlock(nn.Module):
         ##############################################
         return graph_state, graph_state_dict, node_mask, query_vec
 
-
 class GATSelfAttention(nn.Module):
     def __init__(self, in_dim, out_dim, config, q_attn=False, head_id=0):
         """ One head GAT """
@@ -163,9 +162,14 @@ class ParaSentEntPredictionLayer(nn.Module):
     def __init__(self, config, hidden_dim):
         super(ParaSentEntPredictionLayer, self).__init__()
         self.hidden_dim = hidden_dim
+
         self.para_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
         self.sent_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
         self.entity_mlp = OutputLayer(self.hidden_dim, config, num_answer=1)
+
+        self.para_query_pooler = LinearAttentionPooLayer(hidden_dim=self.hidden_dim)
+        self.sent_query_pooler = LinearAttentionPooLayer(hidden_dim=self.hidden_dim)
+
 
     def forward(self, batch, graph_state_dict, query_vec):
 
@@ -181,8 +185,14 @@ class ParaSentEntPredictionLayer(nn.Module):
         _, max_sent_num, _ = sent_state.size()
         _, max_ent_num, _ = ent_state.size()
 
-        query_sent_state = torch.cat([query_vec.unsqueeze(1), sent_state], dim=1)
-        query_para_state = torch.cat([query_vec.unsqueeze(1), para_state], dim=1)
+        query_sent_vec = self.sent_query_pooler.forward(query=query_vec, key=sent_state, value=sent_state, mask=batch['sent_mask'])
+        query_para_vec = self.para_query_pooler.forward(query=query_vec, key=para_state, value=para_state, mask=batch['para_mask'])
+
+        query_sent_state = torch.cat([query_sent_vec.unsqueeze(1), sent_state], dim=1)
+        query_para_state = torch.cat([query_para_vec.unsqueeze(1), para_state], dim=1)
+
+        # query_sent_state = torch.cat([query_vec.unsqueeze(1), sent_state], dim=1)
+        # query_para_state = torch.cat([query_vec.unsqueeze(1), para_state], dim=1)
 
         ent_logit = self.entity_mlp(ent_state).view(N, -1)
         ent_logit = ent_logit - 1e30 * (1 - batch['ans_cand_mask'])
