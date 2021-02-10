@@ -99,15 +99,15 @@ def set_comparison(prediction_list, true_list):
     if em():
         return 'em'
 
+    is_empty_set = len(set(prediction_list).intersection(set(true_list))) == 0
+    if is_empty_set:
+        return 'no_over_lap'
     is_subset = set(true_list).issubset(set(prediction_list))
     if is_subset:
         return 'super_of_gold'
     is_super_set = set(prediction_list).issubset(set(true_list))
     if is_super_set:
         return 'sub_of_gold'
-    is_empty_set = len(set(prediction_list).intersection(set(true_list)))==0
-    if is_empty_set:
-        return 'no_over_lap'
     return 'others'
 
 def data_analysis(raw_data, examples, features, tokenizer, use_ent_ans=False):
