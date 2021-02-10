@@ -208,15 +208,16 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         ans_prediction = normalize_answer(ans_prediction)
         sp_golds = row['supporting_facts']
         sp_golds = [(x[0], x[1]) for x in sp_golds]
+        sp_para_golds = list(set([_[0] for _ in sp_golds]))
         ##+++++++++++
-        print(len(set(sp_predictions)))
+        sp_predictions = [x for x in sp_predictions if x[0] in sp_para_golds]
+        # print(len(set(sp_predictions)))
         ##+++++++++++
         sp_sent_type = set_comparison(prediction_list=sp_predictions, true_list=sp_golds)
         ###+++++++++
         prediction_sent_type_counter[sp_sent_type] +=1
         pred_sent_type_list.append(sp_sent_type)
         ###+++++++++
-        sp_para_golds = list(set([_[0] for _ in sp_golds]))
         sp_para_preds = list(set([_[0] for _ in sp_predictions]))
         para_type = set_comparison(prediction_list=sp_para_preds, true_list=sp_para_golds)
         prediction_para_type_counter[para_type] += 1
