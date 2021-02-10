@@ -54,7 +54,7 @@ def read_hotpot_examples(para_file,
     with open(doc_link_file, 'r', encoding='utf-8') as reader:
         doc_link_data = json.load(reader)
 
-    def split_sent(sent, offset=0):
+    def split_sent(sent, offset=0, add_sep=False):
         nlp_doc = nlp(sent)
         words, word_start_idx, char_to_word_offset = [], [], []
         for token in nlp_doc:
@@ -70,10 +70,11 @@ def read_hotpot_examples(para_file,
                 char_to_word_offset.append(word_offset + offset + 1)
                 word_offset += 1
         ###+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        if model_type in ['roberta']: ##add a seperate token at the end of each sentence
-            words.append(sep_token)
-            char_to_word_offset.append(word_offset + offset + 1)
-            word_start_idx.append(len(sent))
+        if add_sep:
+            if model_type in ['roberta']: ##add a seperate token at the end of each sentence
+                words.append(sep_token)
+                char_to_word_offset.append(word_offset + offset + 1)
+                word_start_idx.append(len(sent))
         ###+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return words, char_to_word_offset, word_start_idx
 
