@@ -239,3 +239,36 @@ class PredictionLayer(nn.Module):
         yp1 = outer.max(dim=2)[0].max(dim=1)[1]
         yp2 = outer.max(dim=1)[0].max(dim=1)[1]
         return start_prediction, end_prediction, type_prediction, yp1, yp2
+
+class LinearAttentionPooLayer(nn.Module):
+    def __init__(self, hidden_dim):
+        super(LinearAttentionPooLayer, self).__init__()
+        self.query_score = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim*2),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim*2, 1),
+        )
+
+        self.key_score = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim*2),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_dim*2, 1),
+        )
+        self.value_linear = nn.Linear(hidden_dim, hidden_dim, bias=False)
+
+    def forward(self, query, key, value, mask=None):
+        query_score = self.key_score(query)
+        key_score = self.key_score(key).squeeze(-1)
+        # print(query_score.shape)
+        # print(key_score.shape)
+        attn_score = key_score + query_score
+        if mask is not None:
+            attn_score = attn_score - 1e30 * (1 - mask)
+        attn_prob = F.softmax(attn_score, dim=-1).unsqueeze(dim=1)
+        # print(attn_prob.shape)
+        # print(attn_prob)
+        value_map = self.value_linear(value)
+        res = torch.matmul(attn_prob, value_map).squeeze(dim=1)
+        return res
