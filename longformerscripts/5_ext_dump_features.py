@@ -178,6 +178,8 @@ def read_hotpot_examples(para_file,
                 #+++++++++++++++++
                 cur_sent_words, cur_sent_char_to_word_offset, cur_sent_words_start_idx = split_sent(sent, offset=len(
                     doc_tokens), add_sep=True)
+                print(doc_tokens)
+                print('-' * 10)
                 # +++++++++++++++++
                 doc_tokens.extend(cur_sent_words)
                 ctx_char_to_word_offset.extend(cur_sent_char_to_word_offset)
