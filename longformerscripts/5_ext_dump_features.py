@@ -75,6 +75,7 @@ def read_hotpot_examples(para_file,
                 words.append(sep_token)
                 char_to_word_offset.append(word_offset + offset + 1)
                 word_start_idx.append(len(sent))
+                assert len(sent) == len(words) - 1
         ###+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return words, char_to_word_offset, word_start_idx
 
