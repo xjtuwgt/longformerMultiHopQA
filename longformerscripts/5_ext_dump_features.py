@@ -167,10 +167,6 @@ def read_hotpot_examples(para_file,
                     # S -> S, the sentence in same para-graph are connected in sequence)
                     s_s_edges.append((prev_sent_id, sent_id))
 
-                #++++++++
-                sent = sent.strip()
-                #++++++++
-
                 sent += " " ## adding space at the end of each sentence
                 ctx_text += sent
                 sent_start_word_id = len(doc_tokens)
