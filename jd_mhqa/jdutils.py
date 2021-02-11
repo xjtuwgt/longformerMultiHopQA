@@ -152,7 +152,7 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
                                                                                     type_prob)
         para_mask = batch['para_mask']
         sent_mask = batch['sent_mask']
-        print(para_mask.shape, paras.shape)
+        # print(para_mask.shape, paras.shape)
 
 
         answer_type_dict.update(answer_type_dict_)
@@ -160,9 +160,11 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
         answer_dict.update(answer_dict_)
 
         ##++++++++++++++++++++++++++++++++++++++++
+        paras = paras[:,:,1] - (1 - para_mask) * 1e30
         predict_para_support_np = torch.sigmoid(paras[:, :, 1]).data.cpu().numpy()
         ##++++++++++++++++++++++++++++++++++++++++
         # print('sent shape {}'.format(sent.shape))
+        sent = sent[:,:,1] - (1 - sent_mask) * 1e30
         predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
         # print('supp sent np shape {}'.format(predict_support_np.shape))
         for i in range(predict_support_np.shape[0]):
@@ -175,8 +177,8 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             # ####################################
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
-                                               example_dict=example_dict, batch_ids_ith=cur_id)
+            # best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
+            #                                    example_dict=example_dict, batch_ids_ith=cur_id)
             ####################################
             # cur_sp_pred = supp_sent_prediction_hgn(predict_support_np_ith=predict_support_np_ith,
             #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
