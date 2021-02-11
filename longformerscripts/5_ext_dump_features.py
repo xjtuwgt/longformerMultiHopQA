@@ -281,8 +281,8 @@ def read_hotpot_examples(para_file,
             end_position = ans_end_position
 
         # print('Para number = {}'.format(len(para_names)))
-        # print(doc_tokens)
-        # print('-' * 10)
+        print(doc_tokens)
+        print('-' * 10)
         assert len(para_names) >= 2
         example = Example(
             qas_id=key,
