@@ -40,12 +40,18 @@ def best_threshold_extraction(predict_support_np_ith, example_dict, batch_ids_it
     cur_id = batch_ids_ith
     positve_scores = predict_support_np_ith[example_dict[cur_id].sup_fact_id]
     min_pos_score = positve_scores.min()
-    predict_support_np_ith[example_dict[cur_id].sup_fact_id] = -1
-    max_neg_score = predict_support_np_ith.max()
-    # print('{}\n{}\n{}\n{}\n{}'.format(cur_id, example_dict[cur_id].sup_fact_id, len(example_dict[cur_id].sent_names),
-    #                                   predict_support_np_ith, example_dict[cur_id].sent_num))
-    print('{} {}'.format(min_pos_score, max_neg_score))
-    return
+    negative_scores = predict_support_np_ith.copy()
+    negative_scores[example_dict[cur_id].sup_fact_id] = -1
+    max_neg_score = negative_scores.max()
+    arg_order_ids = np.argsort(predict_support_np_ith)[::-1].tolist()
+    filtered_arg_order_ids = [_ for _ in arg_order_ids if _ < len(example_dict[cur_id].sent_names)]
+    assert len(filtered_arg_order_ids) >= 2
+    best_sp_pred = []
+    for j in range(0, len(filtered_arg_order_ids)):
+        jth_idx = filtered_arg_order_ids[j]
+        if predict_support_np_ith[jth_idx] > max_neg_score:
+            best_sp_pred.append(example_dict[cur_id].sent_names[jth_idx])
+    return best_sp_pred, min_pos_score, max_neg_score
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_hgn(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
@@ -138,6 +144,9 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     ##++++++++++++++++++++++++++++++++++
     total_para_sp_dict = {}
     ##++++++++++++++++++++++++++++++++++
+    best_sp_dict = {}
+    best_sp_threshold = {}
+    ##++++++++++++++++++++++++++++++++++
 
     for batch in tqdm(dataloader):
         with torch.no_grad():
@@ -184,7 +193,8 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             # ####################################
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
+            # ++++++++++++++++++++++++++++++++++++
+            best_sp_pred, min_pos_score, max_neg_score = best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id)
             ####################################
             # cur_sp_pred = supp_sent_prediction_hgn(predict_support_np_ith=predict_support_np_ith,
@@ -206,6 +216,12 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             #             cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[j])
             #             # print(example_dict[cur_id].sent_names[j])
             # ###################################
+
+            ####++++++++++
+            if cur_id not in best_sp_dict:
+                best_sp_dict[cur_id] = []
+            best_sp_dict[cur_id].extend(best_sp_pred)
+            ####++++++++++
 
             for thresh_i in range(N_thresh):
                 if cur_id not in total_sp_dict[thresh_i]:
@@ -247,6 +263,19 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
                                                                predicted_supp_sent_dict=total_sp_dict[best_threshold_idx], gold_file=dev_gold_file)
     ##############++++++++++++
     json.dump(best_metrics, open(eval_file, 'w'))
+
+    # -------------------------------------
+    best_prediction = {'answer': answer_dict,
+                  'sp': best_sp_dict,
+                  'type': answer_type_dict,
+                  'type_prob': answer_type_prob_dict}
+    best_tmp_file = os.path.join(os.path.dirname(prediction_file), 'best_tmp.json')
+    with open(best_tmp_file, 'w') as f:
+        json.dump(best_prediction, f)
+    best_th_metrics = hotpot_eval(best_tmp_file, dev_gold_file)
+    for key, val in best_th_metrics.items():
+        print("{} = {}".format(key, val))
+    # -------------------------------------
 
     return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number
 
