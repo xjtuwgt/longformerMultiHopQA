@@ -38,7 +38,8 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def best_threshold_extraction(predict_support_np_ith, example_dict, batch_ids_ith):
     cur_id = batch_ids_ith
-    print('{}\n{}\n{}\n{}'.format(cur_id, example_dict[cur_id].sup_fact_id, len(example_dict[cur_id].sent_names), predict_support_np_ith))
+    print('{}\n{}\n{}\n{}\n{}'.format(cur_id, example_dict[cur_id].sup_fact_id, len(example_dict[cur_id].sent_names),
+                                      predict_support_np_ith, example_dict[cur_id].sent_num))
     return
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
