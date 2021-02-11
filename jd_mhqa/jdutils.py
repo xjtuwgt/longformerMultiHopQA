@@ -36,7 +36,7 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
     return cur_sp_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-def best_threshold(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
+def best_threshold_extraction(predict_support_np_ith, example_dict, batch_ids_ith):
     cur_id = batch_ids_ith
     arg_order_ids = np.argsort(predict_support_np_ith)[::-1].tolist()
     filtered_arg_order_ids = [_ for _ in arg_order_ids if _ < len(example_dict[cur_id].sent_names)]
@@ -173,6 +173,8 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             # ####################################
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
+            best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
+                                               example_dict=example_dict, batch_ids_ith=cur_id)
             ####################################
             # cur_sp_pred = supp_sent_prediction_hgn(predict_support_np_ith=predict_support_np_ith,
             #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
