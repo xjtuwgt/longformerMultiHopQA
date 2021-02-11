@@ -150,6 +150,10 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
                                                                                     yp1.data.cpu().numpy().tolist(),
                                                                                     yp2.data.cpu().numpy().tolist(),
                                                                                     type_prob)
+        para_mask = batch['para_mask']
+        sent_mask = batch['sent_mask']
+        print(para_mask.shape, paras.shape)
+
 
         answer_type_dict.update(answer_type_dict_)
         answer_type_prob_dict.update(answer_type_prob_dict_)
