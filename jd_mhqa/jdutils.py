@@ -287,7 +287,6 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     best_th_metrics = hotpot_eval(best_tmp_file, dev_gold_file)
     for key, val in best_th_metrics.items():
         print("{} = {}".format(key, val))
-
     # -------------------------------------
 
     return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number
