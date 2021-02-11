@@ -394,7 +394,10 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
 
         for (i, token) in enumerate(example.doc_tokens):
             if token == ' ':
-                print('here')
+                print('here {}'.format(i))
+            if token == sep_token:
+                print('there {} {}'.format(token, i))
+
             orig_to_tok_index.append(len(all_doc_tokens))
             if is_roberta:
                 sub_tokens = tokenizer.tokenize(token, add_prefix_space=True)
@@ -565,6 +568,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
 
         if filter_no_ans and ans_start_position[0] == 0 and ans_end_position[0] == 0:
             continue
+
 
         features.append(
             InputFeatures(qas_id=example.qas_id,
