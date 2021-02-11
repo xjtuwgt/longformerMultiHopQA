@@ -54,7 +54,7 @@ def read_hotpot_examples(para_file,
     with open(doc_link_file, 'r', encoding='utf-8') as reader:
         doc_link_data = json.load(reader)
 
-    def split_sent(sent, offset=0, add_sep=False):
+    def split_sent(sent, offset=0):
         nlp_doc = nlp(sent)
         words, word_start_idx, char_to_word_offset = [], [], []
         for token in nlp_doc:
