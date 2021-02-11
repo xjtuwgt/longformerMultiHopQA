@@ -94,7 +94,7 @@ doc_db = DocDB(db_path)
 # 1. map title to ID
 title_to_id = {}
 doc_ids = doc_db.get_doc_ids()
-for doc_id in doc_ids:
+for doc_id in tqdm(doc_ids):
     title = doc_db.get_doc_title(doc_id)
     if title not in title_to_id:
         title_to_id[title] = doc_id
