@@ -51,7 +51,8 @@ def best_threshold_extraction(predict_support_np_ith, example_dict, batch_ids_it
 
         for j in range(0, len(filtered_arg_order_ids)):
             jth_idx = filtered_arg_order_ids[j]
-            if predict_support_np_ith[jth_idx] > max_neg_score:
+            # if predict_support_np_ith[jth_idx] > max_neg_score:
+            if predict_support_np_ith[jth_idx] >= min_pos_score:
                 best_sp_pred.append(example_dict[cur_id].sent_names[jth_idx])
     else:
         min_pos_score = max_neg_score = predict_support_np_ith.max()
