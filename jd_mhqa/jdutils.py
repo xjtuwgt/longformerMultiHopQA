@@ -179,8 +179,8 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             # ####################################
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
-            # best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
-            #                                    example_dict=example_dict, batch_ids_ith=cur_id)
+            best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
+                                               example_dict=example_dict, batch_ids_ith=cur_id)
             ####################################
             # cur_sp_pred = supp_sent_prediction_hgn(predict_support_np_ith=predict_support_np_ith,
             #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
