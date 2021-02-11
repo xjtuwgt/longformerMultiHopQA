@@ -70,12 +70,6 @@ def read_hotpot_examples(para_file,
                 char_to_word_offset.append(word_offset + offset + 1)
                 word_offset += 1
         ###+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        if add_sep:
-            if model_type in ['roberta']: ##add a seperate token at the end of each sentence
-                words.append(sep_token)
-                char_to_word_offset.append(word_offset + offset + 1)
-                word_start_idx.append(len(sent))
-        ###+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         return words, char_to_word_offset, word_start_idx
 
     max_sent_cnt, max_entity_cnt = 0, 0
@@ -173,12 +167,9 @@ def read_hotpot_examples(para_file,
                 sent_start_char_id = len(ctx_char_to_word_offset)
 
                 prev_is_whitespace = True
-                # cur_sent_words, cur_sent_char_to_word_offset, cur_sent_words_start_idx = split_sent(sent, offset=len(
-                #     doc_tokens))
-                # #+++++++++++++++++
                 cur_sent_words, cur_sent_char_to_word_offset, cur_sent_words_start_idx = split_sent(sent, offset=len(
-                    doc_tokens), add_sep=True)
-                # # +++++++++++++++++
+                    doc_tokens))
+                # #+++++++++++++++++
                 doc_tokens.extend(cur_sent_words)
                 ctx_char_to_word_offset.extend(cur_sent_char_to_word_offset)
                 for cur_sent_word in cur_sent_words_start_idx:

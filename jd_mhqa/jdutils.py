@@ -35,6 +35,16 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
                 cur_sp_pred[thresh_i].append(example_dict[cur_id].sent_names[jth_idx])
     return cur_sp_pred
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def best_threshold(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
+    cur_id = batch_ids_ith
+    arg_order_ids = np.argsort(predict_support_np_ith)[::-1].tolist()
+    filtered_arg_order_ids = [_ for _ in arg_order_ids if _ < len(example_dict[cur_id].sent_names)]
+    assert len(filtered_arg_order_ids) >= 2
+
+    return
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction_hgn(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
     cur_sp_pred = [[] for _ in range(N_thresh)]
