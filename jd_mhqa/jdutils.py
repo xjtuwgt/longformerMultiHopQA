@@ -41,7 +41,7 @@ def best_threshold(predict_support_np_ith, example_dict, batch_ids_ith, threshol
     arg_order_ids = np.argsort(predict_support_np_ith)[::-1].tolist()
     filtered_arg_order_ids = [_ for _ in arg_order_ids if _ < len(example_dict[cur_id].sent_names)]
     assert len(filtered_arg_order_ids) >= 2
-
+    print(example_dict[cur_id].sup_fact_id)
     return
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
