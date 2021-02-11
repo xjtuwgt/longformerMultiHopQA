@@ -38,10 +38,7 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def best_threshold_extraction(predict_support_np_ith, example_dict, batch_ids_ith):
     cur_id = batch_ids_ith
-    arg_order_ids = np.argsort(predict_support_np_ith)[::-1].tolist()
-    filtered_arg_order_ids = [_ for _ in arg_order_ids if _ < len(example_dict[cur_id].sent_names)]
-    assert len(filtered_arg_order_ids) >= 2
-    print('{}\n{}\n{}'.format(cur_id, example_dict[cur_id].sup_fact_id, example_dict[cur_id].sent_names))
+    print('{}\n{}\n{}\n{}'.format(cur_id, example_dict[cur_id].sup_fact_id, len(example_dict[cur_id].sent_names), predict_support_np_ith.shape))
     return
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
