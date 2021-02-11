@@ -161,11 +161,13 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
 
         ##++++++++++++++++++++++++++++++++++++++++
         paras = paras[:,:,1] - (1 - para_mask) * 1e30
-        predict_para_support_np = torch.sigmoid(paras[:, :, 1]).data.cpu().numpy()
+        predict_para_support_np = torch.sigmoid(paras).data.cpu().numpy()
+        # predict_para_support_np = torch.sigmoid(paras[:, :, 1]).data.cpu().numpy()
         ##++++++++++++++++++++++++++++++++++++++++
         # print('sent shape {}'.format(sent.shape))
         sent = sent[:,:,1] - (1 - sent_mask) * 1e30
-        predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
+        # predict_support_np = torch.sigmoid(sent[:, :, 1]).data.cpu().numpy()
+        predict_support_np = torch.sigmoid(sent).data.cpu().numpy()
         # print('supp sent np shape {}'.format(predict_support_np.shape))
         for i in range(predict_support_np.shape[0]):
             cur_id = batch['ids'][i]
