@@ -38,19 +38,25 @@ def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, th
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def best_threshold_extraction(predict_support_np_ith, example_dict, batch_ids_ith):
     cur_id = batch_ids_ith
-    positve_scores = predict_support_np_ith[example_dict[cur_id].sup_fact_id]
-    min_pos_score = positve_scores.min()
-    negative_scores = predict_support_np_ith.copy()
-    negative_scores[example_dict[cur_id].sup_fact_id] = -1
-    max_neg_score = negative_scores.max()
     arg_order_ids = np.argsort(predict_support_np_ith)[::-1].tolist()
     filtered_arg_order_ids = [_ for _ in arg_order_ids if _ < len(example_dict[cur_id].sent_names)]
     assert len(filtered_arg_order_ids) >= 2
     best_sp_pred = []
-    for j in range(0, len(filtered_arg_order_ids)):
-        jth_idx = filtered_arg_order_ids[j]
-        if predict_support_np_ith[jth_idx] > max_neg_score:
-            best_sp_pred.append(example_dict[cur_id].sent_names[jth_idx])
+    if example_dict[cur_id].sup_fact_id and len(example_dict[cur_id].sup_fact_id) > 0:
+        positve_scores = predict_support_np_ith[example_dict[cur_id].sup_fact_id]
+        min_pos_score = positve_scores.min()
+        negative_scores = predict_support_np_ith.copy()
+        negative_scores[example_dict[cur_id].sup_fact_id] = -1
+        max_neg_score = negative_scores.max()
+
+        for j in range(0, len(filtered_arg_order_ids)):
+            jth_idx = filtered_arg_order_ids[j]
+            if predict_support_np_ith[jth_idx] > max_neg_score:
+                best_sp_pred.append(example_dict[cur_id].sent_names[jth_idx])
+    else:
+        min_pos_score = max_neg_score = predict_support_np_ith.max()
+        best_sp_pred.append(example_dict[cur_id].sent_names[filtered_arg_order_ids[0]])
+        best_sp_pred.append(example_dict[cur_id].sent_names[filtered_arg_order_ids[1]])
     return best_sp_pred, min_pos_score, max_neg_score
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
