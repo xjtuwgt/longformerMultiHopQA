@@ -174,8 +174,12 @@ def read_hotpot_examples(para_file,
                 sent_start_char_id = len(ctx_char_to_word_offset)
 
                 prev_is_whitespace = True
+                # cur_sent_words, cur_sent_char_to_word_offset, cur_sent_words_start_idx = split_sent(sent, offset=len(
+                #     doc_tokens))
+                #+++++++++++++++++
                 cur_sent_words, cur_sent_char_to_word_offset, cur_sent_words_start_idx = split_sent(sent, offset=len(
-                    doc_tokens))
+                    doc_tokens), add_sep=True)
+                # +++++++++++++++++
                 doc_tokens.extend(cur_sent_words)
                 ctx_char_to_word_offset.extend(cur_sent_char_to_word_offset)
                 for cur_sent_word in cur_sent_words_start_idx:
