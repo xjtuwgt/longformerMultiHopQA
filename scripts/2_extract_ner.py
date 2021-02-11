@@ -98,7 +98,7 @@ ques_guid2ner = extract_question_ner(data)
 context_guid2ner = extract_context_ner(data, ner_data)
 
 output_data = {}
-for case in data:
+for case in tqdm(data):
     guid = case['_id']
     context = dict(case['context'])
     question_text = case['question']

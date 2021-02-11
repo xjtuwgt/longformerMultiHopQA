@@ -103,7 +103,7 @@ for doc_id in doc_ids:
 input_data = json.load(open(input_file, 'r'))
 print(len(input_data))
 output_data = {}
-for data in input_data:
+for data in tqdm(input_data):
     context = dict(data['context'])
     for title in context.keys():
         if title not in title_to_id:
