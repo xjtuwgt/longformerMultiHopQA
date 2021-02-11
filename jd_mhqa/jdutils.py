@@ -228,6 +228,9 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             if cur_id not in best_sp_dict:
                 best_sp_dict[cur_id] = []
             best_sp_dict[cur_id].extend(best_sp_pred)
+            if cur_id not in best_sp_threshold:
+                best_sp_threshold[cur_id] = []
+            best_sp_threshold[cur_id].append((min_pos_score, max_neg_score))
             ####++++++++++
 
             for thresh_i in range(N_thresh):
@@ -275,6 +278,7 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     best_prediction = {'answer': answer_dict,
                   'sp': best_sp_dict,
                   'type': answer_type_dict,
+                  'thresh': best_sp_threshold,
                   'type_prob': answer_type_prob_dict}
     best_tmp_file = os.path.join(os.path.dirname(prediction_file), 'best_tmp.json')
     with open(best_tmp_file, 'w') as f:
