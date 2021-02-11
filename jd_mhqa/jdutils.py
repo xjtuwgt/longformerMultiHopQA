@@ -278,7 +278,7 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     best_prediction = {'answer': answer_dict,
                   'sp': best_sp_dict,
                   'type': answer_type_dict,
-                  'thresh': best_sp_threshold,
+                  # 'thresh': best_sp_threshold,
                   'type_prob': answer_type_prob_dict}
     print('Number of inter threshold = {}'.format(threshold_inter_count))
     best_tmp_file = os.path.join(os.path.dirname(prediction_file), 'best_tmp.json')
