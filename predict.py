@@ -74,6 +74,9 @@ logger.info("Loading model from: {}".format(model_path))
 encoder, _ = load_encoder_model(args.encoder_name_or_path, args.model_type)
 model = HierarchicalGraphNetwork(config=args)
 
+print('encoder location {}'.format(encoder_path))
+print('model location {}'.format(model_path))
+
 if encoder_path is not None:
     encoder.load_state_dict(torch.load(encoder_path))
 if model_path is not None:
