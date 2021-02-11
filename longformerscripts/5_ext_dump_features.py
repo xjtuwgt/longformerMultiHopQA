@@ -178,8 +178,6 @@ def read_hotpot_examples(para_file,
                 #+++++++++++++++++
                 cur_sent_words, cur_sent_char_to_word_offset, cur_sent_words_start_idx = split_sent(sent, offset=len(
                     doc_tokens), add_sep=True)
-                print(doc_tokens)
-                print('-' * 10)
                 # +++++++++++++++++
                 doc_tokens.extend(cur_sent_words)
                 ctx_char_to_word_offset.extend(cur_sent_char_to_word_offset)
@@ -279,6 +277,8 @@ def read_hotpot_examples(para_file,
             end_position = ans_end_position
 
         # print('Para number = {}'.format(len(para_names)))
+        print(doc_tokens)
+        print('-' * 10)
         assert len(para_names) >= 2
         example = Example(
             qas_id=key,
@@ -395,10 +395,10 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
         all_doc_tokens += all_query_tokens
 
         for (i, token) in enumerate(example.doc_tokens):
-            if token == ' ':
-                print('here {}'.format(i))
-            if token == sep_token:
-                print('there {} {}'.format(token, i))
+            # if token == ' ':
+            #     print('here {}'.format(i))
+            # if token == sep_token:
+            #     print('there {} {}'.format(token, i))
 
             orig_to_tok_index.append(len(all_doc_tokens))
             if is_roberta:
