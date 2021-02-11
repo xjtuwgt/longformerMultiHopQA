@@ -230,7 +230,7 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             best_sp_dict[cur_id].extend(best_sp_pred)
             if cur_id not in best_sp_threshold:
                 best_sp_threshold[cur_id] = []
-            best_sp_threshold[cur_id].append((min_pos_score, max_neg_score))
+            best_sp_threshold[cur_id].append({'min_pos': min_pos_score, 'max_neg': max_neg_score})
             ####++++++++++
 
             for thresh_i in range(N_thresh):
