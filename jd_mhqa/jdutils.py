@@ -48,7 +48,8 @@ def best_threshold_extraction(predict_support_np_ith, example_dict, batch_ids_it
         # positve_scores = predict_support_np_ith[example_dict[cur_id].sup_fact_id]
         min_pos_score = positve_scores.min()
         negative_scores = predict_support_np_ith.copy()
-        negative_scores[example_dict[cur_id].sup_fact_id] = -1
+        # negative_scores[example_dict[cur_id].sup_fact_id] = -1
+        negative_scores[supp_fact_ids] = -1
         max_neg_score = negative_scores.max()
 
         for j in range(0, len(filtered_arg_order_ids)):
