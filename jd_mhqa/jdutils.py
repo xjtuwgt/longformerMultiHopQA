@@ -199,8 +199,8 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             cur_sp_pred = supp_sent_prediction(predict_support_np_ith=predict_support_np_ith,
                                                example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
             # ++++++++++++++++++++++++++++++++++++
-            best_sp_pred, min_pos_score, max_neg_score = best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
-                                               example_dict=example_dict, batch_ids_ith=cur_id)
+            # best_sp_pred, min_pos_score, max_neg_score = best_threshold_extraction(predict_support_np_ith=predict_support_np_ith,
+            #                                    example_dict=example_dict, batch_ids_ith=cur_id)
             ####################################
             # cur_sp_pred = supp_sent_prediction_hgn(predict_support_np_ith=predict_support_np_ith,
             #                                    example_dict=example_dict, batch_ids_ith=cur_id, thresholds=thresholds)
@@ -223,14 +223,14 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
             # ###################################
 
             ####++++++++++
-            if cur_id not in best_sp_dict:
-                best_sp_dict[cur_id] = []
-            best_sp_dict[cur_id].extend(best_sp_pred)
-            if cur_id not in best_sp_threshold:
-                best_sp_threshold[cur_id] = []
-            best_sp_threshold[cur_id].append({'min_pos': min_pos_score, 'max_neg': max_neg_score})
-            if min_pos_score < max_neg_score:
-                threshold_inter_count = threshold_inter_count + 1
+            # if cur_id not in best_sp_dict:
+            #     best_sp_dict[cur_id] = []
+            # best_sp_dict[cur_id].extend(best_sp_pred)
+            # if cur_id not in best_sp_threshold:
+            #     best_sp_threshold[cur_id] = []
+            # best_sp_threshold[cur_id].append({'min_pos': min_pos_score, 'max_neg': max_neg_score})
+            # if min_pos_score < max_neg_score:
+            #     threshold_inter_count = threshold_inter_count + 1
             ####++++++++++
 
             for thresh_i in range(N_thresh):
@@ -275,19 +275,19 @@ def jd_eval_model(args, encoder, model, dataloader, example_dict, feature_dict, 
     json.dump(best_metrics, open(eval_file, 'w'))
 
     # -------------------------------------
-    best_prediction = {'answer': answer_dict,
-                  'sp': best_sp_dict,
-                  'type': answer_type_dict,
-                  # 'thresh': best_sp_threshold,
-                  'type_prob': answer_type_prob_dict}
-    print('Number of inter threshold = {}'.format(threshold_inter_count))
-    best_tmp_file = os.path.join(os.path.dirname(prediction_file), 'best_tmp.json')
-    with open(best_tmp_file, 'w') as f:
-        json.dump(best_prediction, f)
-    best_th_metrics = hotpot_eval(best_tmp_file, dev_gold_file)
-    for key, val in best_th_metrics.items():
-        print("{} = {}".format(key, val))
-    # -------------------------------------
+    # best_prediction = {'answer': answer_dict,
+    #               'sp': best_sp_dict,
+    #               'type': answer_type_dict,
+    #               # 'thresh': best_sp_threshold,
+    #               'type_prob': answer_type_prob_dict}
+    # print('Number of inter threshold = {}'.format(threshold_inter_count))
+    # best_tmp_file = os.path.join(os.path.dirname(prediction_file), 'best_tmp.json')
+    # with open(best_tmp_file, 'w') as f:
+    #     json.dump(best_prediction, f)
+    # best_th_metrics = hotpot_eval(best_tmp_file, dev_gold_file)
+    # for key, val in best_th_metrics.items():
+    #     print("{} = {}".format(key, val))
+    # # -------------------------------------
 
     return best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number
 
