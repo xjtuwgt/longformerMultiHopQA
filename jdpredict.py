@@ -59,9 +59,13 @@ for a in args_dict:
 helper = DataHelper(gz=True, config=args)
 
 # Set datasets
-dev_example_dict = helper.dev_example_dict
-dev_feature_dict = helper.dev_feature_dict
-dev_dataloader = helper.dev_loader
+# dev_example_dict = helper.dev_example_dict
+# dev_feature_dict = helper.dev_feature_dict
+# dev_dataloader = helper.dev_loader
+
+dev_example_dict = helper.train_example_dict
+dev_feature_dict = helper.train_feature_dict
+dev_dataloader = helper.train_loader
 
 #########################################################################
 # Initialize Model
@@ -93,8 +97,11 @@ model.eval()
 # python jdpredict.py --config_file configs/predict.roberta.json --max_para_num 5
 # python jdpredict.py --config_file configs/predict.albert.json --max_para_num 6
 ##########################################################################
-output_pred_file = join(args.exp_name, 'pred.json')
-output_eval_file = join(args.exp_name, 'eval.txt')
+# output_pred_file = join(args.exp_name, 'pred.json')
+# output_eval_file = join(args.exp_name, 'eval.txt')
+
+output_pred_file = join(args.exp_name, 'train_pred.json')
+output_eval_file = join(args.exp_name, 'train_eval.txt')
 
 metrics, threshold, doc_recall_metric, total_inconsist_number = jd_eval_model(args, encoder, model,
                                 dev_dataloader, dev_example_dict, dev_feature_dict,
