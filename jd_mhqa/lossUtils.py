@@ -15,6 +15,7 @@ def adaptive_threshold_prediction(logits, number_labels=-1, mask = None, type = 
     th_logits = logits[:, 0].unsqueeze(1)
     output = torch.zeros_like(logits).to(logits)
     out_mask = logits > th_logits
+    ######
     if number_labels > 0:
         logits[:, 0] = -1e30
         top_v, _ = torch.topk(logits, k=number_labels, dim=1)
@@ -71,18 +72,6 @@ class ATLoss(nn.Module):
         loss = loss.mean()
         return loss
 
-    def get_label(self, logits, num_labels=-1):
-        th_logit = logits[:, 0].unsqueeze(1)
-        output = torch.zeros_like(logits).to(logits)
-        mask = (logits > th_logit)
-        if num_labels > 0:
-            top_v, _ = torch.topk(logits, num_labels, dim=1)
-            top_v = top_v[:, -1]
-            mask = (logits >= top_v.unsqueeze(1)) & mask
-        output[mask] = 1.0
-        output[:, 0] = (output.sum(1) == 0.).to(logits)
-        return output
-
 class ATMLoss(nn.Module):
     def __init__(self, reduction: str = 'mean'):
         super().__init__()
@@ -121,20 +110,6 @@ class ATMLoss(nn.Module):
         loss = loss1 + loss2
         loss = loss.mean()
         return loss
-
-    def get_label(self, logits, num_labels=-1, mask=None):
-        if mask is not None:
-            logits = logits.masked_fill(mask==0, -1e30)
-        th_logit = logits[:, 0].unsqueeze(1)
-        output = torch.zeros_like(logits).to(logits)
-        logit_mask = (logits > th_logit)
-        if num_labels > 0:
-            top_v, _ = torch.topk(logits, num_labels, dim=1)
-            top_v = top_v[:, -1]
-            logit_mask = (logits >= top_v.unsqueeze(1)) & logit_mask
-        output[logit_mask] = 1.0
-        output[:, 0] = (output.sum(1) == 0.).to(logits)
-        return output
 
 class ATPLoss(nn.Module):
     """
@@ -179,20 +154,6 @@ class ATPLoss(nn.Module):
         loss = loss.mean()
         return loss
 
-    def get_label(self, logits, num_labels=-1, mask=None):
-        if mask is not None:
-            logits = logits.masked_fill(mask==0, -1e30)
-        th_logit = logits[:, 0].unsqueeze(1)
-        output = torch.zeros_like(logits).to(logits)
-        logit_mask = (logits > th_logit)
-        if num_labels > 0:
-            top_v, _ = torch.topk(logits, num_labels, dim=1)
-            top_v = top_v[:, -1]
-            logit_mask = (logits >= top_v.unsqueeze(1)) & logit_mask
-        output[logit_mask] = 1.0
-        output[:, 0] = (output.sum(1) == 0.).to(logits)
-        return output
-
 
 class ATPFLoss(nn.Module):
     """
@@ -225,27 +186,13 @@ class ATPFLoss(nn.Module):
 
         neg_logits = torch.stack([th_logits, logits], dim=-1)
         n_mask = 1 - labels
-        n_mask[:,0] = 0
+        n_mask[:, 0] = 0
         if mask is not None:
             n_mask = n_mask.masked_fill(mask == 0, 0)
         loss2 = self.focal_loss(neg_logits, n_mask)
         loss = loss1 + loss2
         loss = loss.mean()
         return loss
-
-    def get_label(self, logits, num_labels=-1, mask=None):
-        if mask is not None:
-            logits = logits.masked_fill(mask == 0, -1e30)
-        th_logit = logits[:, 0].unsqueeze(1)
-        output = torch.zeros_like(logits).to(logits)
-        logit_mask = (logits > th_logit)
-        if num_labels > 0:
-            top_v, _ = torch.topk(logits, num_labels, dim=1)
-            top_v = top_v[:, -1]
-            logit_mask = (logits >= top_v.unsqueeze(1)) & logit_mask
-        output[logit_mask] = 1.0
-        output[:, 0] = (output.sum(1) == 0.).to(logits)
-        return output
 
     def focal_loss(self, logits, mask):
         logpt = F.log_softmax(logits, dim=-1)
