@@ -13,7 +13,7 @@ from csr_mhqa.argument_parser import default_train_parser, complete_default_trai
 from jd_mhqa.jd_data_processing import Example, InputFeatures, DataHelper
 from csr_mhqa.utils import load_encoder_model, get_optimizer, MODEL_CLASSES
 from jd_mhqa.jdutils import compute_loss
-from jd_mhqa.jdutils import jd_at_eval_model
+from jd_mhqa.jdutils import jd_at_eval_model, jd_at_eval_model_search
 from time import time
 
 from jdmodels.jdHGN import HierarchicalGraphNetwork
@@ -264,8 +264,31 @@ for epoch in train_iterator:
             )
             logger.info('Current best joint_f1 = {}'.format(best_joint_f1))
             for key, val in metrics.items():
+                logger.info("Current adaptive {} = {}".format(key, val))
+            logger.info('*' * 100)
+
+        ################################################################################################################
+        best_metrics, best_threshold, doc_recall_metric, total_inconsistent_number = jd_at_eval_model_search(args, encoder, model,
+                                                                              dev_dataloader,
+                                                                              dev_example_dict,
+                                                                              dev_feature_dict,
+                                                                              output_pred_file,
+                                                                              output_eval_file,
+                                                                              args.dev_gold_file)
+        if metrics['joint_f1'] >= best_joint_f1:
+            best_joint_f1 = metrics['joint_f1']
+            torch.save({'epoch': epoch+1,
+                        'lr': scheduler.get_lr()[0],
+                        'encoder': 'encoder.pkl',
+                        'model': 'model.pkl',
+                        'best_joint_f1': best_joint_f1},
+                       join(args.exp_name, f'cached_config.bin')
+            )
+            logger.info('Current best joint_f1 = {} with best threshold = {}'.format(best_joint_f1, best_threshold))
+            for key, val in metrics.items():
                 logger.info("Current {} = {}".format(key, val))
             logger.info('*' * 100)
+        ################################################################################################################
         torch.save({k: v.cpu() for k, v in encoder.state_dict().items()},
                     join(args.exp_name, f'encoder_{epoch+1}.pkl'))
         torch.save({k: v.cpu() for k, v in model.state_dict().items()},
