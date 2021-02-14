@@ -275,8 +275,8 @@ for epoch in train_iterator:
                                                                               output_pred_file,
                                                                               output_eval_file,
                                                                               args.dev_gold_file)
-        if metrics['joint_f1'] >= best_joint_f1:
-            best_joint_f1 = metrics['joint_f1']
+        if best_metrics['joint_f1'] >= best_joint_f1:
+            best_joint_f1 = best_metrics['joint_f1']
             torch.save({'epoch': epoch+1,
                         'lr': scheduler.get_lr()[0],
                         'encoder': 'encoder.pkl',
@@ -285,7 +285,7 @@ for epoch in train_iterator:
                        join(args.exp_name, f'cached_config.bin')
             )
             logger.info('Current best joint_f1 = {} with best threshold = {}'.format(best_joint_f1, best_threshold))
-            for key, val in metrics.items():
+            for key, val in best_metrics.items():
                 logger.info("Current {} = {}".format(key, val))
             logger.info('*' * 100)
         ################################################################################################################
