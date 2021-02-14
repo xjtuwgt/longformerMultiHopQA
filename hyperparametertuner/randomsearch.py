@@ -44,7 +44,7 @@ def rand_search_parameter(space: dict):
 
 def HypeParameterSpace():
     learning_rate = {'name': 'learning_rate', 'type': 'choice', 'values': [1e-5, 2e-5, 4e-5]}
-    per_gpu_train_batch_size = {'name': 'per_gpu_train_batch_size', 'type': 'choice', 'values': [2, 4]}
+    per_gpu_train_batch_size = {'name': 'per_gpu_train_batch_size', 'type': 'choice', 'values': [2, 3]}
     gradient_accumulation_steps = {'name': 'gradient_accumulation_steps', 'type': 'choice', 'values': [2, 4]}
     sent_lambda = {'name': 'sent_lambda', 'type': 'choice', 'values': [15, 20]}
     frozen_layer_num = {'name': 'frozen_layer_number', 'type': 'choice', 'values': [0]}
@@ -92,4 +92,4 @@ def generate_random_search_bash(task_num, seed=42):
     print('{} jobs have been generated'.format(task_num))
 
 if __name__ == '__main__':
-    generate_random_search_bash(task_num=5, seed=234)
+    generate_random_search_bash(task_num=5, seed=111)
