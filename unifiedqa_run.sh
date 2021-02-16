@@ -82,7 +82,7 @@ preprocess() {
 #        python longformerscripts/4_longformer_multihop_ps.py $INPUT_FILE $OUTPUT_PROCESSED/doc_link_ner.json $OUTPUT_PROCESSED/ner.json $OUTPUT_PROCESSED/long_para_ranking.json $OUTPUT_PROCESSED/long_multihop_para.json $SELECTEED_DOC_NUM
 
         echo "5. Dump features (5)"
-        python longformerscripts/5_ext_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path $LONG_FORMER_ROOT/unifiedqa-t5-large --ner_path $OUTPUT_PROCESSED/ner.json --model_type unifiedqa --tokenizer_name $LONG_FORMER_ROOT/unifiedqa-t5-large --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json --max_para_num $SELECTEED_DOC_NUM
+        python longformerscripts/5_ext_unifiedqa_dump_features.py --para_path $OUTPUT_PROCESSED/long_multihop_para.json --full_data $INPUT_FILE --model_name_or_path $LONG_FORMER_ROOT/unifiedqa-t5-large --ner_path $OUTPUT_PROCESSED/ner.json --model_type unifiedqa --tokenizer_name $LONG_FORMER_ROOT/unifiedqa-t5-large --output_dir $OUTPUT_FEAT --doc_link_ner $OUTPUT_PROCESSED/doc_link_ner.json --max_para_num $SELECTEED_DOC_NUM
 
     done
 
