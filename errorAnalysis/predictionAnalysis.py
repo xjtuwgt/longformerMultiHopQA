@@ -223,7 +223,6 @@ def error_analysis(raw_data, examples, features, predictions, tokenizer, use_ent
         prediction_para_type_counter[para_type] += 1
         pred_doc_type_list.append(para_type)
         ###+++++++++
-
         if raw_answer not in ['yes', 'no']:
             yes_no_span_true.append('span')
         else:
