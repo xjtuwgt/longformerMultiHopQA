@@ -39,9 +39,7 @@ nlp.tokenizer.infix_finditer = infix_re.finditer
 def read_hotpot_examples(para_file,
                          full_file,
                          ner_file,
-                         doc_link_file,
-                         model_type,
-                         sep_token):
+                         doc_link_file):
     with open(para_file, 'r', encoding='utf-8') as reader:
         para_data = json.load(reader)
 
@@ -308,13 +306,9 @@ def read_hotpot_examples(para_file,
     return examples
 
 def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_length, max_entity_num, model_type,
-                                 cls_token='[CLS]',
-                                 sep_token='[SEP]',
-                                 is_roberta=False,
                                  filter_no_ans=False):
     features = []
     failed = 0
-    is_roberta = model_type in ['roberta']
     ##############
     tokenized_token_len_512 = 0
     ##############
@@ -332,14 +326,16 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
             else:
                 tok_end_position = len(subword_tokens) - 1
             # Make answer span more accurate.
-            if is_roberta: # hack for roberta now
-                tok_end_position = orig_to_tok_back_index[orig_end_position]
-                return tok_start_position, tok_end_position
-            else:
-                return _improve_answer_span(
-                    subword_tokens, tok_start_position, tok_end_position, tokenizer, orig_text)
+            # if is_roberta: # hack for roberta now
+            #     tok_end_position = orig_to_tok_back_index[orig_end_position]
+            #     return tok_start_position, tok_end_position
+            # else:
+            # return _improve_answer_span(
+            #     subword_tokens, tok_start_position, tok_end_position, tokenizer, orig_text)
+            return _improve_answer_span(
+                subword_tokens, tok_start_position, tok_end_position, tokenizer, orig_text)
 
-        all_query_tokens = [cls_token]
+        all_query_tokens = []
         tok_to_orig_index = [-1]
         ques_tok_to_orig_index = [0]
         ques_orig_to_tok_index = []
@@ -347,10 +343,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
 
         for (i, token) in enumerate(example.question_tokens):
             ques_orig_to_tok_index.append(len(all_query_tokens))
-            if is_roberta:
-                sub_tokens = tokenizer.tokenize(token, add_prefix_space=True)
-            else:
-                sub_tokens = tokenizer.tokenize(token)
+            sub_tokens = tokenizer.tokenize(token)
 
             for sub_token in sub_tokens:
                 tok_to_orig_index.append(i)
@@ -358,15 +351,18 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
                 all_query_tokens.append(sub_token)
             ques_orig_to_tok_back_index.append(len(all_query_tokens) - 1)
 
-        if is_roberta:
-            all_query_tokens = all_query_tokens[:max_query_length-2]
-            tok_to_orig_index = tok_to_orig_index[:max_query_length-2] + [-1, -1]
-            # roberta uses an extra separator b/w pairs of sentences
-            all_query_tokens += [sep_token, sep_token]
-        else:
-            all_query_tokens = all_query_tokens[:max_query_length-1]
-            tok_to_orig_index = tok_to_orig_index[:max_query_length-1] + [-1]
-            all_query_tokens += [sep_token]
+        # if is_roberta:
+        #     all_query_tokens = all_query_tokens[:max_query_length-2]
+        #     tok_to_orig_index = tok_to_orig_index[:max_query_length-2] + [-1, -1]
+        #     # roberta uses an extra separator b/w pairs of sentences
+        #     all_query_tokens += [sep_token, sep_token]
+        # else:
+        #     all_query_tokens = all_query_tokens[:max_query_length-1]
+        #     tok_to_orig_index = tok_to_orig_index[:max_query_length-1] + [-1]
+        #     all_query_tokens += [sep_token]
+        all_query_tokens = all_query_tokens[:max_query_length-3]
+        tok_to_orig_index = tok_to_orig_index[:max_query_length-1] + [-1, -1, -1]
+        all_query_tokens += ['_', '\\', 'n']
 
         entity_spans = []
         answer_candidates_ids = []
@@ -386,16 +382,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
         all_doc_tokens += all_query_tokens
 
         for (i, token) in enumerate(example.doc_tokens):
-            # if token == ' ':
-            #     print('here {}'.format(i))
-            # if token == sep_token:
-            #     print('there {} {}'.format(token, i))
-
             orig_to_tok_index.append(len(all_doc_tokens))
-            if is_roberta:
-                sub_tokens = tokenizer.tokenize(token, add_prefix_space=True)
-            else:
-                sub_tokens = tokenizer.tokenize(token)
+            sub_tokens = tokenizer.tokenize(token)
             for sub_token in sub_tokens:
                 tok_to_orig_index.append(i+len(example.question_tokens))
                 all_doc_tokens.append(sub_token)
@@ -516,7 +504,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
 
         # Padding Document
         if len(all_doc_tokens) >= max_seq_length:
-            all_doc_tokens = all_doc_tokens[:max_seq_length - 1] + [sep_token]
+            # all_doc_tokens = all_doc_tokens[:max_seq_length - 1] + [sep_token]
+            all_doc_tokens = all_doc_tokens[:max_seq_length]
         doc_input_ids = tokenizer.convert_tokens_to_ids(all_doc_tokens)
         query_input_ids = tokenizer.convert_tokens_to_ids(all_query_tokens)
 
@@ -693,17 +682,11 @@ if __name__ == '__main__':
     config_class, model_class, tokenizer_class = MODEL_CLASSES[args.model_type]
     tokenizer = tokenizer_class.from_pretrained(args.tokenizer_name if args.tokenizer_name else args.model_name_or_path,
                                                 do_lower_case=args.do_lower_case)
-    # if args.model_type in ['unifiedqa']:
-    #     tokenizer.sep_token = '</s>'
-    #     tokenizer.cls_token = '</s>'
-
 
     examples = read_hotpot_examples(para_file=args.para_path,
                                     full_file=args.full_data,
                                     ner_file=args.ner_path,
-                                    doc_link_file=args.doc_link_ner,
-                                    model_type=args.model_type,
-                                    sep_token=tokenizer.sep_token)
+                                    doc_link_file=args.doc_link_ner)
     cached_examples_file = os.path.join(args.output_dir,
                                         get_cached_filename('examples', args))
     with gzip.open(cached_examples_file, 'wb') as fout:
@@ -713,8 +696,6 @@ if __name__ == '__main__':
                                             max_seq_length=args.max_seq_length,
                                             max_query_length=args.max_query_length,
                                             max_entity_num=args.max_entity_num,
-                                            cls_token=tokenizer.cls_token,
-                                            sep_token=tokenizer.sep_token,
                                             model_type=args.model_type,
                                             filter_no_ans=args.filter_no_ans)
     cached_features_file = os.path.join(args.output_dir,
