@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function
 from transformers import LongformerModel, LongformerTokenizer, LongformerConfig
-from transformers import T5ForConditionalGeneration, AutoTokenizer, T5Config
+from transformers import T5ForConditionalGeneration, AutoTokenizer, T5Config, T5Tokenizer
 from hgntransformers import (BertConfig, BertTokenizer, BertModel,
                              RobertaConfig, RobertaTokenizer, RobertaModel,
                              AlbertConfig, AlbertTokenizer, AlbertModel)
