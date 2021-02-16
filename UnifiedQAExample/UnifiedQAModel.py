@@ -12,6 +12,9 @@ def unified_qa_prediction(model, tokenizer, question: str, context: str, **gener
     answer = tokenizer.batch_decode(res, skip_special_tokens=True)
     return answer
 
-# if __name__ == '__main__':
-#     model_name = "allenai/unifiedqa-t5-small"
-#     unifiedqa_model =
+if __name__ == '__main__':
+    model_name = "allenai/unifiedqa-t5-large"
+    unifiedqa_model, tokeinizer = unifiedqa_model_loader(model_name=model_name)
+    for name, param in unifiedqa_model.named_parameters():
+        print('Parameter {}: {}, require_grad = {}'.format(name, str(param.size()), str(param.requires_grad)))
+    print('-' * 100)

@@ -23,6 +23,3 @@ for case in tqdm(raw_data):
     gold_titles = list(set([_[0]  for _ in case['supporting_facts']]))
     long_titles = reduce(operator.concat, longformer_rank_data[guid])
     hgn_titles = reduce(operator.concat, hgn_rank_data[guid])
-
-
-
