@@ -26,15 +26,10 @@ if __name__ == '__main__':
     ner2id = json.load(open(os.path.join(args.meta_path, 'ner2id.json'), "r"))
     print(ner2id)
 
-
 # fact_in_train = set([])
 # fact_in_dev_train = set([])
-#
 # def init(data_file_name, rel2id, max_length = 512, is_training = True, suffix=''):
-#
 # 	ori_data = json.load(open(data_file_name))
-#
-#
 # 	Ma = 0
 # 	Ma_e = 0
 # 	data = []
