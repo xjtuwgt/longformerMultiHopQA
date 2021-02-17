@@ -429,6 +429,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
             if len(sentence_spans) == 0:
                 print(example.qas_id)
                 print(example.doc_tokens)
+                print(sentence_spans)
             max_tok_length = sentence_spans[-1][1]
 
 
