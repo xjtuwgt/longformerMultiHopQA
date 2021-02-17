@@ -71,7 +71,7 @@ preprocess() {
 
 }
 
-for proc in "ddocred" "preprocess"
+for proc in "docred" "preprocess"
 do
     $proc
 done
