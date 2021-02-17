@@ -23,6 +23,9 @@ if __name__ == '__main__':
     print(train_distant_file_name)
     rel2id = json.load(open(os.path.join(args.meta_path, 'rel2id.json'), "r"))
     print(rel2id)
+    ner2id = json.load(open(os.path.join(args.meta_path, 'ner2id.json'), "r"))
+    print(ner2id)
+
 
 # fact_in_train = set([])
 # fact_in_dev_train = set([])
