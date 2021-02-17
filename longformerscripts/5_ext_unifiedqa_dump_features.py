@@ -426,10 +426,11 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
 
         if sent_max_index < len(sentence_spans):
             sentence_spans = sentence_spans[:sent_max_index]
-            max_tok_length = sentence_spans[-1][1]
             if len(sentence_spans) == 0:
                 print(example.qas_id)
                 print(example.doc_tokens)
+            max_tok_length = sentence_spans[-1][1]
+
 
             para_max_index = _largest_valid_index(para_spans, max_tok_length)
             max_para_span = para_spans[para_max_index]

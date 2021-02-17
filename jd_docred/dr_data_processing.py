@@ -68,10 +68,14 @@ def docred2hotpotqa(data_file_name, rel2id, rel_infor, max_length = 512, is_trai
 
     return
 
+# def hotpotqa_question(hotpot_file_name):
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--raw_path', type=str, default='/Users/xjtuwgt/Downloads/DocRED', help='raw data path')
     parser.add_argument('--meta_path', type=str, default='/Users/xjtuwgt/Downloads/DocRED/DocRED_baseline_metadata', help='meta information path')
+    parser.add_argument('--hotpot_path', type=str, default='/Users/xjtuwgt/PycharmProjects/multihopQA/data/hotpotqa', help='hotpot data path')
     parser.add_argument('--out_path', type=str, default=None, help='output data path')
 
     args = parser.parse_args()
@@ -102,8 +106,10 @@ if __name__ == '__main__':
     # print(len(word2id))
 
     ###+++++++++++++++++++++++++++++++++++++
-    preprocess(data_file_name=train_annotated_file_name, rel2id=rel2id, is_training=True)
+    # preprocess(data_file_name=train_annotated_file_name, rel2id=rel2id, is_training=True)
 
     # preprocess(data_file_name=dev_file_name, rel2id=rel2id, is_training=True)
+
+    # hotpot_file_name =
 
 
