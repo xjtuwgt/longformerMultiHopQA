@@ -159,7 +159,7 @@ def read_hotpot_examples(para_file,
                     # S -> S, the sentence in same para-graph are connected in sequence)
                     s_s_edges.append((prev_sent_id, sent_id))
                 ##########
-                if prev_sent_id is None:
+                if prev_sent_id is None and len(para_names) <= 1: ##adding \n in front of the first sentence
                     sent = '\\n ' + sent
                 ##########
 
