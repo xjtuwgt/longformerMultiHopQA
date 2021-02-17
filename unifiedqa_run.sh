@@ -3,7 +3,7 @@
 # DEFINE data related (please make changes according to your configurations)
 # DATA ROOT folder where you put data files
 DATA_ROOT=./data/
-
+SELECTEED_DOC_NUM=4
 
 PROCS=${1:-"download"} # define the processes you want to run, e.g. "download,preprocess,train" or "preprocess" only
 
