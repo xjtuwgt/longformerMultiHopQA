@@ -57,7 +57,8 @@ preprocess() {
 
 }
 
-for proc in "docred" "preprocess"
+#for proc in "docred" "preprocess"
+for proc in "preprocess"
 do
     $proc
 done
