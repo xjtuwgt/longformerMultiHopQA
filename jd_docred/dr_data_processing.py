@@ -21,7 +21,6 @@ if __name__ == '__main__':
     test_file_name = os.path.join(raw_data_path, 'test.json')
 
     print(train_distant_file_name)
-
     rel2id = json.load(open(os.path.join(args.meta_path, 'rel2id.json'), "r"))
     print(rel2id)
 
