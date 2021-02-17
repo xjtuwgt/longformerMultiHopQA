@@ -158,6 +158,11 @@ def read_hotpot_examples(para_file,
                 if prev_sent_id is not None:
                     # S -> S, the sentence in same para-graph are connected in sequence)
                     s_s_edges.append((prev_sent_id, sent_id))
+                ##########
+                if prev_sent_id is None:
+                    sent = '\\n ' + sent
+                ##########
+
 
                 sent += " " ## adding space at the end of each sentence
                 ctx_text += sent
@@ -360,9 +365,8 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
         #     all_query_tokens = all_query_tokens[:max_query_length-1]
         #     tok_to_orig_index = tok_to_orig_index[:max_query_length-1] + [-1]
         #     all_query_tokens += [sep_token]
-        all_query_tokens = all_query_tokens[:max_query_length-3]
-        tok_to_orig_index = tok_to_orig_index[:max_query_length-3] + [-1, -1, -1]
-        all_query_tokens += ['_', '\\', 'n']
+        all_query_tokens = all_query_tokens[:max_query_length]
+        tok_to_orig_index = tok_to_orig_index[:max_query_length]
 
         entity_spans = []
         answer_candidates_ids = []

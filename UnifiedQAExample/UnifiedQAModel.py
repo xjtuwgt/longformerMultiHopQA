@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer, T5ForConditionalGeneration, T5Tokenizer
 
 def unifiedqa_model_loader(model_name: str):
-    tokenizer = T5Tokenizer.from_pretrained(model_name)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = T5ForConditionalGeneration.from_pretrained(model_name)
     return model, tokenizer
 
@@ -21,6 +21,9 @@ if __name__ == '__main__':
     x = question + ' \\n ' + context
     print(x)
     print(tokenizer.tokenize(x))
+    print(tokenizer.tokenize('\\'))
+    print(tokenizer.tokenize(''))
+    print(tokenizer.tokenize('n'))
     # tokenizer.sep_token = '</s>'
     # print(tokenizer.sep_token)
     # print(tokenizer.special_tokens_map)
