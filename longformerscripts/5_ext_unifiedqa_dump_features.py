@@ -361,7 +361,7 @@ def convert_examples_to_features(examples, tokenizer, max_seq_length, max_query_
         #     tok_to_orig_index = tok_to_orig_index[:max_query_length-1] + [-1]
         #     all_query_tokens += [sep_token]
         all_query_tokens = all_query_tokens[:max_query_length-3]
-        tok_to_orig_index = tok_to_orig_index[:max_query_length-1] + [-1, -1, -1]
+        tok_to_orig_index = tok_to_orig_index[:max_query_length-3] + [-1, -1, -1]
         all_query_tokens += ['_', '\\', 'n']
 
         entity_spans = []
