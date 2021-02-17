@@ -2,11 +2,76 @@ import numpy as np
 import os
 import json
 import argparse
+from tqdm import tqdm
+import numpy as np
+
+def preprocess(data_file_name, rel2id, max_length = 512, is_training = True, suffix=''):
+    data = json.load(open(data_file_name))
+    #### title, sents, labels, vertexSet
+    print(len(data))
+    sent_nums = []
+    trip_nums = []
+    evidence_nums = []
+    word_nums = []
+    example_triple_dict = {}
+    relation_count_dict = {}
+    for example_id, example in tqdm(enumerate(data)):
+        # print(example)
+        sent_nums.append(len(example['sents']))
+        trip_nums.append(len(example['labels']))
+        for exam_label in example['labels']:
+            evidence_nums.append(len(exam_label['evidence']))
+            h, r, t = exam_label['h'], exam_label['r'], exam_label['t']
+            if r not in relation_count_dict:
+                relation_count_dict[r] = 1
+            else:
+                relation_count_dict[r] = relation_count_dict[r] + 1
+            exam_trip = (example_id, h, t)
+            if exam_trip not in example_triple_dict:
+                example_triple_dict[exam_trip] = 1
+            else:
+                example_triple_dict[exam_trip] = example_triple_dict[exam_trip] + 1
+        total_word_num = sum([len(sent) for sent in example['sents']])
+        word_nums.append(total_word_num)
+        # break
+    sent_num_array = np.array(sent_nums)
+    trip_num_array = np.array(trip_nums)
+    evid_num_array = np.array(evidence_nums)
+    word_num_array = np.array(word_nums)
+    example_ht_pair_num_array = np.array([value for key, value in example_triple_dict.items()])
+    print(example_ht_pair_num_array.sum())
+    # print('sent', sent_num_array.max(), sent_num_array.min(), sent_num_array.mean())
+    # print('trip', trip_num_array.max(), trip_num_array.min(), trip_num_array.mean())
+    # print('evid', evid_num_array.max(), evid_num_array.min(), evid_num_array.mean())
+    # print('word', word_num_array.max(), word_num_array.min(), word_num_array.mean())
+    # print('word_per {}'.format(np.percentile(word_num_array, [50, 75, 95, 97.5])))
+    # print('total triples {}'.format(trip_num_array.sum()))
+    # print('triple_per {}'.format(np.percentile(trip_num_array, [50, 75, 95, 97.5])))
+    # print('sent_per {}'.format(np.percentile(sent_num_array, [50, 75, 95, 97.5])))
+    # print('even_per {}'.format(np.percentile(evid_num_array, [50, 75, 95, 97.5])))
+    #
+    # (unique, counts) = np.unique(evid_num_array, return_counts=True)
+    # uni_count_dict = dict(zip(unique, counts))
+    # for key, value in uni_count_dict.items():
+    #     print('{}\t{}'.format(key, value))
+
+    # (unique, counts) = np.unique(example_ht_pair_num_array, return_counts=True)
+    # uni_count_dict = dict(zip(unique, counts))
+    # for key, value in uni_count_dict.items():
+    #     print('{}\t{}'.format(key, value))
+    for key, value in relation_count_dict.items():
+        print(key, value)
+    return
+
+def docred2hotpotqa(data_file_name, rel2id, rel_infor, max_length = 512, is_training = True, suffix=''):
+    docred_data = json.load(data_file_name)
+
+    return
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--raw_path', type=str, default=None, help='raw data path')
-    parser.add_argument('--meta_path', type=str, default=None, help='meta information path')
+    parser.add_argument('--raw_path', type=str, default='/Users/xjtuwgt/Downloads/DocRED', help='raw data path')
+    parser.add_argument('--meta_path', type=str, default='/Users/xjtuwgt/Downloads/DocRED/DocRED_baseline_metadata', help='meta information path')
     parser.add_argument('--out_path', type=str, default=None, help='output data path')
 
     args = parser.parse_args()
@@ -20,174 +85,25 @@ if __name__ == '__main__':
     dev_file_name = os.path.join(raw_data_path, 'dev.json')
     test_file_name = os.path.join(raw_data_path, 'test.json')
 
+    relinfor = json.load(open(os.path.join(raw_data_path, 'rel_info.json'), "r"))
+    print(len(relinfor))
+    # print(relinfor)
+
     # print(train_distant_file_name)
     rel2id = json.load(open(os.path.join(args.meta_path, 'rel2id.json'), "r"))
-    print(rel2id)
+    # print(rel2id)
+    # for key, value in relinfor.items():
+    #     print('{}\t{}\t{}'.format(key, value, rel2id[key]))
     ner2id = json.load(open(os.path.join(args.meta_path, 'ner2id.json'), "r"))
-    print(ner2id)
+    # print(ner2id)
+    char2id = json.load(open(os.path.join(args.meta_path, 'char2id.json'), "r"))
+    # print(char2id)
+    word2id = json.load(open(os.path.join(args.meta_path, 'word2id.json'), "r"))
+    # print(len(word2id))
 
-# fact_in_train = set([])
-# fact_in_dev_train = set([])
-# def init(data_file_name, rel2id, max_length = 512, is_training = True, suffix=''):
-# 	ori_data = json.load(open(data_file_name))
-# 	Ma = 0
-# 	Ma_e = 0
-# 	data = []
-# 	intrain = notintrain = notindevtrain = indevtrain = 0
-# 	for i in range(len(ori_data)):
-# 		Ls = [0]
-# 		L = 0
-# 		for x in ori_data[i]['sents']:
-# 			L += len(x)
-# 			Ls.append(L)
-#
-# 		vertexSet =  ori_data[i]['vertexSet']
-# 		# point position added with sent start position
-# 		for j in range(len(vertexSet)):
-# 			for k in range(len(vertexSet[j])):
-# 				vertexSet[j][k]['sent_id'] = int(vertexSet[j][k]['sent_id'])
-#
-# 				sent_id = vertexSet[j][k]['sent_id']
-# 				dl = Ls[sent_id]
-# 				pos1 = vertexSet[j][k]['pos'][0]
-# 				pos2 = vertexSet[j][k]['pos'][1]
-# 				vertexSet[j][k]['pos'] = (pos1+dl, pos2+dl)
-#
-# 		ori_data[i]['vertexSet'] = vertexSet
-#
-# 		item = {}
-# 		item['vertexSet'] = vertexSet
-# 		labels = ori_data[i].get('labels', [])
-#
-# 		train_triple = set([])
-# 		new_labels = []
-# 		for label in labels:
-# 			rel = label['r']
-# 			assert(rel in rel2id)
-# 			label['r'] = rel2id[label['r']]
-#
-# 			train_triple.add((label['h'], label['t']))
-#
-#
-# 			if suffix=='_train':
-# 				for n1 in vertexSet[label['h']]:
-# 					for n2 in vertexSet[label['t']]:
-# 						fact_in_dev_train.add((n1['name'], n2['name'], rel))
-#
-#
-# 			if is_training:
-# 				for n1 in vertexSet[label['h']]:
-# 					for n2 in vertexSet[label['t']]:
-# 						fact_in_train.add((n1['name'], n2['name'], rel))
-#
-# 			else:
-# 				# fix a bug here
-# 				label['intrain'] = False
-# 				label['indev_train'] = False
-#
-# 				for n1 in vertexSet[label['h']]:
-# 					for n2 in vertexSet[label['t']]:
-# 						if (n1['name'], n2['name'], rel) in fact_in_train:
-# 							label['intrain'] = True
-#
-# 						if suffix == '_dev' or suffix == '_test':
-# 							if (n1['name'], n2['name'], rel) in fact_in_dev_train:
-# 								label['indev_train'] = True
-#
-#
-# 			new_labels.append(label)
-#
-# 		item['labels'] = new_labels
-# 		item['title'] = ori_data[i]['title']
-#
-# 		na_triple = []
-# 		for j in range(len(vertexSet)):
-# 			for k in range(len(vertexSet)):
-# 				if (j != k):
-# 					if (j, k) not in train_triple:
-# 						na_triple.append((j, k))
-#
-# 		item['na_triple'] = na_triple
-# 		item['Ls'] = Ls
-# 		item['sents'] = ori_data[i]['sents']
-# 		data.append(item)
-#
-# 		Ma = max(Ma, len(vertexSet))
-# 		Ma_e = max(Ma_e, len(item['labels']))
-#
-#
-# 	print ('data_len:', len(ori_data))
-# 	# print ('Ma_V', Ma)
-# 	# print ('Ma_e', Ma_e)
-# 	# print (suffix)
-# 	# print ('fact_in_train', len(fact_in_train))
-# 	# print (intrain, notintrain)
-# 	# print ('fact_in_devtrain', len(fact_in_dev_train))
-# 	# print (indevtrain, notindevtrain)
-#
-#
-# 	# saving
-# 	print("Saving files")
-# 	if is_training:
-# 		name_prefix = "train"
-# 	else:
-# 		name_prefix = "dev"
-#
-# 	json.dump(data , open(os.path.join(out_path, name_prefix + suffix + '.json'), "w"))
-#
-# 	char2id = json.load(open(os.path.join(out_path, "char2id.json")))
-# 	# id2char= {v:k for k,v in char2id.items()}
-# 	# json.dump(id2char, open("data/id2char.json", "w"))
-#
-# 	word2id = json.load(open(os.path.join(out_path, "word2id.json")))
-# 	ner2id = json.load(open(os.path.join(out_path, "ner2id.json")))
-#
-# 	sen_tot = len(ori_data)
-# 	sen_word = np.zeros((sen_tot, max_length), dtype = np.int64)
-# 	sen_pos = np.zeros((sen_tot, max_length), dtype = np.int64)
-# 	sen_ner = np.zeros((sen_tot, max_length), dtype = np.int64)
-# 	sen_char = np.zeros((sen_tot, max_length, char_limit), dtype = np.int64)
-#
-# 	for i in range(len(ori_data)):
-# 		item = ori_data[i]
-# 		words = []
-# 		for sent in item['sents']:
-# 			words += sent
-#
-# 		for j, word in enumerate(words):
-# 			word = word.lower()
-#
-# 			if j < max_length:
-# 				if word in word2id:
-# 					sen_word[i][j] = word2id[word]
-# 				else:
-# 					sen_word[i][j] = word2id['UNK']
-#
-# 				for c_idx, k in enumerate(list(word)):
-# 					if c_idx>=char_limit:
-# 						break
-# 					sen_char[i,j,c_idx] = char2id.get(k, char2id['UNK'])
-#
-# 		for j in range(j + 1, max_length):
-# 			sen_word[i][j] = word2id['BLANK']
-#
-# 		vertexSet = item['vertexSet']
-#
-# 		for idx, vertex in enumerate(vertexSet, 1):
-# 			for v in vertex:
-# 				sen_pos[i][v['pos'][0]:v['pos'][1]] = idx
-# 				sen_ner[i][v['pos'][0]:v['pos'][1]] = ner2id[v['type']]
-#
-# 	print("Finishing processing")
-# 	np.save(os.path.join(out_path, name_prefix + suffix + '_word.npy'), sen_word)
-# 	np.save(os.path.join(out_path, name_prefix + suffix + '_pos.npy'), sen_pos)
-# 	np.save(os.path.join(out_path, name_prefix + suffix + '_ner.npy'), sen_ner)
-# 	np.save(os.path.join(out_path, name_prefix + suffix + '_char.npy'), sen_char)
-# 	print("Finish saving")
-#
-#
-#
-# init(train_distant_file_name, rel2id, max_length = 512, is_training = True, suffix='')
-# init(train_annotated_file_name, rel2id, max_length = 512, is_training = False, suffix='_train')
-# init(dev_file_name, rel2id, max_length = 512, is_training = False, suffix='_dev')
-# init(test_file_name, rel2id, max_length = 512, is_training = False, suffix='_test')
+    ###+++++++++++++++++++++++++++++++++++++
+    preprocess(data_file_name=train_annotated_file_name, rel2id=rel2id, is_training=True)
+
+    # preprocess(data_file_name=dev_file_name, rel2id=rel2id, is_training=True)
+
+
