@@ -24,24 +24,10 @@ docred() {
 }
 
 preprocess() {
-    INPUTS=("dev.json;dev" "test.json;test" "train_annotated.json;train")
-#    INPUTS=("hotpot_dev_distractor_v1.json;dev_distractor")
-#    for input in ${INPUTS[*]}; do
-#        INPUT_FILE=$(echo $input | cut -d ";" -f 1)
-#        DATA_TYPE=$(echo $input | cut -d ";" -f 2)
-#
-#        echo "Processing input_file: ${INPUT_FILE}"
-#
-#        INPUT_FILE=$DATA_ROOT/dataset/data_raw/$INPUT_FILE
-#        OUTPUT_PROCESSED=$DATA_ROOT/dataset/data_processed/$DATA_TYPE
-#        OUTPUT_FEAT=$DATA_ROOT/dataset/data_feat/$DATA_TYPE
-#
-#        [[ -d $OUTPUT_PROCESSED ]] || mkdir -p $OUTPUT_PROCESSED
-#        [[ -d $OUTPUT_FEAT ]] || mkdir -p $OUTPUT_FEAT
-
-#        echo "1. Extract Wiki Link & NER from DB"
-#        # Input: INPUT_FILE, enwiki_ner.db
-#        # Output: doc_link_ner.json
+      echo "1. data statistics"
+      python jd_docred/dr_data_processing.py --raw_path $DATA_ROOT --meta_path $DATA_ROOT/DocRED_baseline_metadata --out_path $DATA_ROOT/data_processed
+#     # Input: INPUT_FILE, enwiki_ner.db
+#     # Output: doc_link_ner.json
 #        python scripts/1_extract_db.py $INPUT_FILE $DATA_ROOT/knowledge/enwiki_ner.db $OUTPUT_PROCESSED/doc_link_ner.json
 #
 #        echo "2. Extract NER for Question and Context"
