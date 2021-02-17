@@ -163,7 +163,6 @@ def read_hotpot_examples(para_file,
                     sent = '\\n ' + sent
                 ##########
 
-
                 sent += " " ## adding space at the end of each sentence
                 ctx_text += sent
                 sent_start_word_id = len(doc_tokens)
