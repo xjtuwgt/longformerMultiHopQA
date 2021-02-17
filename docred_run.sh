@@ -4,7 +4,6 @@
 # DATA ROOT folder where you put data files
 DATA_ROOT=./data/docred/DocRED
 
-
 # 0. docred
 docred() {
     INPUTS=("dev.json;dev" "test.json;test" "train_annotated.json;train")
