@@ -5,6 +5,7 @@ import logging
 import torch
 import sys
 from csr_mhqa.argument_parser import default_train_parser, complete_default_train_parser, json_to_argv
+from lightningmodel.lightningHGN import lightningHGN
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message)s',
                     datefmt='%m/%d/%Y %H:%M:%S',
@@ -32,9 +33,12 @@ def set_args(cmd_argv):
     args_dict = vars(args)
     for a in args_dict:
         logger.info('%-28s  %s' % (a, args_dict[a]))
+    return args
 
 def main(args):
-
+    pl.seed_everything(args.seed)
+    #########################################################################
+    hgn_model = lightningHGN(args=args)
     return
 
 if __name__ == '__main__':
