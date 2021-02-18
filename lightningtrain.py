@@ -40,7 +40,8 @@ def main(args):
     #########################################################################
     model = lightningHGN(args=args)
     model.prepare_data()
-    model.setup()
+
+    # model.setup()
     return
 
 if __name__ == '__main__':
