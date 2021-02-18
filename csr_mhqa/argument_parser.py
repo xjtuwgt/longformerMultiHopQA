@@ -150,7 +150,7 @@ def default_train_parser():
                         help="For distributed training: local_rank")
 
     ##################################
-    parser.add_argument('--gpus', default=4, type=int)
+    parser.add_argument('--gpus', default=1, type=int)
     parser.add_argument('--accelerator', default='ddp', type=str)
     parser.add_argument('--val_check_interval', default=0.5, type=float)
     parser.add_argument('--precision', default=32, type=int) ## 16, 32
