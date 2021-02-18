@@ -47,7 +47,7 @@ class lightningHGN(pl.LightningModule):
         self.dev_feature_dict = helper.dev_feature_dict
         self.dev_data = helper.dev_loader
 
-    def setup(self, stage: str):
+    def setup(self, stage: str = 'fit'):
         if stage == 'fit':
             # Get dataloader by calling it - train_dataloader() is called after setup() by default
             train_loader = self.train_dataloader()
