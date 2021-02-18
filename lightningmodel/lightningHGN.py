@@ -41,7 +41,7 @@ class lightningHGN(pl.LightningModule):
             self.model.load_state_dict(torch.load(model_path))
 
     def prepare_data(self):
-        self.helper = DataHelper(gz=True, config=self.config)
+        self.helper = DataHelper(gz=True, config=self.args)
         self.train_data = self.helper.train_loader
         self.dev_example_dict = self.helper.dev_example_dict
         self.dev_feature_dict = self.helper.dev_feature_dict
