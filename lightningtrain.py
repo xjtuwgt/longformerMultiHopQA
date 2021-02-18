@@ -39,8 +39,7 @@ def main(args):
     pl.seed_everything(args.seed)
     #########################################################################
     model = lightningHGN(args=args)
-    model.prepare_data()
-
+    # model.prepare_data()
     # model.setup()
     return
 
