@@ -43,10 +43,10 @@ def trainer_builder(args):
         gpu_list_str = args.gpu_list
         gpu_ids = [int(x) for x in gpu_list_str.split(',')]
         trainer = pl.Trainer(logger=tb_logger,
-                             gradient_clip_val=args.grad_clip_value,
+                             gradient_clip_val=args.max_grad_norm,
                              gpus=gpu_ids,
                              val_check_interval=args.val_check_interval,
-                             accumulate_grad_batches=args.accumulate_grad_batches,
+                             accumulate_grad_batches=args.gradient_accumulation_steps,
                              callbacks=[checkpoint_callback],
                              accelerator=args.accelerator,
                              precision=args.precision,
