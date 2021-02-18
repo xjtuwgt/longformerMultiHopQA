@@ -28,6 +28,7 @@ class lightningHGN(pl.LightningModule):
             model_path = None
             self.cached_config = None
 
+        print(encoder_path, model_path)
         _, _, tokenizer_class = MODEL_CLASSES[self.args.model_type]
         self.tokenizer = tokenizer_class.from_pretrained(self.args.encoder_name_or_path,
                                                     do_lower_case=args.do_lower_case)
@@ -39,6 +40,7 @@ class lightningHGN(pl.LightningModule):
             self.encoder.load_state_dict(torch.load(encoder_path))
         if model_path is not None:
             self.model.load_state_dict(torch.load(model_path))
+        print('model loading completed')
 
     def prepare_data(self):
         helper = DataHelper(gz=True, config=self.args)
