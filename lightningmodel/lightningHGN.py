@@ -101,7 +101,8 @@ class lightningHGN(pl.LightningModule):
                         'step': batch_idx + 1}
         #######################################################################
         type_prob = F.softmax(q_type, dim=1).data.cpu().numpy()
-        answer_dict_, answer_type_dict_, answer_type_prob_dict_ = convert_to_tokens(self.example_dict, self.feature_dict,
+        answer_dict_, answer_type_dict_, answer_type_prob_dict_ = convert_to_tokens(self.dev_example_dict,
+                                                                                    self.dev_feature_dict,
                                                                                     batch['ids'],
                                                                                     yp1.data.cpu().numpy().tolist(),
                                                                                     yp2.data.cpu().numpy().tolist(),
@@ -140,11 +141,11 @@ class lightningHGN(pl.LightningModule):
                 cur_id = batch_ids[i]
 
                 for j in range(predict_support_np.shape[1]):
-                    if j >= len(self.example_dict[cur_id].sent_names):
+                    if j >= len(self.dev_example_dict[cur_id].sent_names):
                         break
                     for thresh_i in range(N_thresh):
                         if predict_support_np[i, j] > thresholds[thresh_i]:
-                            cur_sp_pred[thresh_i].append(self.example_dict[cur_id].sent_names[j])
+                            cur_sp_pred[thresh_i].append(self.dev_example_dict[cur_id].sent_names[j])
 
                 for thresh_i in range(N_thresh):
                     if cur_id not in total_sp_dict[thresh_i]:
