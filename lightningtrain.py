@@ -52,14 +52,14 @@ def trainer_builder(args):
                              precision=args.precision,
                              plugins=args.plugins,
                              log_every_n_steps=args.logging_steps,
-                             max_epochs=args.num_train_epochs)
+                             max_epochs=int(args.num_train_epochs))
     else:
         trainer = pl.Trainer(logger=tb_logger,
                              gradient_clip_val=args.max_grad_norm,
                              val_check_interval=args.val_check_interval,
                              accumulate_grad_batches=args.gradient_accumulation_steps,
                              log_every_n_steps=args.logging_steps,
-                             max_epochs=args.num_train_epochs)
+                             max_epochs=int(args.num_train_epochs))
     return trainer
 
 
