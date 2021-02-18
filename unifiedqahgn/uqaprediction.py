@@ -14,7 +14,7 @@ from longformerscripts.longformerIREvaluation import recall_computation
 
 from model_envs import MODEL_CLASSES
 from jd_mhqa.jd_data_processing import Example, InputFeatures, get_cached_filename
-from UnifiedQAExample.UnifiedQAModel import unified_qa_prediction, unifiedqa_model_loader
+from unifiedqahgn.UnifiedQAModel import unified_qa_prediction, unifiedqa_model_loader
 from utils.gpu_utils import gpu_setting
 from eval.hotpot_evaluate_v1 import update_answer
 

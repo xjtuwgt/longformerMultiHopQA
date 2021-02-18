@@ -32,7 +32,7 @@ preprocess() {
         [[ -d $OUTPUT_FEAT ]] || mkdir -p $OUTPUT_FEAT
 
         echo "Unified QA"
-        python UnifiedQAExample/uqaprediction.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --pred_dir $PRED_OUTPUT --output_dir $OUTPUT_FEAT --model_type roberta --model_name_or_path roberta-large --unified_qa_model_name_or_path $UNIFIEDQA_ROOT/unifiedqa-t5-11b --gpus 1
+        python unifiedqahgn/uqaprediction.py --raw_data $INPUT_FILE --input_dir $OUTPUT_FEAT --pred_dir $PRED_OUTPUT --output_dir $OUTPUT_FEAT --model_type roberta --model_name_or_path roberta-large --unified_qa_model_name_or_path $UNIFIEDQA_ROOT/unifiedqa-t5-11b --gpus 1
     done
 
 }

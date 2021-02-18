@@ -16,7 +16,7 @@ def preprocess(data_file_name, rel2id, max_length = 512, is_training = True, suf
     example_triple_dict = {}
     relation_count_dict = {}
     for example_id, example in tqdm(enumerate(data)):
-        # print(example)
+        print(example)
         sent_nums.append(len(example['sents']))
         trip_nums.append(len(example['labels']))
         for exam_label in example['labels']:
@@ -33,7 +33,7 @@ def preprocess(data_file_name, rel2id, max_length = 512, is_training = True, suf
                 example_triple_dict[exam_trip] = example_triple_dict[exam_trip] + 1
         total_word_num = sum([len(sent) for sent in example['sents']])
         word_nums.append(total_word_num)
-        # break
+        break
     sent_num_array = np.array(sent_nums)
     trip_num_array = np.array(trip_nums)
     evid_num_array = np.array(evidence_nums)
@@ -68,7 +68,33 @@ def docred2hotpotqa(data_file_name, rel2id, rel_infor, max_length = 512, is_trai
 
     return
 
-# def hotpotqa_question(hotpot_file_name):
+def normalize_question(question: str) -> str:
+    question = question
+    if question[-1] == '?':
+        question = question[:-1]
+    question = question.lower()
+    return question
+
+def hotpotqa_question(hotpot_file_name):
+    with open(hotpot_file_name, 'r', encoding='utf-8') as reader:
+        hotpot_qa_data = json.load(reader)
+    print(len(hotpot_qa_data))
+    no_yes_no_count = 0
+    wh_question_count = 0
+    for example in enumerate(hotpot_qa_data):
+        question = example[1]['question']
+        question = normalize_question(question)
+        answer = example[1]['answer']
+        if answer not in ['yes', 'no']:
+            no_yes_no_count = no_yes_no_count + 1
+            question_tokens = set(question.lower().split())
+            wh_key_words = set(['which', 'what', 'where', 'who', 'when'])
+            if len(wh_key_words.intersection(question_tokens)) > 1:
+                wh_question_count = wh_question_count + 1
+                print(question)
+            # else:
+            #     print(question)
+    print(wh_question_count * 1.0 / no_yes_no_count, no_yes_no_count, wh_question_count)
 
 
 if __name__ == '__main__':
@@ -104,9 +130,11 @@ if __name__ == '__main__':
     # print(char2id)
     word2id = json.load(open(os.path.join(args.meta_path, 'word2id.json'), "r"))
     # print(len(word2id))
+    hotpotqa_file_name = os.path.join(args.hotpot_path, 'hotpot_train_v1.1.json')
+    # hotpotqa_question(hotpotqa_file_name)
 
     ###+++++++++++++++++++++++++++++++++++++
-    # preprocess(data_file_name=train_annotated_file_name, rel2id=rel2id, is_training=True)
+    preprocess(data_file_name=train_annotated_file_name, rel2id=rel2id, is_training=True)
 
     # preprocess(data_file_name=dev_file_name, rel2id=rel2id, is_training=True)
 
