@@ -30,15 +30,14 @@ def gpu_id_setting(args):
 def trainer_builder(args):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     logging.info("PyTorch Lighting Trainer constructing...")
-    log_dir = os.path.join(args.log_path, args.log_name)
-    tb_logger = pl_loggers.TensorBoardLogger(save_dir=log_dir, name=args.log_name)
+    tb_logger = pl_loggers.TensorBoardLogger(save_dir=args.exp_name, name='hgn_tb')
     ####################################################################################################################
     check_point_dir = args.exp_name
     checkpoint_callback = ModelCheckpoint(monitor='valid_loss',
                                           mode='min',
                                           save_top_k=-1,
                                           dirpath=check_point_dir,
-                                          filename='GraphIRRetrain_LR_doc_hotpotQA-{epoch:02d}-{valid_loss:.4f}')
+                                          filename='HGN_hotpotQA-{epoch:02d}-{valid_loss:.4f}')
     ####################################################################################################################
     ####################################################################################################################
     if args.gpus > 0:
@@ -98,11 +97,6 @@ def main(args):
     logging.info('Model Parameter Configuration:')
     for name, param in model.named_parameters():
         logging.info('Parameter {}: {}, require_grad = {}'.format(name, str(param.size()), str(param.requires_grad)))
-    logging.info('*' * 75)
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    logging.info("Model hype-parameter information...")
-    for key, value in vars(args).items():
-        logging.info('Hype-parameter\t{} = {}'.format(key, value))
     logging.info('*' * 75)
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     return
