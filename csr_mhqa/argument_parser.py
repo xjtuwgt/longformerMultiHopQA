@@ -149,6 +149,14 @@ def default_train_parser():
     parser.add_argument("--local_rank", type=int, default=-1,
                         help="For distributed training: local_rank")
 
+    ##################################
+    parser.add_argument('--gpus', default='ddp', type=str)
+    parser.add_argument('--accelerator', default='ddp', type=str)
+    parser.add_argument('--precision', default=32, type=int) ## 16, 32
+    parser.add_argument('--plugins', default='ddp_shared', type=str) ## save memory
+    parser.add_argument("--gpu_list", default=None, type=str, help="GPU id list")
+    ##################################
+
     # learning and log
     parser.add_argument('--seed', type=int, default=42,
                         help="random seed for initialization")
@@ -203,5 +211,6 @@ def default_train_parser():
     parser.add_argument("--sent_lambda", type=float, default=15)
     parser.add_argument("--ent_lambda", type=float, default=1)
     parser.add_argument("--sp_threshold", type=float, default=0.5)
+
 
     return parser
