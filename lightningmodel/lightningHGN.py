@@ -35,12 +35,13 @@ class lightningHGN(pl.LightningModule):
         # Set Encoder and Model
         self.encoder, _ = load_encoder_model(self.args.encoder_name_or_path, self.args.model_type)
         self.model = HierarchicalGraphNetwork(config=self.args)
-
+        print('*' * 75)
+        print('*' * 75)
         if encoder_path is not None:
             self.encoder.load_state_dict(torch.load(encoder_path))
         if model_path is not None:
             self.model.load_state_dict(torch.load(model_path))
-        print('model loading completed')
+
 
     def prepare_data(self):
         helper = DataHelper(gz=True, config=self.args)
