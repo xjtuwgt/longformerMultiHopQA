@@ -93,7 +93,6 @@ class lightningHGN(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         start, end, q_type, paras, sents, ents, yp1, yp2 = self.forward(batch=batch)
         loss_list = compute_loss(self.args, batch, start, end, paras, sents, ents, q_type)
-        del batch
         loss, loss_span, loss_type, loss_sup, loss_ent, loss_para = loss_list
         dict_for_log = {'span_loss': loss_span, 'type_loss': loss_type,
                                  'sent_loss': loss_sup, 'ent_loss': loss_ent,
@@ -110,6 +109,8 @@ class lightningHGN(pl.LightningModule):
         predict_support_np = torch.sigmoid(sents[:, :, 1]).data.cpu().numpy()
         valid_dict = {'answer': answer_dict_, 'ans_type': answer_type_dict_, 'ids': batch['ids'],
                       'ans_type_pro': answer_type_prob_dict_, 'supp_np': predict_support_np}
+        #######################################################################
+        del batch
         #######################################################################
         output = {'valid_loss': loss, 'log': dict_for_log, 'valid_dict_output': valid_dict}
         return output
