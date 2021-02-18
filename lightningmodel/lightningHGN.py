@@ -47,6 +47,18 @@ class lightningHGN(pl.LightningModule):
         self.dev_feature_dict = self.helper.dev_feature_dict
         self.dev_data = self.helper.dev_loader
 
+    def setup(self, stage: str):
+        if stage == 'fit':
+            # Get dataloader by calling it - train_dataloader() is called after setup() by default
+            train_loader = self.train_dataloader()
+            # Calculate total steps
+            if self.args.max_steps > 0:
+                self.total_steps = self.args.max_steps
+                self.args.num_train_epochs = self.args.max_steps // (
+                            len(train_loader) // self.args.gradient_accumulation_steps) + 1
+            else:
+                self.total_steps = len(train_loader) // self.args.gradient_accumulation_steps * self.args.num_train_epochs
+
     def train_dataloader(self):
         return self.train_data
 
