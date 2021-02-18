@@ -25,6 +25,7 @@ def gpu_id_setting(args):
                 gpu_list_str = ','.join([str(free_gpu_ids[i]) for i in range(args.gpus)])
             args.gpu_list = gpu_list_str
             logging.info('gpu list = {}'.format(gpu_list_str))
+    return args
 
 def trainer_builder(args):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
