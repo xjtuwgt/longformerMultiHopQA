@@ -158,8 +158,8 @@ class lightningHGN(pl.LightningModule):
                     shutil.move(tmp_file, pred_file)
             return best_metrics, best_threshold
 
-        output_pred_file = os.path.join(self.args.exp_name, f'pred.epoch_{self.current_epoch + 1}.json')
-        output_eval_file = os.path.join(self.args.exp_name, f'eval.epoch_{self.current_epoch + 1}.txt')
+        output_pred_file = os.path.join(self.args.exp_name, f'pred.epoch_{self.current_epoch + 1}.gpu_{self.trainer.root_gpu}.json')
+        output_eval_file = os.path.join(self.args.exp_name, f'eval.epoch_{self.current_epoch + 1}.gpu_{self.trainer.root_gpu}.txt')
         best_metrics, best_threshold = choose_best_threshold(answer_dict, output_pred_file)
         json.dump(best_metrics, open(output_eval_file, 'w'))
         return best_metrics, best_threshold
