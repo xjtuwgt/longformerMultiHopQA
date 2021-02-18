@@ -38,7 +38,9 @@ def set_args(cmd_argv):
 def main(args):
     pl.seed_everything(args.seed)
     #########################################################################
-    hgn_model = lightningHGN(args=args)
+    model = lightningHGN(args=args)
+    model.prepare_data()
+    model.setup()
     return
 
 if __name__ == '__main__':
@@ -47,3 +49,4 @@ if __name__ == '__main__':
     ####################################################################################################################
     logger.info("IN CMD MODE")
     args = set_args(cmd_argv=sys.argv[1:])
+    main(args=args)
