@@ -58,6 +58,7 @@ class lightningHGN(pl.LightningModule):
                             len(train_loader) // self.args.gradient_accumulation_steps) + 1
             else:
                 self.total_steps = len(train_loader) // self.args.gradient_accumulation_steps * self.args.num_train_epochs
+            print('total steps = {}'.format(self.total_steps))
 
     def train_dataloader(self):
         return self.train_data
