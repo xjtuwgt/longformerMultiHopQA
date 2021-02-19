@@ -31,14 +31,14 @@ def trainer_builder(args):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     logging.info("PyTorch Lighting Trainer constructing...")
     tb_logger = pl_loggers.TensorBoardLogger(save_dir=args.exp_name)
-    ####################################################################################################################
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     check_point_dir = args.exp_name
     checkpoint_callback = ModelCheckpoint(monitor='valid_loss',
                                           mode='min',
                                           save_top_k=-1,
                                           dirpath=check_point_dir,
                                           filename='HGN_hotpotQA-{epoch:02d}-{valid_loss:.4f}')
-    ####################################################################################################################
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     if args.gpus > 0:
         gpu_list_str = args.gpu_list
         gpu_ids = [int(x) for x in gpu_list_str.split(',')]
@@ -88,7 +88,7 @@ def set_args(cmd_argv):
 
 def main(args):
     pl.seed_everything(args.seed)
-    #########################################################################
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     model = lightningHGN(args=args)
     model.prepare_data()
     model.setup()
