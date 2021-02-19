@@ -3,7 +3,6 @@ import os
 from os.path import join
 import numpy as np
 import json
-from model_envs import MODEL_CLASSES
 from csr_mhqa.utils import load_encoder_model, compute_loss, convert_to_tokens
 from models.HGN import HierarchicalGraphNetwork
 import pytorch_lightning as pl
@@ -15,6 +14,17 @@ from transformers import AdamW, get_linear_schedule_with_warmup
 from csr_mhqa.data_processing import DataHelper
 from jd_mhqa.jdutils import log_metrics
 import logging
+
+from transformers import T5ForConditionalGeneration, AutoTokenizer, T5Config
+from hgntransformers import (BertConfig, BertTokenizer, BertModel,
+                             RobertaConfig, RobertaTokenizer, RobertaModel,
+                             AlbertConfig, AlbertTokenizer, AlbertModel)
+MODEL_CLASSES = {
+    'bert': (BertConfig, BertModel, BertTokenizer),
+    'roberta': (RobertaConfig, RobertaModel, RobertaTokenizer),
+    'albert': (AlbertConfig, AlbertModel, AlbertTokenizer),
+    'unifiedqa': (T5Config, T5ForConditionalGeneration, AutoTokenizer)
+}
 
 class lightningHGN(pl.LightningModule):
     def __init__(self, args: Namespace):
