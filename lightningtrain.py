@@ -30,7 +30,7 @@ def gpu_id_setting(args):
 def trainer_builder(args):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     logging.info("PyTorch Lighting Trainer constructing...")
-    tb_logger = pl_loggers.TensorBoardLogger(save_dir=args.exp_name, name='hgn_tb')
+    tb_logger = pl_loggers.TensorBoardLogger(save_dir=args.exp_name)
     ####################################################################################################################
     check_point_dir = args.exp_name
     checkpoint_callback = ModelCheckpoint(monitor='valid_loss',
