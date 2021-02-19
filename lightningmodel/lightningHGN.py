@@ -13,6 +13,8 @@ import shutil
 from argparse import Namespace
 from transformers import AdamW, get_linear_schedule_with_warmup
 from csr_mhqa.data_processing import DataHelper
+from jd_mhqa.jdutils import log_metrics
+import logging
 
 class lightningHGN(pl.LightningModule):
     def __init__(self, args: Namespace):
@@ -126,6 +128,7 @@ class lightningHGN(pl.LightningModule):
         thresholds = np.arange(0.1, 1.0, 0.025)
         N_thresh = len(thresholds)
         total_sp_dict = [{} for _ in range(N_thresh)]
+        total_record_num = 0
         #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         valid_dict_outputs = [x['valid_dict_output'] for x in validation_step_outputs]
         for batch_idx, valid_dict in enumerate(valid_dict_outputs):
@@ -136,7 +139,9 @@ class lightningHGN(pl.LightningModule):
 
             predict_support_np = valid_dict['supp_np']
             batch_ids = valid_dict['ids']
-
+            ###
+            total_record_num = total_record_num + predict_support_np.shape[0]
+            ###
             for i in range(predict_support_np.shape[0]):
                 cur_sp_pred = [[] for _ in range(N_thresh)]
                 cur_id = batch_ids[i]
@@ -176,6 +181,9 @@ class lightningHGN(pl.LightningModule):
         output_pred_file = os.path.join(self.args.exp_name, f'pred.epoch_{self.current_epoch + 1}.gpu_{self.trainer.root_gpu}.json')
         output_eval_file = os.path.join(self.args.exp_name, f'eval.epoch_{self.current_epoch + 1}.gpu_{self.trainer.root_gpu}.txt')
         best_metrics, best_threshold = choose_best_threshold(answer_dict, output_pred_file)
+        logging.info('Leader board evaluation completed over {} records with threshold = {}'.format(total_record_num, best_threshold))
+        log_metrics(mode='Evaluation epoch {} gpu {}'.format(self.current_epoch, self.trainer.root_gpu), metrics=best_metrics)
+        logging.info('*' * 75)
         json.dump(best_metrics, open(output_eval_file, 'w'))
         return best_metrics, best_threshold
 

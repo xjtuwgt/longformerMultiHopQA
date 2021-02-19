@@ -16,6 +16,14 @@ from csr_mhqa.data_processing import IGNORE_INDEX
 from csr_mhqa.utils import convert_to_tokens
 from jd_mhqa.lossUtils import ATPLoss, ATPFLoss
 from jd_mhqa.lossUtils import adaptive_threshold_prediction
+import logging
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+def log_metrics(mode, metrics):
+    '''
+    Print the evaluation logs
+    '''
+    for metric in metrics:
+        logging.info('{} {}: {:.4f}'.format(mode, metric, metrics[metric]))
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def supp_sent_prediction(predict_support_np_ith, example_dict, batch_ids_ith, thresholds):
     N_thresh = len(thresholds)
