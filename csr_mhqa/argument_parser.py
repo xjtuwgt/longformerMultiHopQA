@@ -11,7 +11,7 @@ import numpy as np
 from os.path import join
 
 from envs import DATASET_FOLDER, MODEL_FOLDER, OUTPUT_FOLDER
-from model_envs import ALL_MODELS, MODEL_CLASSES
+# from model_envs import ALL_MODELS, MODEL_CLASSES
 
 logger = logging.getLogger(__name__)
 
@@ -108,14 +108,16 @@ def default_train_parser():
                         # default='bert',
                         default='roberta',
                         type=str,
-                        help="Model type selected in the list: " + ", ".join(MODEL_CLASSES.keys()))
+                        # help="Model type selected in the list: " + ", ".join(MODEL_CLASSES.keys()))
+                        help="Model type selected in the list")
     parser.add_argument("--max_seq_length", default=512, type=int)
     parser.add_argument("--max_query_length", default=50, type=int)
     parser.add_argument("--encoder_name_or_path",
                         # default='bert-base-uncased',
                         default='roberta-large',
                         type=str,
-                        help="Path to pre-trained model or shortcut name selected in the list: " + ", ".join(ALL_MODELS))
+                        # help="Path to pre-trained model or shortcut name selected in the list: " + ", ".join(ALL_MODELS))
+                        help="Path to pre-trained model or shortcut name selected")
     parser.add_argument("--do_lower_case",
                         action='store_true',
                         help="Set this flag if you are using an uncased model.")
