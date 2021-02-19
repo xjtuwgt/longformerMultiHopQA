@@ -51,7 +51,6 @@ class lightningHGN(pl.LightningModule):
         if model_path is not None:
             self.model.load_state_dict(torch.load(model_path))
 
-
     def prepare_data(self):
         helper = DataHelper(gz=True, config=self.args)
         self.train_data = helper.train_loader
