@@ -12,7 +12,7 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message
                     datefmt='%m/%d/%Y %H:%M:%S',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def gpu_id_setting(args):
     if torch.cuda.is_available():
         if args.gpus > 0:
@@ -26,7 +26,7 @@ def gpu_id_setting(args):
             args.gpu_list = gpu_list_str
             logging.info('gpu list = {}'.format(gpu_list_str))
     return args
-
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def trainer_builder(args):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     logging.info("PyTorch Lighting Trainer constructing...")
@@ -61,8 +61,7 @@ def trainer_builder(args):
                              log_every_n_steps=args.logging_steps,
                              max_epochs=int(args.num_train_epochs))
     return trainer
-
-
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 def set_args(cmd_argv):
     parser = default_train_parser()
     # args_config_provided = parser.parse_args(sys.argv[1:])
